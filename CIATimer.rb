@@ -1,6 +1,6 @@
 module Sidtool
   class CIATimer
-  START_FLAG = 0x01       # Timer start/stop
+    START_FLAG = 0x01       # Timer start/stop
     ONESHOT_FLAG = 0x08     # One-shot mode
     PHASE_FLAG = 0x10       # Timer counts system clocks (PHI2) or underflows from other timer
     TOGGLE_FLAG = 0x40      # Timer output toggles between high and low on underflow
@@ -18,12 +18,10 @@ module Sidtool
       @latch = 0xFFFF
       @control_register = 0
       @underflow = false
-      # Additional initialization as needed
     end
 
     # Update the timer, typically called each system clock cycle
     def update
-      # Update logic as before, then check for underflow
       if running?
         decrement_timer
         check_underflow
@@ -43,8 +41,7 @@ module Sidtool
       @timer = @latch
     end
 
- def decrement_timer
-      # Decrement the timer based on the phase flag
+    def decrement_timer
       if (@control_register & PHASE_FLAG) != 0
         @timer -= 1 if @timer > 0
       else
@@ -53,15 +50,13 @@ module Sidtool
     end
 
     # Handle the timer underflow, such as triggering an interrupt
-   def handle_underflow
+    def handle_underflow
       @underflow = true
       toggle_output if (@control_register & TOGGLE_FLAG) != 0
       trigger_interrupt if (@control_register & INTERRUPT_FLAG) != 0
-      # Reload or stop timer based on one-shot flag
-      reload_timer if should_reload?
     end
 
-  def toggle_output
+    def toggle_output
       # Logic to toggle timer output
     end
 
@@ -75,7 +70,7 @@ module Sidtool
     end
 
     # Determine if the timer should reload after underflow
-   def should_reload?
+    def should_reload?
       (@control_register & ONESHOT_FLAG) == 0 || !@underflow
     end
 
@@ -92,9 +87,9 @@ module Sidtool
     # Set the control register
     def set_control_register(value)
       @control_register = value
-      # Additional logic for control register
     end
 
     # Additional methods as needed for timer functionality
+    # ...
   end
 end
