@@ -1,5 +1,9 @@
 module Sidtool
 class Sid6581
+  WAVEFORM_TRIANGLE = 0x01
+  WAVEFORM_SAWTOOTH = 0x02
+  WAVEFORM_PULSE = 0x04
+  WAVEFORM_NOISE = 0x08
   # Registers for each voice
   FREQ_LO = [0xD400, 0xD407, 0xD40E]
   FREQ_HI = [0xD401, 0xD408, 0xD40F]
