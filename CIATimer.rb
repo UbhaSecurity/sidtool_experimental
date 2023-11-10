@@ -1,9 +1,10 @@
 module Sidtool
   class CIATimer
-    # Constants for control register flags
-    START_FLAG = 0x01
-    ONESHOT_FLAG = 0x08
-    # Other relevant flags and constants
+  START_FLAG = 0x01       # Timer start/stop
+    ONESHOT_FLAG = 0x08     # One-shot mode
+    PHASE_FLAG = 0x10       # Timer counts system clocks (PHI2) or underflows from other timer
+    TOGGLE_FLAG = 0x40      # Timer output toggles between high and low on underflow
+    INTERRUPT_FLAG = 0x80   # Enable interrupt on timer underflow
 
     attr_accessor :timer, :latch, :control_register, :underflow
 
@@ -22,11 +23,11 @@ module Sidtool
 
     # Update the timer, typically called each system clock cycle
     def update
+      # Update logic as before, then check for underflow
       if running?
-        @timer -= 1
+        decrement_timer
         check_underflow
       end
-      # Additional logic for timer control
     end
 
     # Check for timer underflow and handle accordingly
@@ -42,10 +43,30 @@ module Sidtool
       @timer = @latch
     end
 
+ def decrement_timer
+      # Decrement the timer based on the phase flag
+      if (@control_register & PHASE_FLAG) != 0
+        @timer -= 1 if @timer > 0
+      else
+        # Logic to decrement based on external events or other timer's underflow
+      end
+    end
+
     # Handle the timer underflow, such as triggering an interrupt
-    def handle_underflow
+   def handle_underflow
       @underflow = true
-      # Logic to handle underflow, e.g., triggering an interrupt
+      toggle_output if (@control_register & TOGGLE_FLAG) != 0
+      trigger_interrupt if (@control_register & INTERRUPT_FLAG) != 0
+      # Reload or stop timer based on one-shot flag
+      reload_timer if should_reload?
+    end
+
+  def toggle_output
+      # Logic to toggle timer output
+    end
+
+    def trigger_interrupt
+      # Logic to trigger an interrupt
     end
 
     # Determine if the timer is running
@@ -54,8 +75,8 @@ module Sidtool
     end
 
     # Determine if the timer should reload after underflow
-    def should_reload?
-      !(@control_register & ONESHOT_FLAG != 0 && @underflow)
+   def should_reload?
+      (@control_register & ONESHOT_FLAG) == 0 || !@underflow
     end
 
     # Set the low byte of the timer latch
