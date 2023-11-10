@@ -67,6 +67,20 @@ class Sid6581
   # Additional methods for SID functionality
   # ...
 end
+
+  def generate_sound
+    @voices.each do |voice|
+      # Generate waveform based on current voice settings
+      waveform_output = voice.generate_waveform
+
+      # Apply ADSR envelope
+      adsr_output = voice.process_adsr
+
+      # Combine waveform and ADSR envelope, apply to audio buffer
+      # ...
+    end
+  end
+
   def process_audio(sample_rate)
       @voices.each do |voice|
         phase = calculate_phase(voice, sample_rate)
