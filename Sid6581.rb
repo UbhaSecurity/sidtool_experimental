@@ -74,8 +74,85 @@ class Voice
     @sustain = 0
     @release = 0
   end
+ def generate_waveform
+    case control_register & 0b1111 # Assuming the last 4 bits determine the waveform
+    when 0b0001
+      generate_triangle_wave
+    when 0b0010
+      generate_sawtooth_wave
+    # Add other waveforms...
+    else
+      0 # Silence if no waveform is selected
+    end
+  end
 
-  # Implement methods to handle voice-specific functionalities
-  # ...
+  private
+
+def generate_triangle_wave(frequency, sample_rate)
+  increment = frequency * 2 / sample_rate
+  value = 0
+  direction = 1
+
+  generate_sample do
+    value += increment * direction
+    direction *= -1 if value >= 1 || value <= -1
+    value
+  end
+end
+
+def generate_sawtooth_wave(frequency, sample_rate)
+  increment = frequency / sample_rate
+  value = -1
+
+  generate_sample do
+    value += increment
+    value = -1 if value >= 1
+    value
+  end
+end
+
+def generate_pulse_wave(frequency, sample_rate, pulse_width)
+  increment = frequency / sample_rate
+  phase = 0
+  threshold = pulse_width / 4096.0 # Normalize 12-bit pulse width
+
+  generate_sample do
+    phase = (phase + increment) % 1
+    phase < threshold ? 1 : -1
+  end
+end
+
+def generate_noise_wave(sample_rate)
+  lfsr = 0xACE1 # Any non-zero start state
+  generate_sample do
+    bit = ((lfsr >> 0) ^ (lfsr >> 2) ^ (lfsr >> 3) ^ (lfsr >> 5)) & 1
+    lfsr = (lfsr >> 1) | (bit << 15)
+    lfsr & 1 == 1 ? 0.5 : -0.5
+  end
+end
+
+def process_adsr(voice, sample_rate)
+  case voice.adsr_phase
+  when :attack
+    # Increment amplitude linearly until peak
+    voice.amplitude += (1.0 / (voice.attack * sample_rate))
+    voice.adsr_phase = :decay if voice.amplitude >= 1
+  when :decay
+    # Decrement amplitude until sustain level
+    target = voice.sustain / 15.0
+    voice.amplitude -= (1.0 / (voice.decay * sample_rate))
+    voice.adsr_phase = :sustain if voice.amplitude <= target
+  when :sustain
+    # Maintain amplitude at sustain level
+    voice.amplitude = voice.sustain / 15.0
+  when :release
+    # Decrement amplitude until silent
+    voice.amplitude -= (1.0 / (voice.release * sample_rate))
+    voice.adsr_phase = :off if voice.amplitude <= 0
+  end
+end
+
+
+end
 end
 
