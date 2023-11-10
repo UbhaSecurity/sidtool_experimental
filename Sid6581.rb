@@ -22,7 +22,9 @@ class Sid6581
   def initialize
     # Initialize voices and global settings
     @voices = Array.new(3) { Voice.new }
-    # ... other initializations
+    @global_filter_cutoff = 0
+    @global_filter_resonance = 0
+    @global_volume = 0
   end
 
   def write_register(address, value)
@@ -61,9 +63,24 @@ class Sid6581
   # Additional methods for SID functionality
   # ...
 end
+  def process_audio(sample_rate)
+      @voices.each do |voice|
+        phase = calculate_phase(voice, sample_rate)
+        waveform_output = voice.generate_waveform(phase)
+        adsr_output = process_adsr(voice, sample_rate)
+        # Apply ADSR envelope to the waveform output
+        final_output = waveform_output * adsr_output
+        # Further processing like applying global filters can be done here
+      end
+
+    def calculate_phase(voice, sample_rate)
+      # Increment the phase according to the frequency
+      voice.phase = (voice.phase + (voice.frequency.to_f / sample_rate)) % 1.0
+      voice.phase
+    end
 
 class Voice
-  attr_accessor :frequency, :pulse_width, :control_register, :attack, :decay, :sustain, :release
+    attr_accessor :frequency, :pulse_width, :control_register, :attack, :decay, :sustain, :release, :phase
 
   def initialize
     @frequency = 0
@@ -73,6 +90,7 @@ class Voice
     @decay = 0
     @sustain = 0
     @release = 0
+    @phase = 0.0 # Initial phase for the oscillator
   end
 
 def generate_waveform(phase)
