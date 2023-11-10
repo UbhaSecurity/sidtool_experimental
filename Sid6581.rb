@@ -74,18 +74,21 @@ class Voice
     @sustain = 0
     @release = 0
   end
- def generate_waveform
-    case control_register & 0b1111 # Assuming the last 4 bits determine the waveform
-    when 0b0001
-      generate_triangle_wave
-    when 0b0010
-      generate_sawtooth_wave
-    # Add other waveforms...
+
+def generate_waveform(phase)
+    case control_register & 0b1111
+    when WAVEFORM_TRIANGLE
+      generate_triangle_wave(phase)
+    when WAVEFORM_SAWTOOTH
+      generate_sawtooth_wave(phase)
+    when WAVEFORM_PULSE
+      generate_pulse_wave(phase)
+    when WAVEFORM_NOISE
+      generate_noise_wave(phase)
     else
       0 # Silence if no waveform is selected
     end
   end
-
   private
 
 def generate_triangle_wave(frequency, sample_rate)
