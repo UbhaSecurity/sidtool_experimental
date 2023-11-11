@@ -1,4 +1,3 @@
-Copy code
 module Sidtool
   class Sid6581
     WAVEFORM_TRIANGLE = 0x01
