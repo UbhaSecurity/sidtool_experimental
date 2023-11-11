@@ -22,6 +22,26 @@ module Sidtool
   # Global state object
   STATE = State.new
 
+class SidWrapper
+    def initialize
+      @sid6581 = Sid6581.new
+      @ciaTimerA = CIATimer.new
+      @ciaTimerB = CIATimer.new
+    end
+
+    def poke(address, value)
+      case address
+      when 0xD400..0xD41C
+        @sid6581.write_register(address, value)
+      when CIA_TIMER_A_ADDRESSES
+        @ciaTimerA.write_register(address, value)
+      when CIA_TIMER_B_ADDRESSES
+        @ciaTimerB.write_register(address, value)
+      else
+        # Handle other addresses if necessary
+      end
+    end
+
   # Initialize the SID emulation components
   def self.initialize_sid_emulation
     # Initialize the CIA timers, SID chip, and any other components.
