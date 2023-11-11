@@ -8,16 +8,9 @@ module Sidtool
   require 'sidtool/voice'
   require 'sidtool/sid'
   require 'sidtool/state'
-  require 'sidtool/cia_timer'  # Assuming you've created this class
-  require 'sidtool/sid_6581'   # Assuming you've created this class
+  require 'sidtool/cia_timer'
+  require 'sidtool/sid_6581'
   require 'mos6510'
-  require_relative 'sidtool'
-
-# Instantiate the SID wrapper
-sid_wrapper = Sidtool::SidWrapper.new
-
-# Setup the Mos6510 CPU with the SID wrapper
-cpu = Mos6510::Cpu.new(sid: sid_wrapper)
 
   # PAL properties
   FRAMES_PER_SECOND = 50.0
@@ -30,48 +23,40 @@ cpu = Mos6510::Cpu.new(sid: sid_wrapper)
   # Global state object
   STATE = State.new
 
-class SidWrapper
+  class SidWrapper
     def initialize
       @sid6581 = Sid6581.new
-      @ciaTimerA = CIATimer.new
-      @ciaTimerB = CIATimer.new
+      @ciaTimerA = CIATimer.new(STATE)
+      @ciaTimerB = CIATimer.new(STATE)
     end
 
     def poke(address, value)
       case address
       when 0xD400..0xD41C
         @sid6581.write_register(address, value)
-      when CIA_TIMER_A_ADDRESSES
-        @ciaTimerA.write_register(address, value)
-      when CIA_TIMER_B_ADDRESSES
-        @ciaTimerB.write_register(address, value)
       else
         # Handle other addresses if necessary
       end
     end
 
-  # Initialize the SID emulation components
+    def emulate_cycle
+      @ciaTimerA.update
+      @ciaTimerB.update
+      @sid6581.generate_sound
+    end
+  end
+
   def self.initialize_sid_emulation
-    # Initialize the CIA timers, SID chip, and any other components.
-    # This is an example, adjust the initialization as needed.
-    @cia_timer_a = CIATimer.new
-    @cia_timer_b = CIATimer.new
-    @sid_chip = Sid6581.new(@cia_timer_a, @cia_timer_b)
-
-    # Set up connections between components, if necessary.
-    # For example, the SID chip might need to know about the CIA timers.
+    @sid_wrapper = SidWrapper.new
+    @cpu = Mos6510::Cpu.new(sid: @sid_wrapper)
   end
 
-  # Method to start the emulation, update SID chip, timers, etc.
   def self.emulate
-    # This method should contain the logic to run one cycle of emulation.
-    # This typically includes updating the CIA timers and SID chip.
-    @cia_timer_a.update
-    @cia_timer_b.update
-    @sid_chip.update
+    loop do
+      @sid_wrapper.emulate_cycle
+      # Additional logic for emulation loop
+    end
   end
-
-  # Additional methods and logic as required for the SID tool functionality.
 end
 
 # Initialization call for the SID emulation setup.
