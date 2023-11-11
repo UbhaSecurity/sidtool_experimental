@@ -1,66 +1,176 @@
 module Sidtool
   class Voice
-    attr_accessor :frequency, :pulse_width, :control_register
-    attr_accessor :attack, :decay, :sustain, :release
+    attr_writer :frequency_low, :frequency_high, :pulse_low, :pulse_high
+    attr_writer :control_register, :attack_decay, :sustain_release
+    attr_reader :synths
 
-    def initialize(sid6581, voice_number)
-      @sid6581 = sid6581
-      @voice_number = voice_number
-      @frequency = 0
-      @pulse_width = 0
+    def initialize
+      @frequency_low = @frequency_high = 0
+      @pulse_low = @pulse_high = 0
       @control_register = 0
-      @attack = 0
-      @decay = 0
-      @sustain = 0
-      @release = 0
-      @amplitude = 0.0
-      @phase = 0.0
+      @attack_decay = @sustain_release = 0
+      @current_synth = nil
+      @synths = []
+      @previous_midi_note = nil
     end
 
-    def set_frequency(low_byte, high_byte)
-      @frequency = (high_byte << 8) | low_byte
-      # Update SID register accordingly
-      @sid6581.write_register(Sid6581::FREQ_LO[@voice_number], low_byte)
-      @sid6581.write_register(Sid6581::FREQ_HI[@voice_number], high_byte)
+    def finish_frame
+      if gate
+        handle_gate_on
+      else
+        handle_gate_off
+      end
     end
 
-    def set_pulse_width(low_byte, high_byte)
-      @pulse_width = (high_byte << 8) | low_byte
-      # Update SID register accordingly
-      @sid6581.write_register(Sid6581::PW_LO[@voice_number], low_byte)
-      @sid6581.write_register(Sid6581::PW_HI[@voice_number], high_byte)
-    end
-
-    def set_control_register(value)
-      @control_register = value
-      # Update SID register accordingly
-      @sid6581.write_register(Sid6581::CR[@voice_number], value)
-    end
-
-    def set_adsr(attack_decay, sustain_release)
-      @attack, @decay = decode_adsr(attack_decay)
-      @sustain, @release = decode_adsr(sustain_release)
-      # Update SID register accordingly
-      @sid6581.write_register(Sid6581::AD[@voice_number], attack_decay)
-      @sid6581.write_register(Sid6581::SR[@voice_number], sustain_release)
-    end
-
-    def generate_waveform
-      # Generate waveform based on control_register settings and current phase
-      # ...
-    end
-
-    def process_adsr
-      # Process ADSR envelope based on current state and ADSR settings
-      # ...
+    def stop!
+      @current_synth&.stop!
+      @current_synth = nil
     end
 
     private
 
-    def decode_adsr(value)
-      attack = value >> 4
-      decay = value & 0x0F
-      [attack, decay]
+    def gate
+      @control_register & 1 == 1
+    end
+
+    def frequency
+      (@frequency_high << 8) + @frequency_low
+    end
+
+    def waveform
+      case @control_register & 0xF0
+      when 0x10 then :tri
+      when 0x20 then :saw
+      when 0x40 then :pulse
+      when 0x80 then :noise
+      else
+        STDERR.puts "Unknown waveform: #{@control_register}"
+        :noise
+      end
+    end
+
+    def attack
+      convert_attack(@attack_decay >> 4)
+    end
+
+    def decay
+      convert_decay_or_release(@attack_decay & 0xF)
+    end
+
+    def release
+      convert_decay_or_release(@sustain_release & 0xF)
+    end
+
+    def handle_gate_on
+      if @current_synth&.released?
+        @current_synth.stop!
+        @current_synth = nil
+      end
+
+      if frequency > 0
+        if !@current_synth
+          @current_synth = Synth.new(STATE.current_frame)
+          @synths << @current_synth
+          @previous_midi_note = nil
+        end
+        update_synth_properties
+      end
+    end
+
+    def handle_gate_off
+      @current_synth&.release!
+    end
+
+    def update_synth_properties
+      midi_note = frequency_to_midi(frequency)
+      if midi_note != @previous_midi_note
+        handle_midi_note_change(midi_note)
+        @previous_midi_note = midi_note
+      end
+
+      @current_synth.waveform = waveform
+      @current_synth.attack = attack
+      @current_synth.decay = decay
+      @current_synth.release = release
+    end
+
+    def handle_midi_note_change(midi_note)
+      if slide_detected?(@previous_midi_note, midi_note)
+        handle_slide(@previous_midi_note, midi_note)
+      else
+        @current_synth.frequency = midi_to_frequency(midi_note)
+      end
+    end
+
+    def slide_detected?(prev_midi_note, new_midi_note)
+      return false unless prev_midi_note
+      (new_midi_note - prev_midi_note).abs > SLIDE_THRESHOLD
+    end
+
+    def handle_slide(start_midi, end_midi)
+      num_frames = SLIDE_DURATION_FRAMES
+      midi_increment = (end_midi - start_midi) / num_frames.to_f
+      (1..num_frames).each do |i|
+        midi_note = start_midi + midi_increment * i
+        @current_synth.set_frequency_at_frame(STATE.current_frame + i, midi_to_frequency(midi_note.round))
+      end
+    end
+
+    def midi_to_frequency(midi_note)
+      440 * 2 ** ((midi_note - 69) / 12.0)
+    end
+
+    def frequency_to_midi(frequency)
+      midi_note = 69 + 12 * Math.log2(frequency / 440.0)
+      midi_note.round
+    end
+
+    def convert_attack(attack)
+      # Conversion based on SID 6581 specifications
+      # Implement SID's ADSR conversion for attack
+      case attack
+      when 0 then 0.002
+      when 1 then 0.008
+      when 2 then 0.016
+      when 3 then 0.024
+      when 4 then 0.038
+      when 5 then 0.056
+      when 6 then 0.068
+      when 7 then 0.08
+      when 8 then 0.1
+      when 9 then 0.25
+      when 10 then 0.5
+      when 11 then 0.8
+      when 12 then 1
+      when 13 then 3
+      when 14 then 5
+      when 15 then 8
+      else raise "Unknown value: #{attack}"
+      end
+    end
+
+    def convert_decay_or_release(decay_or_release)
+      # Conversion based on SID 6581 specifications
+      # Implement SID's ADSR conversion for decay and release
+      case decay_or_release
+      when 0 then 0.006
+      when 1 then 0.024
+      when 2 then 0.048
+      when 3 then 0.072
+      when 4 then 0.114
+      when 5 then 0.168
+      when 6 then 0.204
+      when 7 then 0.240
+      when 8 then 0.3
+      when 9 then 0.75
+      when 10 then 1.5
+      when 11 then 2.4
+      when 12 then 3
+      when 13 then 9
+      when 14 then 15
+      when 15 then 24
+      else raise "Unknown value: #{decay_or_release}"
+      end
     end
   end
 end
