@@ -10,6 +10,14 @@ module Sidtool
   require 'sidtool/state'
   require 'sidtool/cia_timer'  # Assuming you've created this class
   require 'sidtool/sid_6581'   # Assuming you've created this class
+  require 'mos6510'
+  require_relative 'sidtool'
+
+# Instantiate the SID wrapper
+sid_wrapper = Sidtool::SidWrapper.new
+
+# Setup the Mos6510 CPU with the SID wrapper
+cpu = Mos6510::Cpu.new(sid: sid_wrapper)
 
   # PAL properties
   FRAMES_PER_SECOND = 50.0
