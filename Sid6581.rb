@@ -52,8 +52,16 @@ module Sidtool
       when *SR
         voice_index = SR.index(address)
         @voices[voice_index].sustain_release = value
-      # Handle global registers
-      # ...
+      when FC_LO
+        @global_filter_cutoff = (@global_filter_cutoff & 0xFF00) | value
+      when FC_HI
+        @global_filter_cutoff = (@global_filter_cutoff & 0x00FF) | (value << 8)
+      when RES_FILT
+        @global_filter_resonance = value & 0xF0 # Upper 4 bits for resonance
+        # Additional handling for filter routing if necessary
+      when MODE_VOL
+        @global_volume = value & 0x0F # Lower 4 bits for volume
+        # Additional handling for mode bits if necessary
       end
     end
 
