@@ -169,8 +169,18 @@ module Sidtool
       file << [value & 255].pack('c')
     end
 
-    def map_waveform_to_channel(waveform)
-      # Mapping logic for waveform to MIDI channel
-    end
+ def map_waveform_to_channel(waveform)
+      case waveform
+      when :tri
+        0  # Example channel mapping for triangle waveform
+      when :saw
+        1  # Example channel mapping for sawtooth waveform
+      when :pulse
+        2  # Example channel mapping for pulse waveform
+      when :noise
+        3  # Example channel mapping for noise waveform
+      else
+        raise "Unknown waveform: #{waveform}"
+      end
   end
 end
