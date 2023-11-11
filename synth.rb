@@ -1,25 +1,29 @@
 module Sidtool
   class Synth
-    attr_reader :start_frame
-    attr_accessor :waveform, :attack, :decay
-    attr_reader :sustain_length, :controls
-    attr_accessor :release
+    attr_reader :start_frame, :controls
+    attr_accessor :waveform, :frequency, :pulse_width
+    attr_accessor :attack, :decay, :sustain, :release
 
     # Constants for slide detection and handling
-    SLIDE_THRESHOLD = 60 # Threshold for detecting slides
-    SLIDE_DURATION_FRAMES = 20 # Duration over which to spread the slide
+    SLIDE_THRESHOLD = 60
+    SLIDE_DURATION_FRAMES = 20
 
     def initialize(start_frame)
       @start_frame = start_frame
       @controls = []
       @frequency = nil
       @released_at = nil
+      @waveform = :triangle # Default waveform
+      @pulse_width = 0
+      @attack = 0
+      @decay = 0
+      @sustain = 0
+      @release = 0
     end
 
     def frequency=(frequency)
       if @frequency
         previous_midi, current_midi = sid_frequency_to_nearest_midi(@frequency), sid_frequency_to_nearest_midi(frequency)
-
         if slide_detected?(@frequency, frequency)
           handle_slide(previous_midi, current_midi)
         else
