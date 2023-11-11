@@ -4,7 +4,7 @@ class Sid6581
   WAVEFORM_SAWTOOTH = 0x02
   WAVEFORM_PULSE = 0x04
   WAVEFORM_NOISE = 0x08
-  # Registers for each voice
+
   FREQ_LO = [0xD400, 0xD407, 0xD40E]
   FREQ_HI = [0xD401, 0xD408, 0xD40F]
   PW_LO   = [0xD402, 0xD409, 0xD410]
@@ -13,7 +13,6 @@ class Sid6581
   AD      = [0xD405, 0xD40C, 0xD413]
   SR      = [0xD406, 0xD40D, 0xD414]
 
-  # Global registers
   FC_LO      = 0xD415
   FC_HI      = 0xD416
   RES_FILT   = 0xD417
@@ -24,7 +23,6 @@ class Sid6581
   ENV3       = 0xD41C
 
   def initialize
-    # Initialize voices and global settings
     @voices = Array.new(3) { Voice.new }
     @global_filter_cutoff = 0
     @global_filter_resonance = 0
@@ -56,46 +54,36 @@ class Sid6581
       voice_index = SR.index(address)
       @voices[voice_index].sustain = value >> 4
       @voices[voice_index].release = value & 0x0F
-    # Add handling for global registers
-    # ...
+    # Handle global registers
     end
   end
 
-  # Implement read_register if needed
-  # ...
-
-  # Additional methods for SID functionality
-  # ...
-end
-
   def generate_sound
     @voices.each do |voice|
-      # Generate waveform based on current voice settings
       waveform_output = voice.generate_waveform
-
-      # Apply ADSR envelope
       adsr_output = voice.process_adsr
-
       # Combine waveform and ADSR envelope, apply to audio buffer
-      # ...
     end
   end
 
   def process_audio(sample_rate)
-      @voices.each do |voice|
-        phase = calculate_phase(voice, sample_rate)
-        waveform_output = voice.generate_waveform(phase)
-        adsr_output = process_adsr(voice, sample_rate)
-        # Apply ADSR envelope to the waveform output
-        final_output = waveform_output * adsr_output
-        # Further processing like applying global filters can be done here
-      end
-
-    def calculate_phase(voice, sample_rate)
-      # Increment the phase according to the frequency
-      voice.phase = (voice.phase + (voice.frequency.to_f / sample_rate)) % 1.0
-      voice.phase
+    @voices.each do |voice|
+      phase = calculate_phase(voice, sample_rate)
+      waveform_output = voice.generate_waveform(phase)
+      adsr_output = process_adsr(voice, sample_rate)
+      final_output = waveform_output * adsr_output
+      # Further processing like applying global filters can be done here
     end
+  end
+
+  private
+
+  def calculate_phase(voice, sample_rate)
+    voice.phase = (voice.phase + (voice.frequency.to_f / sample_rate)) % 1.0
+    voice.phase
+  end
+end
+
 
 class Voice
     attr_accessor :frequency, :pulse_width, :control_register, :attack, :decay, :sustain, :release, :phase
