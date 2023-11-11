@@ -84,15 +84,32 @@ module Sidtool
 
     private
 
-    def decrement_on_external_event
-      # Logic for decrementing the timer based on external events
-      # This could be based on other timers' underflows or other external triggers
-    end
-
-    def external_event_occurred?
-      # Determine if an external event has occurred
-      # This could involve checking the state of other components or external triggers
+    # Logic to decrement the timer based on external events
+  def decrement_on_external_event
+    # In a real C64, this might be influenced by other hardware components.
+    # Here we provide a basic implementation that decrements the timer
+    # if a certain condition is met. This is just a placeholder and
+    # should be replaced with logic specific to your emulation needs.
+    if external_event_occurred?
+      @timer -= 1 if @timer > 0
     end
   end
-end
 
+  # Determine if an external event has occurred that should affect the timer
+  def external_event_occurred?
+    # Check for external events that should trigger the timer decrement.
+    # This is a placeholder implementation and should be adapted
+    # to fit the specific needs of your SID emulation.
+    # Example: Check if another component or system state indicates
+    # an event that should affect this timer.
+    check_external_event_source
+  end
+
+  # Placeholder method for checking external event sources
+  def check_external_event_source
+    # Replace this with actual logic to check for external events.
+    # This could be a state change in the video system, user input, etc.
+    # Returning false as a default, indicating no external event has occurred.
+    false
+  end
+end
