@@ -1,76 +1,108 @@
 module Sidtool
   class Synth
-    attr_accessor :waveform, :frequency, :pulse_width
-    attr_accessor :attack, :decay, :sustain, :release
-    attr_reader :voice_number
+    attr_reader :start_frame
+    attr_accessor :waveform, :attack, :decay
+    attr_reader :sustain_length, :controls
+    attr_accessor :release
 
-    def initialize(sid6581, voice_number)
-      @sid6581 = sid6581
-      @voice_number = voice_number
-      @waveform = :triangle
-      @frequency = 0
-      @pulse_width = 0
-      @attack = 0
-      @decay = 0
-      @sustain = 0
-      @release = 0
-      @gate_bit = false
+    # Constants for slide detection and handling
+    SLIDE_THRESHOLD = 60 # Threshold for detecting slides
+    SLIDE_DURATION_FRAMES = 20 # Duration over which to spread the slide
+
+    def initialize(start_frame)
+      @start_frame = start_frame
+      @controls = []
+      @frequency = nil
+      @released_at = nil
     end
 
-    def update_parameters
-      # Set waveform, frequency, pulse width, ADSR in SID registers
-      control_register_value = calculate_waveform_bits
-      control_register_value |= 1 if @gate_bit  # Set gate bit if it's on
-      @sid6581.set_control_register(@voice_number, control_register_value)
-      @sid6581.set_frequency(@voice_number, frequency_to_bytes(@frequency))
-      @sid6581.set_pulse_width(@voice_number, pulse_width_to_bytes(@pulse_width))
-      @sid6581.set_adsr(@voice_number, attack_decay_to_byte, sustain_release_to_byte)
+    def frequency=(frequency)
+      if @frequency
+        previous_midi, current_midi = sid_frequency_to_nearest_midi(@frequency), sid_frequency_to_nearest_midi(frequency)
+
+        if slide_detected?(@frequency, frequency)
+          handle_slide(previous_midi, current_midi)
+        else
+          @controls << [STATE.current_frame, current_midi] if previous_midi != current_midi
+        end
+      end
+      @frequency = frequency
     end
 
-    def start_note
-      @gate_bit = true
-      update_parameters
+    def release!
+      return if released?
+
+      @released_at = STATE.current_frame
+      length_of_ads = (STATE.current_frame - @start_frame) / FRAMES_PER_SECOND
+      @attack, @decay, @sustain_length = adjust_ads(length_of_ads)
     end
 
-    def stop_note
-      @gate_bit = false
-      update_parameters
+    def released?
+      !!@released_at
+    end
+
+    def stop!
+      if released?
+        @release = [@release, (STATE.current_frame - @released_at) / FRAMES_PER_SECOND].min
+      else
+        @release = 0
+        release!
+      end
+    end
+
+    def to_a
+      [@start_frame, tone, @waveform, @attack.round(3), @decay.round(3), @sustain_length.round(3), @release.round(3), @controls]
+    end
+
+    def tone
+      sid_frequency_to_nearest_midi(@frequency)
+    end
+
+    def set_frequency_at_frame(frame, frequency)
+      return if frame < @start_frame
+
+      relative_frame = frame - @start_frame
+      midi_note = sid_frequency_to_nearest_midi(frequency)
+      @controls << [relative_frame, midi_note]
     end
 
     private
 
-    def frequency_to_bytes(frequency)
-      # Convert frequency to two bytes for SID
-      # ...
+    def slide_detected?(old_frequency, new_frequency)
+      old_midi, new_midi = sid_frequency_to_nearest_midi(old_frequency), sid_frequency_to_nearest_midi(new_frequency)
+      (new_midi - old_midi).abs > SLIDE_THRESHOLD
     end
 
-    def pulse_width_to_bytes(pulse_width)
-      # Convert pulse width to two bytes for SID
-      # ...
-    end
-
-    def attack_decay_to_byte
-      (@attack << 4) | @decay
-    end
-
-    def sustain_release_to_byte
-      (@sustain << 4) | @release
-    end
-
-    def calculate_waveform_bits
-      # Calculate waveform bits based on selected waveform
-      case @waveform
-      when :triangle
-        Sid6581::WAVEFORM_TRIANGLE
-      when :sawtooth
-        Sid6581::WAVEFORM_SAWTOOTH
-      when :pulse
-        Sid6581::WAVEFORM_PULSE
-      when :noise
-        Sid6581::WAVEFORM_NOISE
-      else
-        0 # Silence if no waveform is selected
+    def handle_slide(start_midi, end_midi)
+      midi_step = (end_midi - start_midi) / SLIDE_DURATION_FRAMES.to_f
+      (1..SLIDE_DURATION_FRAMES).each do |frame_offset|
+        interpolated_midi = start_midi + (midi_step * frame_offset)
+        @controls << [STATE.current_frame + frame_offset, interpolated_midi.round]
       end
+    end
+
+    def adjust_ads(length_of_ads)
+      if length_of_ads < @attack
+        [length_of_ads, 0, 0]
+      elsif length_of_ads < @attack + @decay
+        [@attack, length_of_ads - @attack, 0]
+      else
+        [@attack, @decay, length_of_ads - @attack - @decay]
+      end
+    end
+
+    def sid_frequency_to_nearest_midi(sid_frequency)
+      actual_frequency = sid_frequency_to_actual_frequency(sid_frequency)
+      nearest_tone(actual_frequency)
+    end
+
+    def nearest_tone(frequency)
+      midi_tone = (12 * (Math.log(frequency * 0.0022727272727) / Math.log(2))) + 69
+      midi_tone.round
+    end
+
+    def sid_frequency_to_actual_frequency(sid_frequency)
+      (sid_frequency * (CLOCK_FREQUENCY / 16777216)).round(2)
     end
   end
 end
