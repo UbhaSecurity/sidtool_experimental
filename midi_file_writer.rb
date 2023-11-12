@@ -89,20 +89,56 @@ module Sidtool
     def handle_adsr(synth, track, channel)
       envelope_type = determine_envelope_type(synth.attack, synth.decay, synth.sustain, synth.release)
       velocity, note_length = map_envelope_to_midi(envelope_type, synth.attack, synth.decay, synth.sustain, synth.release)
-      track << NoteOn.new(channel, calculate_note_length(synth.decay, synth.sustain, synth.release), velocity)
+      track << NoteOn.new(channel, synth.tone, velocity)
       track << DeltaTime.new(note_length)
-      track << NoteOff.new(channel, calculate_note_length(synth.decay, synth.sustain, synth.release), 0)
+      track << NoteOff.new(channel, synth.tone, 0)
     end
 
-    def determine_envelope_type(attack, decay, sustain, release)
-      # Example logic - this should be refined based on the specific characteristics of the SID chip
-      if attack < 2 && decay > 8 && sustain == 0
-        :percussion
-      elsif attack < 2 && sustain > 0
-        :piano
+    def map_envelope_to_midi(envelope_type, attack, decay, sustain, release)
+      velocity, note_length = case envelope_type
+      when :percussion
+        # Adjust these values based on your specific mapping for percussion
+        [attack * 8, sustain_to_length(sustain) + decay_to_length(decay) + release_to_length(release)]
+      when :piano
+        # Adjust these values based on your specific mapping for piano
+        [attack * 8, sustain_to_length(sustain) + decay_to_length(decay) + release_to_length(release)]
       else
-        :generic
+        # Default mapping for generic envelope
+        [attack * 8, sustain_to_length(sustain) + decay_to_length(decay) + release_to_length(release)]
       end
+      [velocity, note_length]
+    end
+
+    def calculate_pitch_from_sid(sid_frequency)
+      # Convert SID frequency to MIDI note number
+      # Assuming A4 = 440Hz is MIDI note number 69
+      midi_note = 69 + 12 * Math.log2(sid_frequency.to_f / 440)
+      midi_note.round
+    end
+
+    def pulse_width_to_midi(pulse_width)
+      # Convert SID pulse width to MIDI control change value
+      # Assuming linear mapping; can be adjusted for accuracy
+      midi_value = (pulse_width / 4095.0 * 127).round
+      [midi_value, 127].min
+    end
+
+    def sustain_to_length(sustain)
+      # More precise mapping considering SID's characteristics
+      sustain_length = (sustain / 15.0) * max_sustain_length # Define max_sustain_length based on SID's behavior
+      sustain_length.round
+    end
+
+    def decay_to_length(decay)
+      # Similar approach as sustain_to_length
+      decay_length = (decay / 15.0) * max_decay_length # Define max_decay_length based on SID's behavior
+      decay_length.round
+    end
+
+    def release_to_length(release)
+      # Similar approach as sustain_to_length and decay_to_length
+      release_length = (release / 15.0) * max_release_length # Define max_release_length based on SID's behavior
+      release_length.round
     end
 
     def handle_filter_parameters(synth, track, channel)
