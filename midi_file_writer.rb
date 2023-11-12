@@ -97,16 +97,44 @@ def handle_waveform_parameters(synth, track, channel)
   end
 end
 
-def map_envelope_to_midi(envelope_type, attack, decay, sustain, release)
-  # This is an example implementation. The actual logic should be based on extensive testing and mapping of SID characteristics.
-  case envelope_type
-  when :percussion
-    [127, decay_to_length(decay)]  # High velocity, short length
-  when :piano
-    [100, sustain_to_length(sustain)]  # Sustained notes
-  else
-    [80, generic_length(attack, decay, sustain, release)]  # Default handling
-  end
+def map_envelope_to_midi(attack, decay, sustain, release)
+  # Implementing logic based on SID's ADSR characteristics and mapping them to MIDI
+  # This is a simplified example; it can be further refined based on experimentation
+  velocity = [attack * 8, 127].min # Simplified mapping, can be adjusted
+  note_length = sustain_to_length(sustain) + decay_to_length(decay) + release_to_length(release)
+  [velocity, note_length]
+end
+
+def calculate_pitch_from_sid(sid_frequency)
+  # Convert SID frequency to MIDI note number
+  # Assuming A4 = 440Hz is MIDI note number 69
+  midi_note = 69 + 12 * Math.log2(sid_frequency.to_f / 440)
+  midi_note.round
+end
+
+def pulse_width_to_midi(pulse_width)
+  # Convert SID pulse width to MIDI control change value
+  # Assuming linear mapping; can be adjusted for accuracy
+  midi_value = (pulse_width / 4095.0 * 127).round
+  [midi_value, 127].min
+end
+
+def sustain_to_length(sustain)
+  # More precise mapping considering SID's characteristics
+  sustain_length = (sustain / 15.0) * max_sustain_length # Define max_sustain_length based on SID's behavior
+  sustain_length.round
+end
+
+def decay_to_length(decay)
+  # Similar approach as sustain_to_length
+  decay_length = (decay / 15.0) * max_decay_length # Define max_decay_length based on SID's behavior
+  decay_length.round
+end
+
+def release_to_length(release)
+  # Similar approach as sustain_to_length and decay_to_length
+  release_length = (release / 15.0) * max_release_length # Define max_release_length based on SID's behavior
+  release_length.round
 end
 
     def handle_filter_parameters(synth, track, channel)
