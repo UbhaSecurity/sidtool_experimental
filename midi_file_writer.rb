@@ -117,17 +117,22 @@ def calculate_pitch_from_sid(sid_frequency)
   SID_TO_MIDI_NOTE_TABLE[closest_frequency]
 end
 
-def pulse_width_to_midi(pulse_width)
-  # Assuming linear mapping
-  midi_value = (pulse_width / 4095.0 * 127).round
-  [midi_value, 127].min
-end
+    # Convert SID pulse width to MIDI control change value
+    def pulse_width_to_midi(pulse_width)
+      midi_value = (pulse_width / 40.95).round.clamp(0, 127)
+      [PULSE_WIDTH_CONTROLLER, midi_value]
+    end
 
-# Mapping SID's ADSR values to MIDI
-def map_attack_to_velocity(attack)
-  # Implement a more nuanced mapping if needed
-  (attack / 15.0 * 127).round.clamp(0, 127)
-end
+   # Map SID ADSR values to MIDI
+    def map_adsr_to_midi(attack, decay, sustain, release)
+      velocity = 64  # Default velocity
+      attack_time = (attack * 10).round.clamp(0, 127)
+      decay_time = (decay * 10).round.clamp(0, 127)
+      sustain_level = (sustain * 127).round.clamp(0, 127)
+      release_time = (release * 10).round.clamp(0, 127)
+
+      [velocity, attack_time, decay_time, sustain_level, release_time]
+    end
 
 def decay_time(decay)
   # Implement based on SID's decay characteristics
@@ -152,11 +157,33 @@ def map_release_to_velocity(release)
   (release / 15.0 * 127).round.clamp(0, 127)
 end
 
-def map_filter_parameters_to_midi(cutoff_frequency, resonance)
-  # Implementing a 1:1 mapping of SID's filter parameters to MIDI with scaling
-  cutoff_value = (cutoff_frequency / 255.0 * 127).round  # Scale cutoff frequency
-  resonance_value = resonance  # Map resonance directly
-  [cutoff_value, resonance_value]
+   # Map SID filter parameters to MIDI
+    def map_filter_to_midi(cutoff_frequency, resonance)
+      cutoff_midi_value = (cutoff_frequency / MAX_CUTOFF_FREQUENCY * 127).round.clamp(0, 127)
+      resonance_midi_value = (resonance / MAX_RESONANCE * 127).round.clamp(0, 127)
+
+      [cutoff_midi_value, resonance_midi_value]
+    end
+ # Map SID effects (oscillator sync and ring modulation) to MIDI
+    def map_sid_effects_to_midi(osc_sync, ring_mod)
+      osc_sync_midi_value = calculate_osc_sync_value(osc_sync)
+      ring_mod_midi_value = calculate_ring_mod_value(ring_mod)
+
+      [OSC_SYNC_CONTROLLER, osc_sync_midi_value, RING_MOD_CONTROLLER, ring_mod_midi_value]
+    end
+
+def calculate_ring_mod_value(ring_mod)
+  # Calculate MIDI value based on SID ring_mod_effect parameter
+  # You may need to adjust the mapping based on SID behavior
+  midi_value = (ring_mod * 127).round
+  [midi_value, 127].min
+end
+
+def calculate_osc_sync_value(osc_sync)
+  # Calculate MIDI value based on SID osc_sync parameter
+  # You may need to adjust the mapping based on SID behavior
+  midi_value = (osc_sync * 127).round
+  [midi_value, 127].min
 end
 
     def handle_filter_parameters(synth, track, channel)
