@@ -1,10 +1,9 @@
 module Sidtool
   class Synth
     attr_reader :start_frame, :controls
-    attr_accessor :waveform, :frequency, :pulse_width
-    attr_accessor :attack, :decay, :sustain, :release
+    attr_accessor :waveform, :frequency, :pulse_width, :filter_cutoff, :filter_resonance
+    attr_accessor :attack, :decay, :sustain, :release, :osc_sync, :ring_mod_effect
 
-    # Constants for slide detection and handling
     SLIDE_THRESHOLD = 60
     SLIDE_DURATION_FRAMES = 20
 
@@ -13,12 +12,16 @@ module Sidtool
       @controls = []
       @frequency = nil
       @released_at = nil
-      @waveform = :triangle # Default waveform
+      @waveform = :triangle
       @pulse_width = 0
       @attack = 0
       @decay = 0
       @sustain = 0
       @release = 0
+      @filter_cutoff = 1024  # Default middle value for the SID filter cutoff
+      @filter_resonance = 8  # Default middle value for the SID filter resonance
+      @osc_sync = 0
+      @ring_mod_effect = 0
     end
 
     def frequency=(frequency)
