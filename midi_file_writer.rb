@@ -18,6 +18,20 @@ ENVELOPE_RATES = {
   sid_release: [0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0]
 }
 
+DECAY_RELEASE_RATES = {
+  0 => 6, 1 => 24, 2 => 48, 3 => 72,
+  4 => 114, 5 => 168, 6 => 204, 7 => 240,
+  8 => 300, 9 => 750, 10 => 1500, 11 => 2400,
+  12 => 3000, 13 => 9000, 14 => 15000, 15 => 24000
+}
+
+ATTACK_RATES = {
+  0 => 2, 1 => 8, 2 => 16, 3 => 24,
+  4 => 38, 5 => 56, 6 => 68, 7 => 80,
+  8 => 100, 9 => 250, 10 => 500, 11 => 800,
+  12 => 1000, 13 => 3000, 14 => 5000, 15 => 8000
+}
+
     # Define the SID to MIDI note table as a constant within the MidiFileWriter class
     SID_TO_MIDI_NOTE_TABLE = begin
       table = {}
@@ -138,14 +152,20 @@ end
       [velocity, attack_time, decay_time, sustain_level, release_time]
     end
 
-def decay_time(decay)
-  # Implement based on SID's decay characteristics
-  decay * 50 # Placeholder value
+def decay_release_time(sid_value)
+  # Assuming sid_value is between 0 and 15
+  DECAY_RELEASE_RATES[sid_value] * 1000  # Convert to milliseconds
 end
 
-def sustain_time(sustain)
-  # Implement based on SID's sustain characteristics
-  sustain * 100 # Placeholder value
+def sustain_level(sid_sustain)
+  # Assuming sid_sustain is between 0 and 15
+  midi_sustain_level = (sid_sustain / 15.0 * 127).round.clamp(0, 127)
+  midi_sustain_level
+end
+
+def attack_time(sid_attack)
+  # Assuming sid_attack is between 0 and 15
+  ATTACK_RATES[sid_attack] * 1000  # Convert to milliseconds
 end
 
 def release_time(release)
