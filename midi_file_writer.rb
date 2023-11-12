@@ -5,6 +5,10 @@ module Sidtool
     FILTER_RESONANCE_CONTROLLER = 71
     OSC_SYNC_CONTROLLER = 102  # Placeholder value, adjust as needed
     RING_MOD_CONTROLLER = 103  # Placeholder value, adjust as needed
+    PULSE_WIDTH_CONTROLLER = 74
+    MAX_CUTOFF_FREQUENCY = 20000.0  # Maximum cutoff frequency value (adjust as needed)
+    MAX_RESONANCE = 1.0  # Maximum resonance value (adjust as needed)
+    FRAMES_PER_SECOND = 50  # Number of frames per second (adjust as needed)
 
 # Define lookup tables for rates
 ENVELOPE_RATES = {
