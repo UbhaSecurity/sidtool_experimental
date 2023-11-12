@@ -6,6 +6,30 @@ module Sidtool
     OSC_SYNC_CONTROLLER = 102  # Placeholder value, adjust as needed
     RING_MOD_CONTROLLER = 103  # Placeholder value, adjust as needed
 
+    # Define the SID to MIDI note table as a constant within the MidiFileWriter class
+    SID_TO_MIDI_NOTE_TABLE = begin
+      table = {}
+      start_frequency = 16.35  # Frequency of C0
+      start_note_number = 0    # MIDI note number for C0
+      num_octaves = 10  # Covers all MIDI note octaves (0 to 9)
+
+      semitone_ratios = [1.0, 1.059463, 1.122462, 1.189207, 1.259921, 1.334840, 
+                         1.414214, 1.498307, 1.587401, 1.681793, 1.781797, 1.887749]
+
+      (0..num_octaves).each do |octave|
+        semitone_ratios.each_with_index do |ratio, semitone|
+          frequency = start_frequency * (2.0**octave) * ratio
+          midi_note_number = start_note_number + (octave * 12) + semitone
+          table[frequency.round(2)] = midi_note_number
+        end
+      end
+
+      table.freeze
+    end
+
+  end
+end
+
     def initialize(synths_for_voices, sid6581, cia_timer_a, cia_timer_b)
       @synths_for_voices = synths_for_voices
       @sid6581 = sid6581
