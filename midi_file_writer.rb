@@ -1,74 +1,74 @@
 module Sidtool
-  # Structs for MIDI file components
-  DeltaTime = Struct.new(:time) do
-    def bytes
-      quantity = time
-      seven_bit_segments = []
-      max_iterations = 100  # Safeguard against infinite loops
-      iterations = 0
-
-      while true
-        seven_bit_segments << (quantity & 127)
-        quantity >>= 7
-        break if quantity == 0 || iterations >= max_iterations
-        iterations += 1
-      end
-
-      result = seven_bit_segments.reverse.map { |segment| segment | 128 }
-      result[-1] &= 127
-      result
-    end
-  end
-
-  TrackName = Struct.new(:name) do
-    def bytes
-      [0xFF, 0x03, name.length, *name.bytes]
-    end
-  end
-
-  TimeSignature = Struct.new(:numerator, :denominator_power_of_two, :clocks_per_metronome_click, :number_of_32th_nodes_per_24_clocks) do
-    def bytes
-      [0xFF, 0x58, 0x04, numerator, denominator_power_of_two, clocks_per_metronome_click, number_of_32th_nodes_per_24_clocks]
-    end
-  end
-
-  KeySignature = Struct.new(:sharps_or_flats, :is_major) do
-    def bytes
-      [0xFF, 0x59, 0x02, sharps_or_flats, is_major ? 0 : 1]
-    end
-  end
-
-  EndOfTrack = Struct.new(:nothing) do
-    def bytes
-      [0xFF, 0x2F, 0x00]
-    end
-  end
-
-  ProgramChange = Struct.new(:channel, :program_number) do
-    def bytes
-      raise "Channel too big: #{channel}" if channel > 15
-      raise "Program number is too big: #{program_number}" if program_number > 127
-      [0xC0 + channel, program_number]
-    end
-  end
-
-  NoteOn = Struct.new(:channel, :key) do
-    def bytes
-      raise "Channel too big: #{channel}" if channel > 15
-      raise "Key is too big: #{key}" if key > 127
-      [0x90 + channel, key, 40]  # Default velocity
-    end
-  end
-
-  NoteOff = Struct.new(:channel, :key) do
-    def bytes
-      raise "Channel too big: #{channel}" if channel > 15
-      raise "Key is too big: #{key}" if key > 127
-      [0x80 + channel, key, 40]  # Default velocity
-    end
-  end
-
   class MidiFileWriter
+    # Structs for MIDI file components
+    DeltaTime = Struct.new(:time) do
+      def bytes
+        quantity = time
+        seven_bit_segments = []
+        max_iterations = 100  # Safeguard against infinite loops
+        iterations = 0
+
+        while true
+          seven_bit_segments << (quantity & 127)
+          quantity >>= 7
+          break if quantity == 0 || iterations >= max_iterations
+          iterations += 1
+        end
+
+        result = seven_bit_segments.reverse.map { |segment| segment | 128 }
+        result[-1] &= 127
+        result
+      end
+    end
+
+    TrackName = Struct.new(:name) do
+      def bytes
+        [0xFF, 0x03, name.length, *name.bytes]
+      end
+    end
+
+    TimeSignature = Struct.new(:numerator, :denominator_power_of_two, :clocks_per_metronome_click, :number_of_32th_nodes_per_24_clocks) do
+      def bytes
+        [0xFF, 0x58, 0x04, numerator, denominator_power_of_two, clocks_per_metronome_click, number_of_32th_nodes_per_24_clocks]
+      end
+    end
+
+    KeySignature = Struct.new(:sharps_or_flats, :is_major) do
+      def bytes
+        [0xFF, 0x59, 0x02, sharps_or_flats, is_major ? 0 : 1]
+      end
+    end
+
+    EndOfTrack = Struct.new(:nothing) do
+      def bytes
+        [0xFF, 0x2F, 0x00]
+      end
+    end
+
+    ProgramChange = Struct.new(:channel, :program_number) do
+      def bytes
+        raise "Channel too big: #{channel}" if channel > 15
+        raise "Program number is too big: #{program_number}" if program_number > 127
+        [0xC0 + channel, program_number]
+      end
+    end
+
+    NoteOn = Struct.new(:channel, :key) do
+      def bytes
+        raise "Channel too big: #{channel}" if channel > 15
+        raise "Key is too big: #{key}" if key > 127
+        [0x90 + channel, key, 40]  # Default velocity
+      end
+    end
+
+    NoteOff = Struct.new(:channel, :key) do
+      def bytes
+        raise "Channel too big: #{channel}" if channel > 15
+        raise "Key is too big: #{key}" if key > 127
+        [0x80 + channel, key, 40]  # Default velocity
+      end
+    end
+
     def initialize(synths_for_voices, sid6581, cia_timer_a, cia_timer_b)
       @synths_for_voices = synths_for_voices
       @sid6581 = sid6581
@@ -85,6 +85,8 @@ module Sidtool
     end
 
     def build_track(synths)
+      waveforms = [:tri, :saw, :pulse, :noise]
+
       track = []
       current_frame = 0
       synths.each do |synth|
@@ -108,6 +110,7 @@ module Sidtool
         track << NoteOff.new(channel, current_tone)
         current_frame = end_frame
       end
+
       consolidate_events(track)
     end
 
@@ -169,18 +172,15 @@ module Sidtool
       file << [value & 255].pack('c')
     end
 
- def map_waveform_to_channel(waveform)
+    def map_waveform_to_channel(waveform)
       case waveform
-      when :tri
-        0  # Example channel mapping for triangle waveform
-      when :saw
-        1  # Example channel mapping for sawtooth waveform
-      when :pulse
-        2  # Example channel mapping for pulse waveform
-      when :noise
-        3  # Example channel mapping for noise waveform
+      when :tri then 0
+      when :saw then 1
+      when :pulse then 2
+      when :noise then 3
       else
         raise "Unknown waveform: #{waveform}"
       end
+    end
   end
 end
