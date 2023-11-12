@@ -111,5 +111,52 @@ module Sidtool
     def sid_frequency_to_actual_frequency(sid_frequency)
       (sid_frequency * (CLOCK_FREQUENCY / 16777216)).round(2)
     end
+ 
+   private
+
+    # Convert ADSR parameters to MIDI controller messages
+    def handle_attack_decay_sustain_release
+      # Mapping SID's ADSR to MIDI's ADSR-like parameters
+      # Note: MIDI doesn't have a direct ADSR envelope control, but we can use various controllers
+      #       to simulate the effect. This is a basic mapping and might need adjustments.
+      [
+        # MIDI controller messages for Attack, Decay, Sustain, Release
+      ]
+    end
+
+    # Convert modulation parameters to MIDI controller messages
+    def handle_modulation_expression
+      # The SID's modulation effects can be mapped to MIDI's modulation wheel or expression controller
+      [
+        # Controller for Modulation Wheel (CC 01)
+        [0xB0, 0x01, calculate_modulation_value(@modulation)],
+        # Controller for Expression (CC 11)
+        [0xB0, 0x0B, @expression]
+      ]
+    end
+
+    # Convert pitch bend parameter to MIDI pitch bend messages
+    def handle_pitch_bend
+      # SID's pitch-related parameters can be mapped to MIDI's pitch bend
+      pitch_bend_value = calculate_pitch_bend_value(@pitch_bend)
+      [
+        # Pitch Bend message
+        [0xE0, pitch_bend_value & 0x7F, (pitch_bend_value >> 7) & 0x7F]
+      ]
+    end
+
+    # Calculate modulation value for MIDI (Modulation Wheel)
+    def calculate_modulation_value(modulation)
+      # Map SID modulation value to MIDI (0-127). Modify this mapping as per your requirements.
+      [modulation, 127].min
+    end
+
+    # Calculate pitch bend value for MIDI
+    def calculate_pitch_bend_value(pitch_bend)
+      # Map SID pitch bend to MIDI pitch bend range (0-16383 with 8192 as center)
+      # Modify this mapping as per your requirements.
+      # Example: Assuming pitch_bend range is -1 to 1
+      8192 + (pitch_bend * 8192).to_i
+    end
   end
 end
