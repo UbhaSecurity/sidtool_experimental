@@ -1,11 +1,11 @@
 module Sidtool
   class Sid
     # Initialize SID chip with CIA timers and voices
-    def initialize
+    def initialize(cpu)
       @sid6581 = Sid6581.new
-      @ciaTimerA = CIATimer.new
-      @ciaTimerB = CIATimer.new
-      # Additional initialization as needed
+      @ciaTimerA = CIATimer.new(STATE)
+      @ciaTimerB = CIATimer.new(STATE)
+      @cpu = cpu  # MOS 6510 CPU instance
     end
 
     # Method to handle SID register writes
@@ -23,7 +23,7 @@ module Sidtool
 
     # Emulate SID chip for one cycle
     def emulate_cycle
-      # Update timers
+      # Update CIA timers
       @ciaTimerA.update
       @ciaTimerB.update
 
@@ -33,18 +33,28 @@ module Sidtool
       # Generate SID sound for this cycle
       @sid6581.generate_sound
 
-      # Optional: Call other methods of Sid6581 as needed
-      # For example, processing audio, handling global settings, etc.
+      # Process audio for this cycle
+      process_audio(STATE.sample_rate)
     end
 
     private
 
     def handle_interrupts
       # Logic to handle interrupts from CIA timers
-      # This might involve checking underflow flags and responding accordingly
+      # Trigger CPU interrupts if necessary
+      @cia_timers.each do |timer|
+        if timer.underflow
+          # Example: Trigger an interrupt in the CPU
+          @cpu.trigger_interrupt(:cia_timer_underflow) if timer.interrupt_enabled
+        end
+      end
+    end
+
+    def process_audio(sample_rate)
+      # Process the audio data for the current cycle
+      @sid6581.process_audio(sample_rate)
     end
   end
 
-  # Implementation for other classes like Sid6581, CIATimer, etc.
-  # ...
+  # Other classes and modules as necessary
 end
