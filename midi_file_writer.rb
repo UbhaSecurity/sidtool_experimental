@@ -1,5 +1,50 @@
 module Sidtool
-  class MidiFileWriter
+  class MidiFileWriter>
+
+ControlChange = Struct.new(:channel, :controller, :value) do
+  def bytes
+    raise "Channel too big: #{channel}" if channel > 15
+    raise "Controller number is too big: #{controller}" if controller > 127
+    raise "Value is too big: #{value}" if value > 127
+    [0xB0 + channel, controller, value]
+  end
+end
+def handle_adsr(synth, track)
+  # Map ADSR values to MIDI velocity and note length
+  velocity = calculate_velocity(synth.attack, synth.decay, synth.sustain, synth.release)
+  track << NoteOn.new(channel, synth.tone, velocity)
+  # Add note length logic based on ADSR
+end
+
+def handle_filter_parameters(synth, track)
+  track << DeltaTime.new(0)
+  track << ControlChange.new(channel, FILTER_CUTOFF_CONTROLLER, calculate_filter_value(synth.filter_cutoff))
+  track << DeltaTime.new(0)
+  track << ControlChange.new(channel, FILTER_RESONANCE_CONTROLLER, calculate_filter_value(synth.filter_resonance))
+end
+
+def calculate_filter_value(filter_param)
+  # Map SID filter parameter to MIDI range (0-127)
+  [filter_param, 127].min
+end
+
+def handle_sid_effects(synth, track)
+  track << DeltaTime.new(0)
+  track << ControlChange.new(channel, OSC_SYNC_CONTROLLER, calculate_osc_sync_value(synth.osc_sync))
+  track << DeltaTime.new(0)
+  track << ControlChange.new(channel, RING_MOD_CONTROLLER, calculate_ring_mod_value(synth.ring_mod_effect))
+end
+
+def calculate_osc_sync_value(osc_sync)
+  # Map osc_sync to a MIDI control value (0-127)
+  [osc_sync, 127].min
+end
+
+def calculate_ring_mod_value(ring_mod)
+  # Map ring_mod_effect to a MIDI control value (0-127)
+  [ring_mod, 127].min
+end
+
     # Structs for MIDI file components
     DeltaTime = Struct.new(:time) do
       def bytes
@@ -84,35 +129,38 @@ module Sidtool
       end
     end
 
-    def build_track(synths)
-      waveforms = [:tri, :saw, :pulse, :noise]
+def build_track(synths)
+  waveforms = [:tri, :saw, :pulse, :noise]
+  track = []
+  current_frame = 0
 
-      track = []
-      current_frame = 0
-      synths.each do |synth|
-        channel = map_waveform_to_channel(synth.waveform)
-        track << DeltaTime.new(synth.start_frame - current_frame)
-        track << NoteOn.new(channel, synth.tone)
-        current_frame = synth.start_frame
+  synths.each do |synth|
+    channel = map_waveform_to_channel(synth.waveform)
+    track << DeltaTime.new(synth.start_frame - current_frame)
 
-        current_tone = synth.tone
-        synth.controls.each do |start_frame, tone|
-          track << DeltaTime.new(start_frame - current_frame)
-          track << NoteOff.new(channel, current_tone)
-          track << DeltaTime.new(0)
-          track << NoteOn.new(channel, tone)
-          current_tone = tone
-          current_frame = start_frame
-        end
+    handle_sid_effects(synth, track)
+    handle_adsr(synth, track)
+    handle_filter_parameters(synth, track)
 
-        end_frame = [current_frame, synth.start_frame + (FRAMES_PER_SECOND * (synth.attack + synth.decay + synth.sustain_length)).to_i].max
-        track << DeltaTime.new(end_frame - current_frame)
-        track << NoteOff.new(channel, current_tone)
-        current_frame = end_frame
-      end
-
-      consolidate_events(track)
+    current_tone = synth.tone
+    synth.controls.each do |start_frame, tone|
+      track << DeltaTime.new(start_frame - current_frame)
+      track << NoteOff.new(channel, current_tone)
+      track << DeltaTime.new(0)
+      track << NoteOn.new(channel, tone)
+      current_tone = tone
+      current_frame = start_frame
     end
+
+    end_frame = [current_frame, synth.start_frame + (FRAMES_PER_SECOND * (synth.attack + synth.decay + synth.sustain_length)).to_i].max
+    track << DeltaTime.new(end_frame - current_frame)
+    track << NoteOff.new(channel, current_tone)
+    current_frame = end_frame
+  end
+
+  consolidate_events(track)
+end
+
 
     private
 
@@ -171,6 +219,15 @@ module Sidtool
     def write_byte(file, value)
       file << [value & 255].pack('c')
     end
+def write_to(path)
+  tracks = @synths_for_voices.map { |synths| build_track(synths) }
+  
+  File.open(path, 'wb') do |file|
+    write_header(file)
+    tracks.each_with_index do |track, index|
+      write_track(file, track, "Voice #{index + 1}")
+    end
+  end
 
     def map_waveform_to_channel(waveform)
       case waveform
