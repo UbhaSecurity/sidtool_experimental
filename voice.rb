@@ -1,11 +1,12 @@
 module Sidtool
   class Voice
-    attr_writer :frequency_low, :frequency_high, :pulse_low, :pulse_high
-    attr_writer :control_register, :attack_decay, :sustain_release
-    attr_reader :synths, :phase
+    attr_accessor :frequency_low, :frequency_high, :pulse_low, :pulse_high
+    attr_accessor :control_register, :attack_decay, :sustain_release
+    attr_reader :synths
 
-    def initialize(sid6581)
+    def initialize(sid6581, voice_number)
       @sid6581 = sid6581
+      @voice_number = voice_number
       @frequency_low = @frequency_high = 0
       @pulse_low = @pulse_high = 0
       @control_register = 0
@@ -13,7 +14,6 @@ module Sidtool
       @current_synth = nil
       @synths = []
       @previous_midi_note = nil
-      @phase = 0.0
     end
 
     def finish_frame
@@ -105,7 +105,6 @@ module Sidtool
     end
 
     def slide_detected?(prev_midi_note, new_midi_note)
-      return false unless prev_midi_note
       (new_midi_note - prev_midi_note).abs > SLIDE_THRESHOLD
     end
 
@@ -128,6 +127,8 @@ module Sidtool
     end
 
     def convert_attack(attack)
+      # Conversion based on SID 6581 specifications
+      # Implement SID's ADSR conversion for attack
       case attack
       when 0 then 0.002
       when 1 then 0.008
@@ -150,6 +151,8 @@ module Sidtool
     end
 
     def convert_decay_or_release(decay_or_release)
+      # Conversion based on SID 6581 specifications
+      # Implement SID's ADSR conversion for decay and release
       case decay_or_release
       when 0 then 0.006
       when 1 then 0.024
