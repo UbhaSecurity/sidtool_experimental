@@ -1,14 +1,21 @@
 module Sidtool
   class MidiFileWriter>
 
-ControlChange = Struct.new(:channel, :controller, :value) do
-  def bytes
-    raise "Channel too big: #{channel}" if channel > 15
-    raise "Controller number is too big: #{controller}" if controller > 127
-    raise "Value is too big: #{value}" if value > 127
-    [0xB0 + channel, controller, value]
-  end
-end
+   # Additional Structs for MIDI file components
+    ControlChange = Struct.new(:channel, :controller, :value) do
+      def bytes
+        raise "Channel too big: #{channel}" if channel > 15
+        raise "Controller number is too big: #{controller}" if controller > 127
+        raise "Value is too big: #{value}" if value > 127
+        [0xB0 + channel, controller, value]
+      end
+    end
+
+    # Constants for Controller Numbers (assuming standard MIDI controller numbers)
+    FILTER_CUTOFF_CONTROLLER = 74
+    FILTER_RESONANCE_CONTROLLER = 71
+    OSC_SYNC_CONTROLLER = 102  # Placeholder value, adjust as needed
+    RING_MOD_CONTROLLER = 103  # Placeholder value, adjust as needed
 def handle_adsr(synth, track)
   # Map ADSR values to MIDI velocity and note length
   velocity = calculate_velocity(synth.attack, synth.decay, synth.sustain, synth.release)
@@ -129,38 +136,37 @@ end
       end
     end
 
-def build_track(synths)
-  waveforms = [:tri, :saw, :pulse, :noise]
-  track = []
-  current_frame = 0
+ def build_track(synths)
+      waveforms = [:tri, :saw, :pulse, :noise]
+      track = []
+      current_frame = 0
 
-  synths.each do |synth|
-    channel = map_waveform_to_channel(synth.waveform)
-    track << DeltaTime.new(synth.start_frame - current_frame)
+      synths.each do |synth|
+        channel = map_waveform_to_channel(synth.waveform)
+        track << DeltaTime.new(synth.start_frame - current_frame)
 
-    handle_sid_effects(synth, track)
-    handle_adsr(synth, track)
-    handle_filter_parameters(synth, track)
+        handle_sid_effects(synth, track, channel)
+        handle_adsr(synth, track, channel)
+        handle_filter_parameters(synth, track, channel)
 
-    current_tone = synth.tone
-    synth.controls.each do |start_frame, tone|
-      track << DeltaTime.new(start_frame - current_frame)
-      track << NoteOff.new(channel, current_tone)
-      track << DeltaTime.new(0)
-      track << NoteOn.new(channel, tone)
-      current_tone = tone
-      current_frame = start_frame
+        current_tone = synth.tone
+        synth.controls.each do |start_frame, tone|
+          track << DeltaTime.new(start_frame - current_frame)
+          track << NoteOff.new(channel, current_tone)
+          track << DeltaTime.new(0)
+          track << NoteOn.new(channel, tone)
+          current_tone = tone
+          current_frame = start_frame
+        end
+
+        end_frame = [current_frame, synth.start_frame + (FRAMES_PER_SECOND * (synth.attack + synth.decay + synth.sustain_length)).to_i].max
+        track << DeltaTime.new(end_frame - current_frame)
+        track << NoteOff.new(channel, current_tone)
+        current_frame = end_frame
+      end
+
+      consolidate_events(track)
     end
-
-    end_frame = [current_frame, synth.start_frame + (FRAMES_PER_SECOND * (synth.attack + synth.decay + synth.sustain_length)).to_i].max
-    track << DeltaTime.new(end_frame - current_frame)
-    track << NoteOff.new(channel, current_tone)
-    current_frame = end_frame
-  end
-
-  consolidate_events(track)
-end
-
 
     private
 
