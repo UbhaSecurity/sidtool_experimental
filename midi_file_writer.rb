@@ -6,6 +6,14 @@ module Sidtool
     OSC_SYNC_CONTROLLER = 102  # Placeholder value, adjust as needed
     RING_MOD_CONTROLLER = 103  # Placeholder value, adjust as needed
 
+# Define lookup tables for rates
+ENVELOPE_RATES = {
+  sid_attack: [0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0],
+  sid_decay: [0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0],
+  sid_sustain: [0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0],
+  sid_release: [0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0]
+}
+
     # Define the SID to MIDI note table as a constant within the MidiFileWriter class
     SID_TO_MIDI_NOTE_TABLE = begin
       table = {}
@@ -94,20 +102,14 @@ module Sidtool
       track << NoteOff.new(channel, synth.tone, 0)
     end
 
-    def map_envelope_to_midi(envelope_type, attack, decay, sustain, release)
-      velocity, note_length = case envelope_type
-      when :percussion
-        # Adjust these values based on your specific mapping for percussion
-        [attack * 8, sustain_to_length(sustain) + decay_to_length(decay) + release_to_length(release)]
-      when :piano
-        # Adjust these values based on your specific mapping for piano
-        [attack * 8, sustain_to_length(sustain) + decay_to_length(decay) + release_to_length(release)]
-      else
-        # Default mapping for generic envelope
-        [attack * 8, sustain_to_length(sustain) + decay_to_length(decay) + release_to_length(release)]
-      end
-      [velocity, note_length]
-    end
+    def map_envelope_to_midi(attack, decay, sustain, release)
+  # Implementing a 1:1 mapping of SID's ADSR parameters to MIDI with scaling and lookup tables
+  velocity = attack * 8  # Scale attack
+  decay_value = ENVELOPE_RATES[:sid_decay][decay]  # Lookup decay rate
+  sustain_value = ENVELOPE_RATES[:sid_sustain][sustain]  # Lookup sustain rate
+  release_value = ENVELOPE_RATES[:sid_release][release]  # Lookup release rate
+  [velocity, decay_value, sustain_value, release_value]
+end
 
 def calculate_pitch_from_sid(sid_frequency)
   # Find the closest frequency in the table and return its corresponding MIDI note number
@@ -148,6 +150,13 @@ end
 
 def map_release_to_velocity(release)
   (release / 15.0 * 127).round.clamp(0, 127)
+end
+
+def map_filter_parameters_to_midi(cutoff_frequency, resonance)
+  # Implementing a 1:1 mapping of SID's filter parameters to MIDI with scaling
+  cutoff_value = (cutoff_frequency / 255.0 * 127).round  # Scale cutoff frequency
+  resonance_value = resonance  # Map resonance directly
+  [cutoff_value, resonance_value]
 end
 
     def handle_filter_parameters(synth, track, channel)
