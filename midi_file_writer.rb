@@ -156,14 +156,29 @@ end
       track << ControlChange.new(channel, RING_MOD_CONTROLLER, calculate_ring_mod_value(synth.ring_mod_effect))
     end
 
+def handle_oscillator_sync(synth, track, channel)
+  # Translate oscillator sync effects into MIDI
+  # This could be done using MIDI control changes
+  # Example: Use a control change to alter pitch/timbre
+  osc_sync_value = calculate_osc_sync_value(synth.osc_sync)
+  track << ControlChange.new(channel, OSC_SYNC_MIDI_CONTROLLER, osc_sync_value)
+end
+
+def handle_ring_modulation(synth, track, channel)
+  # Translate ring modulation effects into MIDI
+  # This could involve selecting a specific MIDI instrument or using control changes
+  ring_mod_value = calculate_ring_mod_value(synth.ring_mod_effect)
+  track << ControlChange.new(channel, RING_MOD_MIDI_CONTROLLER, ring_mod_value)
+end
+
     def calculate_osc_sync_value(osc_sync)
-      # Map osc_sync to a MIDI control value (0-127)
-      [osc_sync, 127].min
+    # Map SID osc_sync to a MIDI control value (0-127)
+    [osc_sync, 127].min
     end
 
     def calculate_ring_mod_value(ring_mod)
-      # Map ring_mod_effect to a MIDI control value (0-127)
-      [ring_mod, 127].min
+      # Map SID ring_mod_effect to a MIDI control value (0-127)
+    [ring_mod, 127].min
     end
 
     DeltaTime = Struct.new(:time) do
