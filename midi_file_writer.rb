@@ -109,37 +109,46 @@ module Sidtool
       [velocity, note_length]
     end
 
-    def calculate_pitch_from_sid(sid_frequency)
-      # Convert SID frequency to MIDI note number
-      # Assuming A4 = 440Hz is MIDI note number 69
-      midi_note = 69 + 12 * Math.log2(sid_frequency.to_f / 440)
-      midi_note.round
-    end
+def calculate_pitch_from_sid(sid_frequency)
+  # Find the closest frequency in the table and return its corresponding MIDI note number
+  closest_frequency = SID_TO_MIDI_NOTE_TABLE.keys.min_by { |k| (k - sid_frequency).abs }
+  SID_TO_MIDI_NOTE_TABLE[closest_frequency]
+end
 
-    def pulse_width_to_midi(pulse_width)
-      # Convert SID pulse width to MIDI control change value
-      # Assuming linear mapping; can be adjusted for accuracy
-      midi_value = (pulse_width / 4095.0 * 127).round
-      [midi_value, 127].min
-    end
+def pulse_width_to_midi(pulse_width)
+  # Assuming linear mapping
+  midi_value = (pulse_width / 4095.0 * 127).round
+  [midi_value, 127].min
+end
 
-    def sustain_to_length(sustain)
-      # More precise mapping considering SID's characteristics
-      sustain_length = (sustain / 15.0) * max_sustain_length # Define max_sustain_length based on SID's behavior
-      sustain_length.round
-    end
+# Mapping SID's ADSR values to MIDI
+def map_attack_to_velocity(attack)
+  # Implement a more nuanced mapping if needed
+  (attack / 15.0 * 127).round.clamp(0, 127)
+end
 
-    def decay_to_length(decay)
-      # Similar approach as sustain_to_length
-      decay_length = (decay / 15.0) * max_decay_length # Define max_decay_length based on SID's behavior
-      decay_length.round
-    end
+def decay_time(decay)
+  # Implement based on SID's decay characteristics
+  decay * 50 # Placeholder value
+end
 
-    def release_to_length(release)
-      # Similar approach as sustain_to_length and decay_to_length
-      release_length = (release / 15.0) * max_release_length # Define max_release_length based on SID's behavior
-      release_length.round
-    end
+def sustain_time(sustain)
+  # Implement based on SID's sustain characteristics
+  sustain * 100 # Placeholder value
+end
+
+def release_time(release)
+  # Implement based on SID's release characteristics
+  release * 50 # Placeholder value
+end
+
+def map_decay_to_cc(decay)
+  (decay / 15.0 * 127).round.clamp(0, 127)
+end
+
+def map_release_to_velocity(release)
+  (release / 15.0 * 127).round.clamp(0, 127)
+end
 
     def handle_filter_parameters(synth, track, channel)
       track << DeltaTime.new(0)
