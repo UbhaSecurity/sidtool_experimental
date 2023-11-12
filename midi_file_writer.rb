@@ -67,12 +67,47 @@ module Sidtool
       consolidate_events(track)
     end
 
-    def handle_adsr(synth, track, channel)
-      # Map ADSR values to MIDI velocity and note length
-      velocity = calculate_velocity(synth.attack, synth.decay, synth.sustain, synth.release)
-      track << NoteOn.new(channel, synth.tone, velocity)
-      # Add note length logic based on ADSR
-    end
+def handle_adsr(synth, track, channel)
+  envelope_type = determine_envelope_type(synth.attack, synth.decay, synth.sustain, synth.release)
+  velocity, note_length = map_envelope_to_midi(envelope_type, synth.attack, synth.decay, synth.sustain, synth.release)
+  track << NoteOn.new(channel, synth.tone, velocity)
+  track << DeltaTime.new(note_length)
+  track << NoteOff.new(channel, synth.tone, 0)
+end
+
+def determine_envelope_type(attack, decay, sustain, release)
+  # Example logic - this should be refined based on the specific characteristics of the SID chip
+  if attack < 2 && decay > 8 && sustain == 0
+    :percussion
+  elsif attack < 2 && sustain > 0
+    :piano
+  else
+    :generic
+  end
+end
+
+def handle_waveform_parameters(synth, track, channel)
+  case synth.waveform
+  when :pulse
+    pulse_width_value = pulse_width_to_midi(synth.pulse_width)
+    track << ControlChange.new(channel, PULSE_WIDTH_CONTROLLER, pulse_width_value)
+  when :noise
+    # Noise might be simulated using a combination of MIDI messages
+    # For instance, using a specific instrument or modulation
+  end
+end
+
+def map_envelope_to_midi(envelope_type, attack, decay, sustain, release)
+  # This is an example implementation. The actual logic should be based on extensive testing and mapping of SID characteristics.
+  case envelope_type
+  when :percussion
+    [127, decay_to_length(decay)]  # High velocity, short length
+  when :piano
+    [100, sustain_to_length(sustain)]  # Sustained notes
+  else
+    [80, generic_length(attack, decay, sustain, release)]  # Default handling
+  end
+end
 
     def handle_filter_parameters(synth, track, channel)
       track << DeltaTime.new(0)
