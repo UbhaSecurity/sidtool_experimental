@@ -2,11 +2,10 @@ module Sidtool
   class Voice
     attr_writer :frequency_low, :frequency_high, :pulse_low, :pulse_high
     attr_writer :control_register, :attack_decay, :sustain_release
-    attr_reader :synths
+    attr_reader :synths, :phase
 
-    def initialize(sid6581, voice_number)
+    def initialize(sid6581)
       @sid6581 = sid6581
-      @voice_number = voice_number
       @frequency_low = @frequency_high = 0
       @pulse_low = @pulse_high = 0
       @control_register = 0
@@ -14,6 +13,7 @@ module Sidtool
       @current_synth = nil
       @synths = []
       @previous_midi_note = nil
+      @phase = 0.0
     end
 
     def finish_frame
@@ -105,6 +105,7 @@ module Sidtool
     end
 
     def slide_detected?(prev_midi_note, new_midi_note)
+      return false unless prev_midi_note
       (new_midi_note - prev_midi_note).abs > SLIDE_THRESHOLD
     end
 
