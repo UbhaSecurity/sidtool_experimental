@@ -27,9 +27,6 @@ module Sidtool
       table.freeze
     end
 
-  end
-end
-
     def initialize(synths_for_voices, sid6581, cia_timer_a, cia_timer_b)
       @synths_for_voices = synths_for_voices
       @sid6581 = sid6581
@@ -47,8 +44,6 @@ end
         end
       end
     end
-
-    private
 
     ControlChange = Struct.new(:channel, :controller, :value) do
       def bytes
@@ -91,75 +86,24 @@ end
       consolidate_events(track)
     end
 
-def handle_adsr(synth, track, channel)
-  envelope_type = determine_envelope_type(synth.attack, synth.decay, synth.sustain, synth.release)
-  velocity, note_length = map_envelope_to_midi(envelope_type, synth.attack, synth.decay, synth.sustain, synth.release)
-  track << NoteOn.new(channel, synth.tone, velocity)
-  track << DeltaTime.new(note_length)
-  track << NoteOff.new(channel, synth.tone, 0)
-end
+    def handle_adsr(synth, track, channel)
+      envelope_type = determine_envelope_type(synth.attack, synth.decay, synth.sustain, synth.release)
+      velocity, note_length = map_envelope_to_midi(envelope_type, synth.attack, synth.decay, synth.sustain, synth.release)
+      track << NoteOn.new(channel, calculate_note_length(synth.decay, synth.sustain, synth.release), velocity)
+      track << DeltaTime.new(note_length)
+      track << NoteOff.new(channel, calculate_note_length(synth.decay, synth.sustain, synth.release), 0)
+    end
 
-def determine_envelope_type(attack, decay, sustain, release)
-  # Example logic - this should be refined based on the specific characteristics of the SID chip
-  if attack < 2 && decay > 8 && sustain == 0
-    :percussion
-  elsif attack < 2 && sustain > 0
-    :piano
-  else
-    :generic
-  end
-end
-
-def handle_waveform_parameters(synth, track, channel)
-  case synth.waveform
-  when :pulse
-    pulse_width_value = pulse_width_to_midi(synth.pulse_width)
-    track << ControlChange.new(channel, PULSE_WIDTH_CONTROLLER, pulse_width_value)
-  when :noise
-    # Noise might be simulated using a combination of MIDI messages
-    # For instance, using a specific instrument or modulation
-  end
-end
-
-def map_envelope_to_midi(attack, decay, sustain, release)
-  # Implementing logic based on SID's ADSR characteristics and mapping them to MIDI
-  # This is a simplified example; it can be further refined based on experimentation
-  velocity = [attack * 8, 127].min # Simplified mapping, can be adjusted
-  note_length = sustain_to_length(sustain) + decay_to_length(decay) + release_to_length(release)
-  [velocity, note_length]
-end
-
-def calculate_pitch_from_sid(sid_frequency)
-  # Convert SID frequency to MIDI note number
-  # Assuming A4 = 440Hz is MIDI note number 69
-  midi_note = 69 + 12 * Math.log2(sid_frequency.to_f / 440)
-  midi_note.round
-end
-
-def pulse_width_to_midi(pulse_width)
-  # Convert SID pulse width to MIDI control change value
-  # Assuming linear mapping; can be adjusted for accuracy
-  midi_value = (pulse_width / 4095.0 * 127).round
-  [midi_value, 127].min
-end
-
-def sustain_to_length(sustain)
-  # More precise mapping considering SID's characteristics
-  sustain_length = (sustain / 15.0) * max_sustain_length # Define max_sustain_length based on SID's behavior
-  sustain_length.round
-end
-
-def decay_to_length(decay)
-  # Similar approach as sustain_to_length
-  decay_length = (decay / 15.0) * max_decay_length # Define max_decay_length based on SID's behavior
-  decay_length.round
-end
-
-def release_to_length(release)
-  # Similar approach as sustain_to_length and decay_to_length
-  release_length = (release / 15.0) * max_release_length # Define max_release_length based on SID's behavior
-  release_length.round
-end
+    def determine_envelope_type(attack, decay, sustain, release)
+      # Example logic - this should be refined based on the specific characteristics of the SID chip
+      if attack < 2 && decay > 8 && sustain == 0
+        :percussion
+      elsif attack < 2 && sustain > 0
+        :piano
+      else
+        :generic
+      end
+    end
 
     def handle_filter_parameters(synth, track, channel)
       track << DeltaTime.new(0)
@@ -168,41 +112,11 @@ end
       track << ControlChange.new(channel, FILTER_RESONANCE_CONTROLLER, calculate_filter_value(synth.filter_resonance))
     end
 
-    def calculate_filter_value(filter_param)
-      # Map SID filter parameter to MIDI range (0-127)
-      [filter_param, 127].min
-    end
-
     def handle_sid_effects(synth, track, channel)
       track << DeltaTime.new(0)
       track << ControlChange.new(channel, OSC_SYNC_CONTROLLER, calculate_osc_sync_value(synth.osc_sync))
       track << DeltaTime.new(0)
       track << ControlChange.new(channel, RING_MOD_CONTROLLER, calculate_ring_mod_value(synth.ring_mod_effect))
-    end
-
-def handle_oscillator_sync(synth, track, channel)
-  # Translate oscillator sync effects into MIDI
-  # This could be done using MIDI control changes
-  # Example: Use a control change to alter pitch/timbre
-  osc_sync_value = calculate_osc_sync_value(synth.osc_sync)
-  track << ControlChange.new(channel, OSC_SYNC_MIDI_CONTROLLER, osc_sync_value)
-end
-
-def handle_ring_modulation(synth, track, channel)
-  # Translate ring modulation effects into MIDI
-  # This could involve selecting a specific MIDI instrument or using control changes
-  ring_mod_value = calculate_ring_mod_value(synth.ring_mod_effect)
-  track << ControlChange.new(channel, RING_MOD_MIDI_CONTROLLER, ring_mod_value)
-end
-
-    def calculate_osc_sync_value(osc_sync)
-    # Map SID osc_sync to a MIDI control value (0-127)
-    [osc_sync, 127].min
-    end
-
-    def calculate_ring_mod_value(ring_mod)
-      # Map SID ring_mod_effect to a MIDI control value (0-127)
-    [ring_mod, 127].min
     end
 
     DeltaTime = Struct.new(:time) do
