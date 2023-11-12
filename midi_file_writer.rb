@@ -1,6 +1,5 @@
 module Sidtool
   class MidiFileWriter
-
     # Constants for Controller Numbers (assuming standard MIDI controller numbers)
     FILTER_CUTOFF_CONTROLLER = 74
     FILTER_RESONANCE_CONTROLLER = 71
@@ -16,15 +15,27 @@ module Sidtool
 
     def write_to(path)
       tracks = @synths_for_voices.map { |synths| build_track(synths) }
-  
-        File.open(path, 'wb') do |file|
-      write_header(file)
-      tracks.each_with_index do |track, index|
-      write_track(file, track, "Voice #{index + 1}")
+      
+      File.open(path, 'wb') do |file|
+        write_header(file)
+        tracks.each_with_index do |track, index|
+          write_track(file, track, "Voice #{index + 1}")
+        end
+      end
     end
-  end
 
- def build_track(synths)
+    private
+
+    ControlChange = Struct.new(:channel, :controller, :value) do
+      def bytes
+        raise "Channel too big: #{channel}" if channel > 15
+        raise "Controller number is too big: #{controller}" if controller > 127
+        raise "Value is too big: #{value}" if value > 127
+        [0xB0 + channel, controller, value]
+      end
+    end
+
+    def build_track(synths)
       waveforms = [:tri, :saw, :pulse, :noise]
       track = []
       current_frame = 0
@@ -55,55 +66,43 @@ module Sidtool
 
       consolidate_events(track)
     end
-    
-    private
 
-    ControlChange = Struct.new(:channel, :controller, :value) do
-      def bytes
-        raise "Channel too big: #{channel}" if channel > 15
-        raise "Controller number is too big: #{controller}" if controller > 127
-        raise "Value is too big: #{value}" if value > 127
-        [0xB0 + channel, controller, value]
-      end
+    def handle_adsr(synth, track, channel)
+      # Map ADSR values to MIDI velocity and note length
+      velocity = calculate_velocity(synth.attack, synth.decay, synth.sustain, synth.release)
+      track << NoteOn.new(channel, synth.tone, velocity)
+      # Add note length logic based on ADSR
     end
 
-def handle_adsr(synth, track)
-  # Map ADSR values to MIDI velocity and note length
-  velocity = calculate_velocity(synth.attack, synth.decay, synth.sustain, synth.release)
-  track << NoteOn.new(channel, synth.tone, velocity)
-  # Add note length logic based on ADSR
-end
+    def handle_filter_parameters(synth, track, channel)
+      track << DeltaTime.new(0)
+      track << ControlChange.new(channel, FILTER_CUTOFF_CONTROLLER, calculate_filter_value(synth.filter_cutoff))
+      track << DeltaTime.new(0)
+      track << ControlChange.new(channel, FILTER_RESONANCE_CONTROLLER, calculate_filter_value(synth.filter_resonance))
+    end
 
-def handle_filter_parameters(synth, track)
-  track << DeltaTime.new(0)
-  track << ControlChange.new(channel, FILTER_CUTOFF_CONTROLLER, calculate_filter_value(synth.filter_cutoff))
-  track << DeltaTime.new(0)
-  track << ControlChange.new(channel, FILTER_RESONANCE_CONTROLLER, calculate_filter_value(synth.filter_resonance))
-end
+    def calculate_filter_value(filter_param)
+      # Map SID filter parameter to MIDI range (0-127)
+      [filter_param, 127].min
+    end
 
-def calculate_filter_value(filter_param)
-  # Map SID filter parameter to MIDI range (0-127)
-  [filter_param, 127].min
-end
+    def handle_sid_effects(synth, track, channel)
+      track << DeltaTime.new(0)
+      track << ControlChange.new(channel, OSC_SYNC_CONTROLLER, calculate_osc_sync_value(synth.osc_sync))
+      track << DeltaTime.new(0)
+      track << ControlChange.new(channel, RING_MOD_CONTROLLER, calculate_ring_mod_value(synth.ring_mod_effect))
+    end
 
-def handle_sid_effects(synth, track)
-  track << DeltaTime.new(0)
-  track << ControlChange.new(channel, OSC_SYNC_CONTROLLER, calculate_osc_sync_value(synth.osc_sync))
-  track << DeltaTime.new(0)
-  track << ControlChange.new(channel, RING_MOD_CONTROLLER, calculate_ring_mod_value(synth.ring_mod_effect))
-end
+    def calculate_osc_sync_value(osc_sync)
+      # Map osc_sync to a MIDI control value (0-127)
+      [osc_sync, 127].min
+    end
 
-def calculate_osc_sync_value(osc_sync)
-  # Map osc_sync to a MIDI control value (0-127)
-  [osc_sync, 127].min
-end
+    def calculate_ring_mod_value(ring_mod)
+      # Map ring_mod_effect to a MIDI control value (0-127)
+      [ring_mod, 127].min
+    end
 
-def calculate_ring_mod_value(ring_mod)
-  # Map ring_mod_effect to a MIDI control value (0-127)
-  [ring_mod, 127].min
-end
-
-    # Structs for MIDI file components
     DeltaTime = Struct.new(:time) do
       def bytes
         quantity = time
@@ -156,32 +155,23 @@ end
       end
     end
 
-    NoteOn = Struct.new(:channel, :key) do
+    NoteOn = Struct.new(:channel, :key, :velocity) do
       def bytes
         raise "Channel too big: #{channel}" if channel > 15
         raise "Key is too big: #{key}" if key > 127
-        [0x90 + channel, key, 40]  # Default velocity
+        raise "Velocity is too big: #{velocity}" if velocity > 127
+        [0x90 + channel, key, velocity]
       end
     end
 
-    NoteOff = Struct.new(:channel, :key) do
+    NoteOff = Struct.new(:channel, :key, :velocity) do
       def bytes
         raise "Channel too big: #{channel}" if channel > 15
         raise "Key is too big: #{key}" if key > 127
-        [0x80 + channel, key, 40]  # Default velocity
+        raise "Velocity is too big: #{velocity}" if velocity > 127
+        [0x80 + channel, key, velocity]
       end
     end
-
-    def write_to(path)
-      tracks = @synths_for_voices.map { |synths| build_track(synths) }
-      File.open(path, 'wb') do |file|
-        write_header(file)
-        tracks.each_with_index { |track, index| write_track(file, track, "Voice #{index + 1}") }
-      end
-    end
-
-
-
 
     def consolidate_events(track)
       consolidated = []
@@ -238,7 +228,6 @@ end
     def write_byte(file, value)
       file << [value & 255].pack('c')
     end
-
 
     def map_waveform_to_channel(waveform)
       case waveform
