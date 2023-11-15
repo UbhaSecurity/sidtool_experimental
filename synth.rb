@@ -171,13 +171,17 @@ module Sidtool
       end
     end
 
-    # Convert SID frequency to the nearest MIDI note number.
-    # @param sid_frequency [Integer] The SID frequency.
-    # @return [Integer] The nearest MIDI note number.
-    def sid_frequency_to_nearest_midi(sid_frequency)
-      actual_frequency = sid_frequency_to_actual_frequency(sid_frequency)
-      nearest_tone(actual_frequency)
-    end
+    # Convert SID frequency value to actual frequency in Hertz.
+    # The SID chip's frequency value is a 16-bit number that needs to be converted to an actual frequency.
+    #
+    # @param sid_frequency [Integer] The frequency value from the SID chip.
+    # @return [Float] The actual frequency in Hertz.
+    def sid_frequency_to_actual_frequency(sid_frequency)
+      # Convert the SID frequency to actual frequency using the SID chip's formula.
+      # The formula is: Fout = (Fn * Fclk / 16777216) Hz,
+      # where Fout is the output frequency, Fn is the 16-bit frequency value, and
+      # Fclk is the system clock frequency of the SID chip.
+      (sid_frequency * (CLOCK_FREQUENCY / 16777216)).round(2)
 
     # Find the nearest MIDI tone for a given frequency.
     # @param frequency [Float] The frequency.
@@ -200,68 +204,68 @@ end
 
     private
 
-# Convert modulation parameters to MIDI controller messages
+    # Convert modulation parameters to MIDI controller messages.
+    # This method handles the conversion of SID's modulation effects to MIDI's modulation wheel or expression controller.
     def handle_modulation_expression
-      # The SID's modulation effects can be mapped to MIDI's modulation wheel or expression controller
       [
-        # Controller for Modulation Wheel (CC 01)
+        # Controller message for Modulation Wheel (CC 01).
         [0xB0, 0x01, calculate_modulation_value(@modulation)],
-        # Controller for Expression (CC 11)
+
+        # Controller message for Expression (CC 11).
         [0xB0, 0x0B, @expression]
       ]
     end
 
- # Convert pitch bend parameter to MIDI pitch bend messages
+    # Convert pitch bend parameter to MIDI pitch bend messages.
+    # This method maps the SID's pitch-related parameters to MIDI's pitch bend.
     def handle_pitch_bend
-      # SID's pitch-related parameters can be mapped to MIDI's pitch bend
       pitch_bend_value = calculate_pitch_bend_value(@pitch_bend)
       [
-        # Pitch Bend message
+        # Pitch Bend message formatted for MIDI.
         [0xE0, pitch_bend_value & 0x7F, (pitch_bend_value >> 7) & 0x7F]
       ]
     end
 
-    # Calculate modulation value for MIDI (Modulation Wheel)
+    # Calculate the modulation value for MIDI (Modulation Wheel).
+    # @param modulation [Integer] The modulation value from the SID.
+    # @return [Integer] The corresponding MIDI modulation value.
     def calculate_modulation_value(modulation)
-      # Map SID modulation value to MIDI (0-127). Modify this mapping as per your requirements.
+      # Map the SID modulation value to MIDI's range (0-127).
+      # Modify this mapping as per the desired effect.
       [modulation, 127].min
     end
 
-    # Calculate pitch bend value for MIDI
+    # Calculate the pitch bend value for MIDI.
+    # @param pitch_bend [Float] The pitch bend value from the SID, typically ranging from -1 to 1.
+    # @return [Integer] The corresponding MIDI pitch bend value.
     def calculate_pitch_bend_value(pitch_bend)
-      # Map SID pitch bend to MIDI pitch bend range (0-16383 with 8192 as center)
-      # Modify this mapping as per your requirements.
-      # Example: Assuming pitch_bend range is -1 to 1
+      # Map the SID pitch bend value to MIDI's pitch bend range (0-16383 with 8192 as the center).
+      # Modify this mapping based on the desired pitch bend effect.
       8192 + (pitch_bend * 8192).to_i
     end
 
-   # Convert ADSR parameters to MIDI controller messages
+    # Convert ADSR (Attack, Decay, Sustain, Release) parameters to MIDI controller messages.
+    # This method simulates ADSR envelope control using MIDI controllers, as MIDI doesn't have direct ADSR control.
     def handle_attack_decay_sustain_release
-      # Mapping SID's ADSR to MIDI's ADSR-like parameters
-      # Note: MIDI doesn't have a direct ADSR envelope control, but we can use various controllers
-      #       to simulate the effect. This is a basic mapping and might need adjustments.
-
-      # Calculate MIDI values based on SID ADSR parameters
       attack_midi = (@attack * 127).to_i  # Scale attack to MIDI range (0-127)
       decay_midi = (@decay * 127).to_i    # Scale decay to MIDI range (0-127)
       sustain_midi = (@sustain * 127).to_i  # Scale sustain to MIDI range (0-127)
       release_midi = (@release * 127).to_i  # Scale release to MIDI range (0-127)
 
-      # You can use MIDI control change messages (CC) for ADSR-like parameters
-      # Here's an example of assigning them to specific CC numbers (adjust as needed)
-      cc_attack = 1  # CC 01 for attack
-      cc_decay = 2   # CC 02 for decay
-      cc_sustain = 3 # CC 03 for sustain
-      cc_release = 4 # CC 04 for release
+      # Assign ADSR parameters to specific MIDI Control Change (CC) numbers.
+      cc_attack = 1   # CC 01 for attack
+      cc_decay = 2    # CC 02 for decay
+      cc_sustain = 3  # CC 03 for sustain
+      cc_release = 4  # CC 04 for release
 
-      # Create MIDI controller messages for ADSR parameters
-      midi_messages = [
-        [0xB0, cc_attack, attack_midi],     # Controller for Attack (CC 01)
-        [0xB0, cc_decay, decay_midi],       # Controller for Decay (CC 02)
-        [0xB0, cc_sustain, sustain_midi],   # Controller for Sustain (CC 03)
-        [0xB0, cc_release, release_midi]    # Controller for Release (CC 04)
+      # Create MIDI controller messages for ADSR parameters.
+      [
+        [0xB0, cc_attack, attack_midi],
+        [0xB0, cc_decay, decay_midi],
+        [0xB0, cc_sustain, sustain_midi],
+        [0xB0, cc_release, release_midi]
       ]
-
+    end
       # Return the MIDI controller messages
       midi_messages
     end
