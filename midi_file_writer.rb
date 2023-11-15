@@ -76,16 +76,35 @@ module Sidtool
       # relevant to simulate the SID's envelope characteristics accurately in the MIDI domain.
     }
 
-    # Define the SID to MIDI note table as a constant within the MidiFileWriter class
+    # Define the SID to MIDI note table as a constant within the MidiFileWriter class.
+    # This table maps frequencies to MIDI note numbers based on the SID chip's
+    # frequency generation capabilities and the MIDI standard's note numbering.
+    #
+    # The SID chip generates sound frequencies based on a 16-bit register value
+    # and the system clock frequency. According to the SID documentation, the output
+    # frequency (Fout) is calculated as: Fout = (Fn * Fclk / 16777216) Hz, where
+    # Fn is the 16-bit frequency value and Fclk is the system clock frequency.
+    #
+    # This table uses the equal-tempered scale, where each semitone's frequency is
+    # the 12th root of 2 times that of the previous semitone. The table is calibrated
+    # based on standard concert pitch (A4 = 440 Hz).
+    #
+    # The calculations here consider the standard frequency for each MIDI note and
+    # map it to the closest possible frequency that the SID chip can produce,
+    # thereby allowing accurate MIDI representation of SID sounds.
     SID_TO_MIDI_NOTE_TABLE = begin
       table = {}
-      start_frequency = 16.35  # Frequency of C0
+      start_frequency = 16.35  # Frequency of C0 in Hz (MIDI standard)
       start_note_number = 0    # MIDI note number for C0
+
+      # Number of octaves to cover in the MIDI standard
       num_octaves = 10  # Covers all MIDI note octaves (0 to 9)
 
+      # Semitone ratios for equal-tempered scale
       semitone_ratios = [1.0, 1.059463, 1.122462, 1.189207, 1.259921, 1.334840, 
                          1.414214, 1.498307, 1.587401, 1.681793, 1.781797, 1.887749]
 
+      # Populate the table with frequencies for each MIDI note
       (0..num_octaves).each do |octave|
         semitone_ratios.each_with_index do |ratio, semitone|
           frequency = start_frequency * (2.0**octave) * ratio
@@ -94,8 +113,9 @@ module Sidtool
         end
       end
 
-      table.freeze
+      table.freeze  # Freeze the table to prevent modifications
     end
+
 
     def initialize(synths_for_voices, sid6581, cia_timer_a, cia_timer_b)
       @synths_for_voices = synths_for_voices
