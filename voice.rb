@@ -1,81 +1,89 @@
 module Sidtool
-  class Voice
-    # Accessors for various voice parameters like frequency, pulse, control registers, and ADSR values.
-    attr_accessor :frequency_low, :frequency_high, :pulse_low, :pulse_high
-    attr_accessor :control_register, :attack_decay, :sustain_release
+class Voice
+  attr_accessor :frequency_low, :frequency_high, :pulse_low, :pulse_high
+  attr_accessor :control_register, :attack_decay, :sustain_release
+  attr_reader :synths
 
-    # Reader for the array of synthesizer instances used by this voice.
-    attr_reader :synths
+  # Initialize a new Voice instance with a reference to the SID chip and its voice number.
+  # @param sid6581 [Sid6581] Reference to the SID chip instance.
+  # @param voice_number [Integer] The number of the voice on the SID chip.
+  def initialize(sid6581, voice_number)
+    @sid6581 = sid6581
+    @voice_number = voice_number
+    @frequency_low = @frequency_high = 0
+    @pulse_low = @pulse_high = 0
+    @control_register = 0
+    @attack_decay = @sustain_release = 0
+    @current_synth = nil
+    @synths = []
+    @previous_midi_note = nil
+  end
 
-    # Initialize a new Voice instance with SID chip and voice number.
-    # Initializes various parameters and sets up an array to hold synthesizer instances.
-    def initialize(sid6581, voice_number)
-      @sid6581 = sid6581
-      @voice_number = voice_number
-      @frequency_low = @frequency_high = 0
-      @pulse_low = @pulse_high = 0
-      @control_register = 0
-      @attack_decay = @sustain_release = 0
-      @current_synth = nil
-      @synths = []
-      @previous_midi_note = nil
+  # Updates the state of the voice at the end of each frame.
+  def finish_frame
+    update_sustain_level
+    if gate
+      handle_gate_on
+    else
+      handle_gate_off
     end
+  end
 
-    # Called at the end of each frame to update the state of the voice.
-    def finish_frame
-      if gate
-        handle_gate_on
-      else
-        handle_gate_off
-      end
+  # Immediately stops the current synthesizer.
+  def stop!
+    @current_synth&.stop!
+    @current_synth = nil
+  end
+
+  private
+
+  # Determines if the gate flag is set in the control register.
+  # @return [Boolean] True if the gate is on, false otherwise.
+  def gate
+    @control_register & 1 == 1
+  end
+
+  # Calculates the frequency from the low and high byte values.
+  # @return [Float] The frequency value.
+  def frequency
+    (@frequency_high << 8) + @frequency_low
+  end
+
+  # Determines the waveform type based on the control register.
+  # @return [Symbol] The waveform type (:tri, :saw, :pulse, :noise).
+  def waveform
+    case @control_register & 0xF0
+    when 0x10 then :tri
+    when 0x20 then :saw
+    when 0x40 then :pulse
+    when 0x80 then :noise
+    else
+      :noise
     end
+  end
 
-    # Immediately stop the current synthesizer.
-    def stop!
-      @current_synth&.stop!
-      @current_synth = nil
-    end
+  # Converts the attack value from SID format to a usable format.
+  # @return [Float] The converted attack value.
+  def attack
+    convert_attack(@attack_decay >> 4)
+  end
 
-    private
+  # Converts the decay value from SID format to a usable format.
+  # @return [Float] The converted decay value.
+  def decay
+    convert_decay_or_release(@attack_decay & 0xF)
+  end
 
-    # Determine if the gate flag is set in the control register.
-    def gate
-      @control_register & 1 == 1
-    end
+  # Converts the release value from SID format to a usable format.
+  # @return [Float] The converted release value.
+  def release
+    convert_decay_or_release(@sustain_release & 0xF)
+  end
 
-    # Calculate the frequency from the low and high byte values.
-    def frequency
-      (@frequency_high << 8) + @frequency_low
-    end
-
-    # Determine the waveform type based on the control register.
-    def waveform
-      case @control_register & 0xF0
-      when 0x10 then :tri
-      when 0x20 then :saw
-      when 0x40 then :pulse
-      when 0x80 then :noise
-      else
-        STDERR.puts "Unknown waveform: #{@control_register}"
-        :noise
-      end
-    end
-
-    # Convert attack value from SID format to a more usable format.
-    def attack
-      convert_attack(@attack_decay >> 4)
-    end
-
-    # Convert decay value from SID format to a more usable format.
-    def decay
-      convert_decay_or_release(@attack_decay & 0xF)
-    end
-
-    # Convert release value from SID format to a more usable format.
-    def release
-      convert_decay_or_release(@sustain_release & 0xF)
-    end
-
+  # Updates the sustain level based on the sustain_release register.
+  def update_sustain_level
+    @sustain_level = @sustain_release >> 4
+  end
     # Handle logic for when the gate is on.
     def handle_gate_on
       if @current_synth&.released?
