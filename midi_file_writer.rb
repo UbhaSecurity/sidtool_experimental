@@ -324,41 +324,69 @@ module Sidtool
 
       [cutoff_midi_value, resonance_midi_value]
     end
- # Map SID effects (oscillator sync and ring modulation) to MIDI
-    def map_sid_effects_to_midi(osc_sync, ring_mod)
-      osc_sync_midi_value = calculate_osc_sync_value(osc_sync)
-      ring_mod_midi_value = calculate_ring_mod_value(ring_mod)
 
-      [OSC_SYNC_CONTROLLER, osc_sync_midi_value, RING_MOD_CONTROLLER, ring_mod_midi_value]
-    end
+# The map_sid_effects_to_midi function maps the SID's oscillator sync and ring modulation parameters
+# to MIDI values. This is based on the SID's behavior where certain bits in the control register
+# enable these effects. The method calculates MIDI values that correspond to these effects being active.
+#
+# Oscillator Sync and Ring Modulation are SID specific features.
+# Oscillator Sync (Sync Bit): Synchronizes the frequency of one oscillator with another.
+# Ring Modulation (Ring Mod Bit): Produces a ring-modulated combination of two oscillators.
+# These effects are mapped to MIDI controller values to represent their activation.
+def map_sid_effects_to_midi(osc_sync, ring_mod)
+  osc_sync_midi_value = calculate_osc_sync_value(osc_sync)
+  ring_mod_midi_value = calculate_ring_mod_value(ring_mod)
 
+  [OSC_SYNC_CONTROLLER, osc_sync_midi_value, RING_MOD_CONTROLLER, ring_mod_midi_value]
+end
+
+# The calculate_ring_mod_value function converts the SID's ring modulation effect parameter
+# to a MIDI value. The ring modulation effect in SID creates a complex waveform by combining
+# two oscillator outputs. This function maps the presence of the effect to a MIDI value.
+#
+# Ring Modulation (from SID documentation): Affects the harmonic content of the sound.
+# This function represents the ring modulation effect's intensity or presence in a MIDI format.
 def calculate_ring_mod_value(ring_mod)
-  # Calculate MIDI value based on SID ring_mod_effect parameter
-  # You may need to adjust the mapping based on SID behavior
   midi_value = (ring_mod * 127).round
   [midi_value, 127].min
 end
 
+# The calculate_osc_sync_value function maps the SID's oscillator sync parameter to a MIDI value.
+# Oscillator sync in the SID chip locks the phase of one oscillator to another, creating unique timbres.
+# This function represents the state of oscillator sync (active or not) in MIDI.
+#
+# Oscillator Sync (from SID documentation): Locks the phase of an oscillator to another.
+# This function represents whether oscillator sync is active in a MIDI format.
 def calculate_osc_sync_value(osc_sync)
-  # Calculate MIDI value based on SID osc_sync parameter
-  # You may need to adjust the mapping based on SID behavior
   midi_value = (osc_sync * 127).round
   [midi_value, 127].min
 end
 
-    def handle_filter_parameters(synth, track, channel)
-      track << DeltaTime.new(0)
-      track << ControlChange.new(channel, FILTER_CUTOFF_CONTROLLER, calculate_filter_value(synth.filter_cutoff))
-      track << DeltaTime.new(0)
-      track << ControlChange.new(channel, FILTER_RESONANCE_CONTROLLER, calculate_filter_value(synth.filter_resonance))
-    end
+# The handle_filter_parameters function maps the SID's filter parameters (cutoff frequency and resonance)
+# to MIDI control changes. The SID chip's filter is a crucial component in shaping the sound,
+# with control over cutoff frequency and resonance.
+#
+# Filter Parameters (from SID documentation): Affect the harmonic content of the sound by filtering frequencies.
+# This function maps these parameters to corresponding MIDI control change values.
+def handle_filter_parameters(synth, track, channel)
+  track << DeltaTime.new(0)
+  track << ControlChange.new(channel, FILTER_CUTOFF_CONTROLLER, calculate_filter_value(synth.filter_cutoff))
+  track << DeltaTime.new(0)
+  track << ControlChange.new(channel, FILTER_RESONANCE_CONTROLLER, calculate_filter_value(synth.filter_resonance))
+end
 
-    def handle_sid_effects(synth, track, channel)
-      track << DeltaTime.new(0)
-      track << ControlChange.new(channel, OSC_SYNC_CONTROLLER, calculate_osc_sync_value(synth.osc_sync))
-      track << DeltaTime.new(0)
-      track << ControlChange.new(channel, RING_MOD_CONTROLLER, calculate_ring_mod_value(synth.ring_mod_effect))
-    end
+# The handle_sid_effects function applies SID specific effects (oscillator sync and ring modulation) to the MIDI track.
+# These effects are unique to the SID chip and are represented in MIDI using specific controller messages.
+#
+# SID Effects (from SID documentation): Include oscillator sync and ring modulation.
+# This function adds MIDI control changes to the track to represent these effects.
+def handle_sid_effects(synth, track, channel)
+  track << DeltaTime.new(0)
+  track << ControlChange.new(channel, OSC_SYNC_CONTROLLER, calculate_osc_sync_value(synth.osc_sync))
+  track << DeltaTime.new(0)
+  track << ControlChange.new(channel, RING_MOD_CONTROLLER, calculate_ring_mod_value(synth.ring_mod_effect))
+end
+
 
     DeltaTime = Struct.new(:time) do
       def bytes
