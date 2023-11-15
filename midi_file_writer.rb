@@ -179,13 +179,34 @@ def calculate_pitch_from_sid(sid_frequency)
   SID_TO_MIDI_NOTE_TABLE[closest_frequency]
 end
 
-    # Convert SID pulse width to MIDI control change value
+    # Convert SID pulse width to MIDI control change value.
+    # This function maps the SID chip's pulse width parameter to a MIDI control change
+    # value, ensuring the pulse width modulation characteristic of the SID is represented
+    # in the MIDI format. The SID documentation provides details on how pulse width
+    # affects the sound waveforms, and this function aims to convert that effect into
+    # a corresponding MIDI control value.
+    #
+    # The linear mapping used here (pulse_width / 40.95) is a simplified approximation
+    # and may need adjustment to more accurately represent the SID's pulse width modulation
+    # behavior in the MIDI domain.
     def pulse_width_to_midi(pulse_width)
       midi_value = (pulse_width / 40.95).round.clamp(0, 127)
       [PULSE_WIDTH_CONTROLLER, midi_value]
     end
 
-   # Map SID ADSR values to MIDI
+    # Map SID's ADSR values to MIDI format.
+    # This function converts the SID's attack, decay, sustain, and release
+    # parameters into MIDI values. The conversion is based on the SID chip's
+    # unique envelope characteristics, which are dictated by its internal clock.
+    #
+    # The SID chip's technical documentation outlines how each ADSR parameter
+    # influences the envelope generator's behavior in terms of the chip's clock frequency.
+    # This function aims to replicate that behavior in the MIDI domain, ensuring
+    # the MIDI representation closely mimics the original sound of the SID.
+    #
+    # The scaling factors used in this function (e.g., attack * 10) are placeholders
+    # and should be adjusted to match the actual rates and behavior of the SID model
+    # being emulated.
     def map_adsr_to_midi(attack, decay, sustain, release)
       velocity = 64  # Default velocity
       attack_time = (attack * 10).round.clamp(0, 127)
@@ -225,7 +246,16 @@ def map_release_to_velocity(release)
   (release / 15.0 * 127).round.clamp(0, 127)
 end
 
-   # Map SID filter parameters to MIDI
+    # Map SID filter parameters to MIDI.
+    # This function converts the SID chip's filter parameters, specifically the
+    # cutoff frequency and resonance, into MIDI control change values. The SID's
+    # filter is a key component in shaping its sound, and this function aims to
+    # translate the filter's effect into MIDI format.
+    #
+    # The conversion formulas used here (linear scaling of cutoff and resonance)
+    # are based on typical SID chip behavior as outlined in its technical documentation.
+    # These formulas might need refinement to more accurately emulate the specific
+    # filter characteristics of the SID model in use.
     def map_filter_to_midi(cutoff_frequency, resonance)
       cutoff_midi_value = (cutoff_frequency / MAX_CUTOFF_FREQUENCY * 127).round.clamp(0, 127)
       resonance_midi_value = (resonance / MAX_RESONANCE * 127).round.clamp(0, 127)
