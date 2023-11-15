@@ -10,13 +10,28 @@ module Sidtool
     MAX_RESONANCE = 1.0  # Maximum resonance value (adjust as needed)
     FRAMES_PER_SECOND = 50  # Number of frames per second (adjust as needed)
 
-# Define lookup tables for rates
-ENVELOPE_RATES = {
-  sid_attack: [0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0],
-  sid_decay: [0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0],
-  sid_sustain: [0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0],
-  sid_release: [0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0]
-}
+ ENVELOPE_RATES = {
+      # The following rates are placeholders and should be adjusted to reflect
+      # the actual behavior of the SID chip's envelope generator. 
+      # These values would typically be derived from the SID's technical documentation, 
+      # where the time each envelope phase (attack, decay, sustain, release) takes to
+      # complete is specified in relation to the system clock frequency (typically 1.0 MHz).
+      #
+      # For example, in the SID documentation, the attack rate is defined for values from 0 to 15,
+      # each representing different times to reach full volume from zero. The decay and release
+      # rates similarly define the time it takes to reduce the amplitude from full to zero or 
+      # sustain level. The sustain rate typically denotes the level at which the amplitude is 
+      # held during the sustain phase.
+      #
+      # These rates are essential for accurately replicating the SID's sound characteristics 
+      # in MIDI format. The values should be adjusted according to the specific behavior of 
+      # the SID model being emulated, ensuring the MIDI conversion maintains the original 
+      # character of the sound.
+      sid_attack: [0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0],
+      sid_decay: [0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0],
+      sid_sustain: [0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0],
+      sid_release: [0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0]
+    }
 
     DECAY_RELEASE_RATES = {
       # The values here represent the time (in milliseconds) it takes for the decay or release
