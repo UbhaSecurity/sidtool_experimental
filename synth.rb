@@ -111,39 +111,8 @@ module Sidtool
     def sid_frequency_to_actual_frequency(sid_frequency)
       (sid_frequency * (CLOCK_FREQUENCY / 16777216)).round(2)
     end
- 
-   private
 
-    # Convert ADSR parameters to MIDI controller messages
-    def handle_attack_decay_sustain_release
-      # Mapping SID's ADSR to MIDI's ADSR-like parameters
-      # Note: MIDI doesn't have a direct ADSR envelope control, but we can use various controllers
-      #       to simulate the effect. This is a basic mapping and might need adjustments.
-
-      # Calculate MIDI values based on SID ADSR parameters
-      attack_midi = (@attack * 127).to_i  # Scale attack to MIDI range (0-127)
-      decay_midi = (@decay * 127).to_i    # Scale decay to MIDI range (0-127)
-      sustain_midi = (@sustain * 127).to_i  # Scale sustain to MIDI range (0-127)
-      release_midi = (@release * 127).to_i  # Scale release to MIDI range (0-127)
-
-      # You can use MIDI control change messages (CC) for ADSR-like parameters
-      # Here's an example of assigning them to specific CC numbers (adjust as needed)
-      cc_attack = 1  # CC 01 for attack
-      cc_decay = 2   # CC 02 for decay
-      cc_sustain = 3 # CC 03 for sustain
-      cc_release = 4 # CC 04 for release
-
-      # Create MIDI controller messages for ADSR parameters
-      midi_messages = [
-        [0xB0, cc_attack, attack_midi],     # Controller for Attack (CC 01)
-        [0xB0, cc_decay, decay_midi],       # Controller for Decay (CC 02)
-        [0xB0, cc_sustain, sustain_midi],   # Controller for Sustain (CC 03)
-        [0xB0, cc_release, release_midi]    # Controller for Release (CC 04)
-      ]
-
-      # Return the MIDI controller messages
-      midi_messages
-    end
+    private
 
     # Convert modulation parameters to MIDI controller messages
     def handle_modulation_expression
@@ -178,6 +147,37 @@ module Sidtool
       # Modify this mapping as per your requirements.
       # Example: Assuming pitch_bend range is -1 to 1
       8192 + (pitch_bend * 8192).to_i
+    end
+
+    # Convert ADSR parameters to MIDI controller messages
+    def handle_attack_decay_sustain_release
+      # Mapping SID's ADSR to MIDI's ADSR-like parameters
+      # Note: MIDI doesn't have a direct ADSR envelope control, but we can use various controllers
+      #       to simulate the effect. This is a basic mapping and might need adjustments.
+
+      # Calculate MIDI values based on SID ADSR parameters
+      attack_midi = (@attack * 127).to_i  # Scale attack to MIDI range (0-127)
+      decay_midi = (@decay * 127).to_i    # Scale decay to MIDI range (0-127)
+      sustain_midi = (@sustain * 127).to_i  # Scale sustain to MIDI range (0-127)
+      release_midi = (@release * 127).to_i  # Scale release to MIDI range (0-127)
+
+      # You can use MIDI control change messages (CC) for ADSR-like parameters
+      # Here's an example of assigning them to specific CC numbers (adjust as needed)
+      cc_attack = 1  # CC 01 for attack
+      cc_decay = 2   # CC 02 for decay
+      cc_sustain = 3 # CC 03 for sustain
+      cc_release = 4 # CC 04 for release
+
+      # Create MIDI controller messages for ADSR parameters
+      midi_messages = [
+        [0xB0, cc_attack, attack_midi],     # Controller for Attack (CC 01)
+        [0xB0, cc_decay, decay_midi],       # Controller for Decay (CC 02)
+        [0xB0, cc_sustain, sustain_midi],   # Controller for Sustain (CC 03)
+        [0xB0, cc_release, release_midi]    # Controller for Release (CC 04)
+      ]
+
+      # Return the MIDI controller messages
+      midi_messages
     end
   end
 end
