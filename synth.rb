@@ -32,7 +32,7 @@ def initialize(start_frame)
   @pitch_bend = 0               # Pitch bend parameter (default to 0, neutral position)
 end
 
-    def frequency=(frequency)
+def frequency=(frequency)
       if @frequency
         previous_midi, current_midi = sid_frequency_to_nearest_midi(@frequency), sid_frequency_to_nearest_midi(frequency)
         if slide_detected?(@frequency, frequency)
@@ -122,7 +122,7 @@ end
 
     private
 
-    # Convert modulation parameters to MIDI controller messages
+# Convert modulation parameters to MIDI controller messages
     def handle_modulation_expression
       # The SID's modulation effects can be mapped to MIDI's modulation wheel or expression controller
       [
@@ -133,7 +133,7 @@ end
       ]
     end
 
-    # Convert pitch bend parameter to MIDI pitch bend messages
+ # Convert pitch bend parameter to MIDI pitch bend messages
     def handle_pitch_bend
       # SID's pitch-related parameters can be mapped to MIDI's pitch bend
       pitch_bend_value = calculate_pitch_bend_value(@pitch_bend)
@@ -157,7 +157,7 @@ end
       8192 + (pitch_bend * 8192).to_i
     end
 
-    # Convert ADSR parameters to MIDI controller messages
+   # Convert ADSR parameters to MIDI controller messages
     def handle_attack_decay_sustain_release
       # Mapping SID's ADSR to MIDI's ADSR-like parameters
       # Note: MIDI doesn't have a direct ADSR envelope control, but we can use various controllers
