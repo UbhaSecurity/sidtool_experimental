@@ -33,7 +33,26 @@
 # - Consider the mix impact of LFO-modulated tracks.
 # - Utilize automation for LFO parameter variation.
 #
-# This information provides a foundational understanding of LFOs in the context of this Synth class.
+# handle_attack_decay_sustain_release Method
+    #
+    # This method manages the mapping of the SID's ADSR (Attack, Decay, Sustain, Release) parameters to MIDI control messages.
+    # The ADSR envelope is a fundamental component in sound synthesis, shaping the amplitude envelope of a sound.
+    #
+    # ADSR Overview:
+    # - Attack: Time it takes for the sound to reach its maximum level after a key is pressed.
+    # - Decay: Time for the sound to decrease to the sustain level after the initial peak.
+    # - Sustain: The level at which the sound remains after the decay phase, as long as the key is held down.
+    # - Release: Time for the sound to fade to silence after the key is released.
+    #
+    # The method converts ADSR values into MIDI controller messages, which can be interpreted by MIDI-enabled devices or software.
+    # These messages allow for dynamic control over sound shaping in a MIDI environment.
+    #
+    # Usage Notes:
+    # - Each ADSR phase can be mapped to a specific MIDI controller number.
+    # - The method scales the ADSR parameters to fit the MIDI controller value range (0-127).
+    # - This implementation provides a basic mapping which can be adjusted according to specific needs or hardware/software specifications.
+    #
+    # The ADSR envelope is crucial for adding expressiveness and dynamic characteristics to the synthesized sound.
 
 module Sidtool
   class Synth
