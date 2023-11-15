@@ -41,37 +41,43 @@ module Sidtool
     attr_accessor :waveform, :frequency, :pulse_width, :filter_cutoff, :filter_resonance
     attr_accessor :attack, :decay, :sustain, :release, :osc_sync, :ring_mod_effect
 
+    # Constants for slide detection and handling
     SLIDE_THRESHOLD = 60
     SLIDE_DURATION_FRAMES = 20
 
-def initialize(start_frame)
-  # Store the start frame for this synth voice
-  @start_frame = start_frame
+    # Initialize a new Synth instance.
+    # @param start_frame [Integer] The frame number where this synth instance begins.
+    def initialize(start_frame)
+      # The starting frame of the synth voice, used for timing control.
+      @start_frame = start_frame
 
-  # Initialize an empty array to store control change messages
-  @controls = []
+      # An array to store control changes for the synth parameters over time.
+      @controls = []
 
-  # Initialize attributes for various parameters
-  @frequency = nil              # Current frequency
-  @released_at = nil            # Release timestamp
-  @waveform = :triangle         # Default waveform
-  @pulse_width = 0              # Pulse width (if applicable)
-  @attack = 0                   # Attack time (in seconds)
-  @decay = 0                    # Decay time (in seconds)
-  @sustain = 0                  # Sustain level (0.0 to 1.0)
-  @release = 0                  # Release time (in seconds)
-  @filter_cutoff = 1024         # Default middle value for the SID filter cutoff
-  @filter_resonance = 8         # Default middle value for the SID filter resonance
-  @osc_sync = 0                 # Oscillator sync effect parameter
-  @ring_mod_effect = 0          # Ring modulation effect parameter
-  @modulation = 0               # Modulation parameter (default to 0)
-  @expression = 0               # Expression parameter (default to 0)
-  @pitch_bend = 0               # Pitch bend parameter (default to 0, neutral position)
-end
+      # Default values for various synth parameters.
+      @frequency = nil
+      @released_at = nil
+      @waveform = :triangle
+      @pulse_width = 0
+      @attack = 0
+      @decay = 0
+      @sustain = 0
+      @release = 0
+      @filter_cutoff = 1024
+      @filter_resonance = 8
+      @osc_sync = 0
+      @ring_mod_effect = 0
+      @modulation = 0
+      @expression = 0
+      @pitch_bend = 0
+    end
 
-def frequency=(frequency)
+    # Set the frequency and handle slides if detected.
+    # @param frequency [Float] The new frequency to set.
+    def frequency=(frequency)
       if @frequency
-        previous_midi, current_midi = sid_frequency_to_nearest_midi(@frequency), sid_frequency_to_nearest_midi(frequency)
+        previous_midi = sid_frequency_to_nearest_midi(@frequency)
+        current_midi = sid_frequency_to_nearest_midi(frequency)
         if slide_detected?(@frequency, frequency)
           handle_slide(previous_midi, current_midi)
         else
@@ -81,6 +87,7 @@ def frequency=(frequency)
       @frequency = frequency
     end
 
+    # Trigger the release of the synth, marking the beginning of the release phase.
     def release!
       return if released?
 
@@ -89,10 +96,13 @@ def frequency=(frequency)
       @attack, @decay, @sustain_length = adjust_ads(length_of_ads)
     end
 
+    # Check if the synth has been released.
+    # @return [Boolean] True if released, false otherwise.
     def released?
       !!@released_at
     end
 
+    # Stop the synth and calculate the release time if it hasn't been released yet.
     def stop!
       if released?
         @release = [@release, (STATE.current_frame - @released_at) / FRAMES_PER_SECOND].min
@@ -102,14 +112,21 @@ def frequency=(frequency)
       end
     end
 
+    # Convert the synth state to an array format, typically used for MIDI or other data representations.
+    # @return [Array] The synth state as an array.
     def to_a
       [@start_frame, tone, @waveform, @attack.round(3), @decay.round(3), @sustain_length.round(3), @release.round(3), @controls]
     end
 
+    # Convert the current frequency to the nearest MIDI note.
+    # @return [Integer] The nearest MIDI note number.
     def tone
       sid_frequency_to_nearest_midi(@frequency)
     end
 
+    # Set the frequency of the synth at a specific frame.
+    # @param frame [Integer] The frame number to set the frequency.
+    # @param frequency [Float] The frequency to set.
     def set_frequency_at_frame(frame, frequency)
       return if frame < @start_frame
 
@@ -120,11 +137,19 @@ def frequency=(frequency)
 
     private
 
+    # Detect if a slide is occurring between two frequencies.
+    # @param old_frequency [Float] The old frequency.
+    # @param new_frequency [Float] The new frequency.
+    # @return [Boolean] True if a slide is detected, false otherwise.
     def slide_detected?(old_frequency, new_frequency)
-      old_midi, new_midi = sid_frequency_to_nearest_midi(old_frequency), sid_frequency_to_nearest_midi(new_frequency)
+      old_midi = sid_frequency_to_nearest_midi(old_frequency)
+      new_midi = sid_frequency_to_nearest_midi(new_frequency)
       (new_midi - old_midi).abs > SLIDE_THRESHOLD
     end
 
+    # Handle a slide from one MIDI note to another.
+    # @param start_midi [Integer] The starting MIDI note.
+    # @param end_midi [Integer] The ending MIDI note.
     def handle_slide(start_midi, end_midi)
       midi_step = (end_midi - start_midi) / SLIDE_DURATION_FRAMES.to_f
       (1..SLIDE_DURATION_FRAMES).each do |frame_offset|
@@ -133,6 +158,9 @@ def frequency=(frequency)
       end
     end
 
+    # Adjust the ADS (Attack, Decay, Sustain) lengths based on the total length of the ADS phase.
+    # @param length_of_ads [Float] The total length of the ADS phase.
+    # @return [Array] Adjusted lengths of attack, decay, and sustain.
     def adjust_ads(length_of_ads)
       if length_of_ads < @attack
         [length_of_ads, 0, 0]
@@ -143,19 +171,33 @@ def frequency=(frequency)
       end
     end
 
+    # Convert SID frequency to the nearest MIDI note number.
+    # @param sid_frequency [Integer] The SID frequency.
+    # @return [Integer] The nearest MIDI note number.
     def sid_frequency_to_nearest_midi(sid_frequency)
       actual_frequency = sid_frequency_to_actual_frequency(sid_frequency)
       nearest_tone(actual_frequency)
     end
 
+    # Find the nearest MIDI tone for a given frequency.
+    # @param frequency [Float] The frequency.
+    # @return [Integer] The nearest MIDI tone.
     def nearest_tone(frequency)
       midi_tone = (12 * (Math.log(frequency * 0.0022727272727) / Math.log(2))) + 69
       midi_tone.round
     end
 
+    # Convert SID frequency to actual frequency (in Hz).
+    # @param sid_frequency [Integer] The SID frequency.
+    # @return [Float] The actual frequency in Hz.
     def sid_frequency_to_actual_frequency(sid_frequency)
       (sid_frequency * (CLOCK_FREQUENCY / 16777216)).round(2)
     end
+
+    # Other private methods for modulation, pitch bend, ADSR handling, etc., go here...
+  end
+end
+
 
     private
 
