@@ -1,3 +1,40 @@
+# Sidtool::Synth Class
+# 
+# The Synth class includes an LFO (Low-Frequency Oscillator) which is a crucial element in 
+# sound synthesis and modulation. The LFO in this class is designed to modulate various 
+# parameters of the synthesizer, adding dynamic and expressive characteristics to the sound.
+#
+# LFO Overview:
+# - Low Frequency: Operates below human hearing threshold, typically below 20 Hz.
+# - Oscillator: Regularly varies over time, influencing other sound parameters.
+#
+# LFO Parameters:
+# 1. Rate/Speed: Determines the oscillation speed. Faster rate equals rapid modulation.
+# 2. Depth/Intensity: Controls the extent of the LFO's effect on the modulated parameter.
+# 3. Waveform: Shapes of the wave (sine, square, triangle, etc.) affect the modulation style.
+# 4. Phase: Starting point in the waveform’s cycle, useful for synchronization.
+# 5. Destination: The parameter being modulated (e.g., pitch, volume, filter cutoff).
+#
+# LFO Uses in Synths:
+# - Modulating synth parameters like pitch, amplitude, filter cutoff for effects like vibrato, tremolo, wah-wah.
+# - Applying to audio effect parameters, creating dynamic effects.
+# - Serving as an alternative to manual automation in DAWs.
+# - Creating rhythmic elements by syncing to the track's tempo.
+# - Expanding sound design possibilities with evolving textures and patterns.
+#
+# Advanced Techniques:
+# - LFO on LFO: Complex modulations by applying an LFO to another LFO's parameters.
+# - Envelope-Controlled LFOs: Using envelopes to dynamically control LFO settings.
+# - MIDI Sync: Ensuring rhythmic consistency by syncing LFOs to the MIDI clock.
+#
+# Usage Tips:
+# - Use subtlety for modulation depth.
+# - Experiment with different waveforms for varied effects.
+# - Consider the mix impact of LFO-modulated tracks.
+# - Utilize automation for LFO parameter variation.
+#
+# This information provides a foundational understanding of LFOs in the context of this Synth class.
+
 module Sidtool
   class Synth
     attr_reader :start_frame, :controls
