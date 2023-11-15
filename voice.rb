@@ -146,18 +146,6 @@ module Sidtool
       midi_note = 69 + 12 * Math.log2(frequency / 440.0)
       midi_note.round
     end
-
-    # Conversion function for attack parameter based on SID 6581 specifications.
-    def convert_attack(attack)
-      # Implement conversion logic here...
-      # ...
-    end
-
-    # Conversion function for decay and release parameters based on SID 6581 specifications.
-    def convert_decay_or_release(decay_or_release)
-      # Implement conversion logic here...
-      # ...
-    end
  
 def convert_attack(attack)
   # Converts the SID's attack rate value (0-15) to a corresponding time duration.
