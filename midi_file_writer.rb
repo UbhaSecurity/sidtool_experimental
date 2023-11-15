@@ -18,12 +18,29 @@ ENVELOPE_RATES = {
   sid_release: [0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0]
 }
 
-DECAY_RELEASE_RATES = {
-  0 => 6, 1 => 24, 2 => 48, 3 => 72,
-  4 => 114, 5 => 168, 6 => 204, 7 => 240,
-  8 => 300, 9 => 750, 10 => 1500, 11 => 2400,
-  12 => 3000, 13 => 9000, 14 => 15000, 15 => 24000
-}
+    # Lookup table for decay and release rates based on SID's specifications
+    DECAY_RELEASE_RATES = {
+      # The values here represent the time (in milliseconds) it takes for the decay or release
+      # phase to move from peak amplitude to zero amplitude.
+      # These timings are derived from SID's technical documentation and are based on a
+      # standard 1.0 MHz system clock (02 clock). For each rate value (0 to 15), the SID chip
+      # has predefined times for decay and release phases.
+      #
+      # The decay/release time per cycle is given in the SID manual (refer to Table 2 in the SID documentation).
+      # The actual time is calculated by multiplying the rate value with the clock period,
+      # which is the inverse of the clock frequency (1 / 1.0 MHz = 1 μs).
+      # For example, a decay rate of 0 corresponds to 6 ms time per cycle,
+      # which means it takes 6 ms for the sound to decay from its peak to zero amplitude.
+      0 => 6, 1 => 24, 2 => 48, 3 => 72,
+      4 => 114, 5 => 168, 6 => 204, 7 => 240,
+      8 => 300, 9 => 750, 10 => 1500, 11 => 2400,
+      12 => 3000, 13 => 9000, 14 => 15000, 15 => 24000
+      # These values are in milliseconds and are scaled based on the 1.0 MHz clock.
+      # The calculation for each of these values is based on SID's internal timing mechanisms,
+      # which are controlled by the system clock and the decay/release rate settings.
+      # For example, a rate setting of 0 (6 ms) means the decay/release phase completes in 6 ms,
+      # which corresponds to a quick fall in sound amplitude.
+    }
 
 ATTACK_RATES = {
   0 => 2, 1 => 8, 2 => 16, 3 => 24,
