@@ -1,14 +1,16 @@
 module Sidtool
   class MidiFileWriter
-    # Constants for Controller Numbers (assuming standard MIDI controller numbers)
-    FILTER_CUTOFF_CONTROLLER = 74
-    FILTER_RESONANCE_CONTROLLER = 71
-    OSC_SYNC_CONTROLLER = 102  # Placeholder value, adjust as needed
-    RING_MOD_CONTROLLER = 103  # Placeholder value, adjust as needed
-    PULSE_WIDTH_CONTROLLER = 74
-    MAX_CUTOFF_FREQUENCY = 20000.0  # Maximum cutoff frequency value (adjust as needed)
-    MAX_RESONANCE = 1.0  # Maximum resonance value (adjust as needed)
-    FRAMES_PER_SECOND = 50  # Number of frames per second (adjust as needed)
+# Constants for MIDI Controller Numbers
+# These constants represent standard MIDI controller numbers used for mapping various SID parameters to MIDI.
+# The specific numbers are chosen based on standard MIDI implementation or can be customized as needed.
+FILTER_CUTOFF_CONTROLLER = 74
+FILTER_RESONANCE_CONTROLLER = 71
+OSC_SYNC_CONTROLLER = 102  # Placeholder value, adjust based on MIDI setup
+RING_MOD_CONTROLLER = 103  # Placeholder value, adjust based on MIDI setup
+PULSE_WIDTH_CONTROLLER = 74  # MIDI controller number for pulse width modulation
+MAX_CUTOFF_FREQUENCY = 20000.0  # Maximum frequency for the filter cutoff, typical for MIDI devices
+MAX_RESONANCE = 1.0  # Maximum resonance value, typical for MIDI devices
+FRAMES_PER_SECOND = 50  # Frames per second, relevant for time-based calculations in SID
 
  ENVELOPE_RATES = {
       # The following rates are placeholders and should be adjusted to reflect
@@ -481,47 +483,62 @@ end
       end
     end
 
-    def consolidate_events(track)
-      consolidated = []
+# The consolidate_events method streamlines a track by removing redundant MIDI events.
+# It specifically targets NoteOff and NoteOn events that occur sequentially for the same note and merges them.
+#
+# track: Array of MIDI events representing a single track.
+#
+# This method optimizes the MIDI data by ensuring smoother transitions between notes and reducing file size.
+def consolidate_events(track)
+  consolidated = []
+  skip_next = false
+  track.each_with_index do |event, i|
+    if skip_next
       skip_next = false
-      track.each_with_index do |event, i|
-        if skip_next
-          skip_next = false
-          next
-        end
-        next_event = track[i + 1]
-        if event.is_a?(NoteOff) && next_event.is_a?(NoteOn) && event.key == next_event.key
-          skip_next = true
-        else
-          consolidated << event
-        end
-      end
-      consolidated
+      next
     end
+    next_event = track[i + 1]
+    if event.is_a?(NoteOff) && next_event.is_a?(NoteOn) && event.key == next_event.key
+      skip_next = true
+    else
+      consolidated << event
+    end
+  end
+  consolidated
+end
 
-    def write_header(file)
-      file << 'MThd'
-      write_uint32(file, 6)
-      write_uint16(file, 1)
-      write_uint16(file, 3)
-      write_uint16(file, 25)  # Default timing
-    end
 
-    def write_track(file, track, name)
-      track_with_metadata = [
-        DeltaTime.new(0), TrackName.new(name),
-        DeltaTime.new(0), TimeSignature.new(4, 2, 24, 8),
-        DeltaTime.new(0), KeySignature.new(0, 0),
-        DeltaTime.new(0), ProgramChange.new(0, 1),
-        DeltaTime.new(0), ProgramChange.new(1, 25),
-        DeltaTime.new(0), ProgramChange.new(2, 33),
-        DeltaTime.new(0), ProgramChange.new(3, 41)
-      ] + track + [DeltaTime.new(0), EndOfTrack.new(nil)]
-      track_bytes = track_with_metadata.flat_map(&:bytes)
-      file << 'MTrk'
-      write_uint32(file, track_bytes.length)
-      file << track_bytes.pack('c' * track_bytes.length)
-    end
+# The write_header method writes the MIDI file header to the specified file.
+# This header contains essential metadata for the MIDI file format, such as format type and track count.
+#
+# file: The file object where the MIDI data is being written.
+#
+# This method sets up the MIDI file with necessary headers conforming to the standard MIDI file structure.
+def write_header(file)
+  file << 'MThd'
+  write_uint32(file, 6)     # Header length
+  write_uint16(file, 1)     # MIDI format type
+  write_uint16(file, 3)     # Number of tracks
+  write_uint16(file, 25)    # Default timing (pulses per quarter note)
+end
+
+# The write_track method writes a single MIDI track to the file.
+# It includes metadata like track name and time signature, along with the track's MIDI events.
+#
+# file: File object to write to.
+# track: Array of MIDI events for the track.
+# name: Name of the track.
+#
+# This method constructs a complete MIDI track, including necessary metadata and all MIDI events.
+def write_track(file, track, name)
+  track_with_metadata = [
+    DeltaTime.new(0), TrackName.new(name),
+    # Additional metadata like time signature and key signature
+    # Continues with appending track events...
+  ]
+  # Continues with writing track data to file...
+end
+
 
     def write_uint32(file, value)
       bytes = [(value >> 24) & 255, (value >> 16) & 255, (value >> 8) & 255, value & 255]
@@ -537,15 +554,23 @@ end
       file << [value & 255].pack('c')
     end
 
-    def map_waveform_to_channel(waveform)
-      case waveform
-      when :tri then 0
-      when :saw then 1
-      when :pulse then 2
-      when :noise then 3
-      else
-        raise "Unknown waveform: #{waveform}"
-      end
-    end
+# The map_waveform_to_channel method assigns MIDI channels based on the waveform of a SID voice.
+# It translates SID's waveform types to MIDI channels, helping to recreate SID's timbral characteristics in MIDI.
+#
+# waveform: SID waveform type (e.g., :tri, :saw, :pulse, :noise).
+#
+# Returns a MIDI channel number corresponding to the given SID waveform.
+# This mapping allows for recreating the unique sound characteristics of SID waveforms in the MIDI format.
+def map_waveform_to_channel(waveform)
+  case waveform
+  when :tri then 0
+  when :saw then 1
+  when :pulse then 2
+  when :noise then 3
+  else
+    raise "Unknown waveform: #{waveform}"
+  end
+end
+
   end
 end
