@@ -274,24 +274,39 @@ module Sidtool
       midi_sustain_level = (sid_sustain / 15.0 * 127).round.clamp(0, 127)
       midi_sustain_level
     end
+    # The attack_time method calculates the time in milliseconds for the attack phase based on the SID value.
+    # The SID chip provides 16 different rates for the attack phase, ranging from 0 to 15.
+    # Each rate corresponds to a different time duration for the attack phase.
+    #
+    # Attack Rate calculation (from SID documentation): Refer to ATTACK_RATES table
+    # This method accurately reflects the SID's attack behavior in the MIDI format.
+    def attack_time(sid_attack)
+      ATTACK_RATES[sid_attack] * 1000  # Convert to milliseconds
+    end
 
-def attack_time(sid_attack)
-  # Assuming sid_attack is between 0 and 15
-  ATTACK_RATES[sid_attack] * 1000  # Convert to milliseconds
-end
+    # The release_time method calculates the time in milliseconds for the release phase.
+    # This is a placeholder implementation and should be replaced with accurate calculations based on the SID chip's release characteristics.
+    #
+    # Release time calculation: Currently using a placeholder formula, needs accurate SID release time mapping.
+    def release_time(release)
+      release * 50 # Placeholder value, to be replaced with SID-specific calculations
+    end
 
-def release_time(release)
-  # Implement based on SID's release characteristics
-  release * 50 # Placeholder value
-end
+    # The map_decay_to_cc method maps SID's decay value to a MIDI Control Change (CC) value.
+    # SID decay value ranges from 0 to 15 and this method linearly maps it to MIDI CC range 0 to 127.
+    #
+    # Decay mapping: Linear transformation from SID decay value to MIDI CC value.
+    def map_decay_to_cc(decay)
+      (decay / 15.0 * 127).round.clamp(0, 127)
+    end
 
-def map_decay_to_cc(decay)
-  (decay / 15.0 * 127).round.clamp(0, 127)
-end
-
-def map_release_to_velocity(release)
-  (release / 15.0 * 127).round.clamp(0, 127)
-end
+    # The map_release_to_velocity method maps SID's release value to MIDI velocity.
+    # Similar to decay, SID release value ranges from 0 to 15 and is linearly mapped to MIDI velocity range 0 to 127.
+    #
+    # Release mapping: Linear transformation from SID release value to MIDI velocity.
+    def map_release_to_velocity(release)
+      (release / 15.0 * 127).round.clamp(0, 127)
+    end
 
     # Map SID filter parameters to MIDI.
     # This function converts the SID chip's filter parameters, specifically the
