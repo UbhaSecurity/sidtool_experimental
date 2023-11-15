@@ -110,11 +110,6 @@ module Sidtool
       raise "Unsupported SID register address: #{address}"
     end
 
-    # ... (other methods and class implementation) ...
-  end
-end
-
-
     def generate_sound
       # Iterate over each voice to generate sound
       @voices.each do |voice|
@@ -122,20 +117,21 @@ end
       end
     end
 
-  def process_audio(sample_rate)
-    @voices.each do |voice|
-      phase = calculate_phase(voice, sample_rate)
-      waveform_output = voice.generate_waveform(phase)
-      adsr_output = process_adsr(voice, sample_rate)
-      final_output = waveform_output * adsr_output
-      # Further processing like applying global filters can be done here
+    def process_audio(sample_rate)
+      @voices.each do |voice|
+        phase = calculate_phase(voice, sample_rate)
+        waveform_output = voice.generate_waveform(phase)
+        adsr_output = process_adsr(voice, sample_rate)
+        final_output = waveform_output * adsr_output
+        # Further processing like applying global filters can be done here
+      end
     end
-  end
 
-  private
+    private
 
-  def calculate_phase(voice, sample_rate)
-    voice.phase = (voice.phase + (voice.frequency.to_f / sample_rate)) % 1.0
-    voice.phase
+    def calculate_phase(voice, sample_rate)
+      voice.phase = (voice.phase + (voice.frequency.to_f / sample_rate)) % 1.0
+      voice.phase
+    end
   end
 end
