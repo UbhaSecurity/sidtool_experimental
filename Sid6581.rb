@@ -65,10 +65,55 @@ module Sidtool
       end
     end
 
-    def read_register(address)
-      # Implement reading from the SID registers
-      # ...
+    def read_sid_register(address)
+      case address
+      when *FREQ_LO
+        voice_index = FREQ_LO.index(address)
+        return @voices[voice_index].frequency_low
+      when *FREQ_HI
+        voice_index = FREQ_HI.index(address)
+        return @voices[voice_index].frequency_high
+      when *PW_LO
+        voice_index = PW_LO.index(address)
+        return @voices[voice_index].pulse_low
+      when *PW_HI
+        voice_index = PW_HI.index(address)
+        return @voices[voice_index].pulse_high
+      when *CR
+        voice_index = CR.index(address)
+        return @voices[voice_index].control_register
+      when *AD
+        voice_index = AD.index(address)
+        return @voices[voice_index].attack_decay
+      when *SR
+        voice_index = SR.index(address)
+        return @voices[voice_index].sustain_release
+      when FC_LO
+        return @global_filter_cutoff & 0x00FF
+      when FC_HI
+        return (@global_filter_cutoff >> 8) & 0x00FF
+      when RES_FILT
+        return @global_filter_resonance
+      when MODE_VOL
+        return @global_volume
+      else
+        # Handle unsupported SID register or other errors
+        handle_sid_register_error(address)
+        return 0x00  # You can return a default value or handle errors as needed
+      end
     end
+
+    # Implement a method to handle SID register errors
+    def handle_sid_register_error(address)
+      # You can implement custom error handling logic here
+      # For example, you can raise an exception or log the error
+      raise "Unsupported SID register address: #{address}"
+    end
+
+    # ... (other methods and class implementation) ...
+  end
+end
+
 
     def generate_sound
       # Iterate over each voice to generate sound
