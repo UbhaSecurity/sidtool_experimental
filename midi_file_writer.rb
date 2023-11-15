@@ -18,7 +18,6 @@ ENVELOPE_RATES = {
   sid_release: [0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0]
 }
 
-    # Lookup table for decay and release rates based on SID's specifications
     DECAY_RELEASE_RATES = {
       # The values here represent the time (in milliseconds) it takes for the decay or release
       # phase to move from peak amplitude to zero amplitude.
@@ -42,12 +41,25 @@ ENVELOPE_RATES = {
       # which corresponds to a quick fall in sound amplitude.
     }
 
-ATTACK_RATES = {
-  0 => 2, 1 => 8, 2 => 16, 3 => 24,
-  4 => 38, 5 => 56, 6 => 68, 7 => 80,
-  8 => 100, 9 => 250, 10 => 500, 11 => 800,
-  12 => 1000, 13 => 3000, 14 => 5000, 15 => 8000
-}
+    ATTACK_RATES = {
+      # The values represent the time (in milliseconds) for the attack phase to rise from
+      # zero amplitude to peak amplitude. These values are defined by the SID's hardware
+      # and are dependent on the system clock frequency.
+      #
+      # The SID's technical documentation specifies the time each attack rate value (0 to 15)
+      # takes to reach full volume (refer to Table 2 in the SID documentation). The timing is
+      # calculated considering the system clock frequency which is typically 1.0 MHz for the SID.
+      # For instance, an attack rate of 0 corresponds to a 2 ms time per cycle, meaning it takes
+      # 2 ms for the attack phase to reach its peak amplitude from silence.
+      0 => 2, 1 => 8, 2 => 16, 3 => 24,
+      4 => 38, 5 => 56, 6 => 68, 7 => 80,
+      8 => 100, 9 => 250, 10 => 500, 11 => 800,
+      12 => 1000, 13 => 3000, 14 => 5000, 15 => 8000
+      # The actual calculation for each rate value is derived from the SID's timing control,
+      # which is directly influenced by the clock input. For example, with an attack value of 2,
+      # the attack phase would take 16 ms to go from zero to full amplitude. These times are 
+      # relevant to simulate the SID's envelope characteristics accurately in the MIDI domain.
+    }
 
     # Define the SID to MIDI note table as a constant within the MidiFileWriter class
     SID_TO_MIDI_NOTE_TABLE = begin
