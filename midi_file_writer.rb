@@ -207,11 +207,16 @@ module Sidtool
       [velocity, decay_value, sustain_value, release_value]
     end
 
-def calculate_pitch_from_sid(sid_frequency)
-  # Find the closest frequency in the table and return its corresponding MIDI note number
-  closest_frequency = SID_TO_MIDI_NOTE_TABLE.keys.min_by { |k| (k - sid_frequency).abs }
-  SID_TO_MIDI_NOTE_TABLE[closest_frequency]
-end
+    # The calculate_pitch_from_sid method converts a SID frequency to a corresponding MIDI note number.
+    # The SID chip generates frequencies based on a 16-bit number and the system clock frequency.
+    # This method finds the closest frequency in the SID_TO_MIDI_NOTE_TABLE and returns the MIDI note number.
+    #
+    # SID Frequency calculation: Fout = (Fn * Fclk/16777216) Hz
+    # This method ensures the pitch in the MIDI representation matches the original SID sound.
+    def calculate_pitch_from_sid(sid_frequency)
+      closest_frequency = SID_TO_MIDI_NOTE_TABLE.keys.min_by { |k| (k - sid_frequency).abs }
+      SID_TO_MIDI_NOTE_TABLE[closest_frequency]
+    end
 
     # Convert SID pulse width to MIDI control change value.
     # This function maps the SID chip's pulse width parameter to a MIDI control change
@@ -251,16 +256,24 @@ end
       [velocity, attack_time, decay_time, sustain_level, release_time]
     end
 
-def decay_release_time(sid_value)
-  # Assuming sid_value is between 0 and 15
-  DECAY_RELEASE_RATES[sid_value] * 1000  # Convert to milliseconds
-end
+    # The decay_release_time method calculates the time in milliseconds for decay or release based on the SID value.
+    # The SID chip has specific rates for decay and release, represented in a range from 0 to 15, each corresponding to a different time.
+    #
+    # Decay/Release Rate calculation (from SID documentation): Refer to DECAY_RELEASE_RATES table
+    # This method accurately reflects the SID's decay/release behavior in MIDI format.
+    def decay_release_time(sid_value)
+      DECAY_RELEASE_RATES[sid_value] * 1000  # Convert to milliseconds
+    end
 
-def sustain_level(sid_sustain)
-  # Assuming sid_sustain is between 0 and 15
-  midi_sustain_level = (sid_sustain / 15.0 * 127).round.clamp(0, 127)
-  midi_sustain_level
-end
+    # The sustain_level method calculates the MIDI sustain level based on the SID's sustain value.
+    # The SID chip has 16 linear steps for sustain level (0-15), with this method mapping them to MIDI's 0-127 range.
+    #
+    # Sustain Level calculation: MIDI sustain level = (SID sustain / 15) * 127
+    # This method ensures that the sustain level in the MIDI representation reflects the SID's sustain behavior.
+    def sustain_level(sid_sustain)
+      midi_sustain_level = (sid_sustain / 15.0 * 127).round.clamp(0, 127)
+      midi_sustain_level
+    end
 
 def attack_time(sid_attack)
   # Assuming sid_attack is between 0 and 15
