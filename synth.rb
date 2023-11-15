@@ -293,8 +293,6 @@ module Sidtool
         [0xB0, cc_sustain, sustain_midi],
         [0xB0, cc_release, release_midi]
       ]
-    end
-
     # Return the MIDI controller messages.
     midi_messages
     end
