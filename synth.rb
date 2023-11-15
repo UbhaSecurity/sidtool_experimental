@@ -53,7 +53,6 @@
     # - This implementation provides a basic mapping which can be adjusted according to specific needs or hardware/software specifications.
     #
     # The ADSR envelope is crucial for adding expressiveness and dynamic characteristics to the synthesized sound.
-
 module Sidtool
   class Synth
     attr_reader :start_frame, :controls
@@ -65,6 +64,7 @@ module Sidtool
     SLIDE_DURATION_FRAMES = 20
 
     # Initialize a new Synth instance.
+    #
     # @param start_frame [Integer] The frame number where this synth instance begins.
     def initialize(start_frame)
       # The starting frame of the synth voice, used for timing control.
@@ -92,6 +92,7 @@ module Sidtool
     end
 
     # Set the frequency and handle slides if detected.
+    #
     # @param frequency [Float] The new frequency to set.
     def frequency=(frequency)
       if @frequency
@@ -116,6 +117,7 @@ module Sidtool
     end
 
     # Check if the synth has been released.
+    #
     # @return [Boolean] True if released, false otherwise.
     def released?
       !!@released_at
@@ -132,18 +134,21 @@ module Sidtool
     end
 
     # Convert the synth state to an array format, typically used for MIDI or other data representations.
+    #
     # @return [Array] The synth state as an array.
     def to_a
       [@start_frame, tone, @waveform, @attack.round(3), @decay.round(3), @sustain_length.round(3), @release.round(3), @controls]
     end
 
     # Convert the current frequency to the nearest MIDI note.
+    #
     # @return [Integer] The nearest MIDI note number.
     def tone
       sid_frequency_to_nearest_midi(@frequency)
     end
 
     # Set the frequency of the synth at a specific frame.
+    #
     # @param frame [Integer] The frame number to set the frequency.
     # @param frequency [Float] The frequency to set.
     def set_frequency_at_frame(frame, frequency)
@@ -157,6 +162,7 @@ module Sidtool
     private
 
     # Detect if a slide is occurring between two frequencies.
+    #
     # @param old_frequency [Float] The old frequency.
     # @param new_frequency [Float] The new frequency.
     # @return [Boolean] True if a slide is detected, false otherwise.
@@ -167,6 +173,7 @@ module Sidtool
     end
 
     # Handle a slide from one MIDI note to another.
+    #
     # @param start_midi [Integer] The starting MIDI note.
     # @param end_midi [Integer] The ending MIDI note.
     def handle_slide(start_midi, end_midi)
@@ -178,6 +185,7 @@ module Sidtool
     end
 
     # Adjust the ADS (Attack, Decay, Sustain) lengths based on the total length of the ADS phase.
+    #
     # @param length_of_ads [Float] The total length of the ADS phase.
     # @return [Array] Adjusted lengths of attack, decay, and sustain.
     def adjust_ads(length_of_ads)
@@ -191,7 +199,6 @@ module Sidtool
     end
 
     # Convert SID frequency value to actual frequency in Hertz.
-    # The SID chip's frequency value is a 16-bit number that needs to be converted to an actual frequency.
     #
     # @param sid_frequency [Integer] The frequency value from the SID chip.
     # @return [Float] The actual frequency in Hertz.
@@ -201,8 +208,10 @@ module Sidtool
       # where Fout is the output frequency, Fn is the 16-bit frequency value, and
       # Fclk is the system clock frequency of the SID chip.
       (sid_frequency * (CLOCK_FREQUENCY / 16777216)).round(2)
+    end
 
     # Find the nearest MIDI tone for a given frequency.
+    #
     # @param frequency [Float] The frequency.
     # @return [Integer] The nearest MIDI tone.
     def nearest_tone(frequency)
@@ -211,19 +220,15 @@ module Sidtool
     end
 
     # Convert SID frequency to actual frequency (in Hz).
+    #
     # @param sid_frequency [Integer] The SID frequency.
     # @return [Float] The actual frequency in Hz.
     def sid_frequency_to_actual_frequency(sid_frequency)
       (sid_frequency * (CLOCK_FREQUENCY / 16777216)).round(2)
     end
 
- end
-end
-
-
-    private
-
     # Convert modulation parameters to MIDI controller messages.
+    #
     # This method handles the conversion of SID's modulation effects to MIDI's modulation wheel or expression controller.
     def handle_modulation_expression
       [
@@ -236,6 +241,7 @@ end
     end
 
     # Convert pitch bend parameter to MIDI pitch bend messages.
+    #
     # This method maps the SID's pitch-related parameters to MIDI's pitch bend.
     def handle_pitch_bend
       pitch_bend_value = calculate_pitch_bend_value(@pitch_bend)
@@ -246,6 +252,7 @@ end
     end
 
     # Calculate the modulation value for MIDI (Modulation Wheel).
+    #
     # @param modulation [Integer] The modulation value from the SID.
     # @return [Integer] The corresponding MIDI modulation value.
     def calculate_modulation_value(modulation)
@@ -255,6 +262,7 @@ end
     end
 
     # Calculate the pitch bend value for MIDI.
+    #
     # @param pitch_bend [Float] The pitch bend value from the SID, typically ranging from -1 to 1.
     # @return [Integer] The corresponding MIDI pitch bend value.
     def calculate_pitch_bend_value(pitch_bend)
@@ -264,6 +272,7 @@ end
     end
 
     # Convert ADSR (Attack, Decay, Sustain, Release) parameters to MIDI controller messages.
+    #
     # This method simulates ADSR envelope control using MIDI controllers, as MIDI doesn't have direct ADSR control.
     def handle_attack_decay_sustain_release
       attack_midi = (@attack * 127).to_i  # Scale attack to MIDI range (0-127)
@@ -285,8 +294,10 @@ end
         [0xB0, cc_release, release_midi]
       ]
     end
-      # Return the MIDI controller messages
-      midi_messages
+
+    # Return the MIDI controller messages.
+    midi_messages
     end
   end
 end
+
