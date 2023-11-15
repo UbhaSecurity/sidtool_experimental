@@ -196,13 +196,22 @@ def convert_attack(attack)
     raise "Unknown attack value: #{attack}"
   end
 end
-
-
+ # Converts the SID's decay or release value to a duration in seconds.
+    # This method translates the SID chip's decay and release rates (ranging from 0 to 15)
+    # into actual time durations based on the SID 6581 specifications. These values determine
+    # the time it takes for the sound to fall from its peak amplitude to the sustain level (decay)
+    # or to silence (release).
+    #
+    # decay_or_release - The decay or release rate value from the SID chip, ranging from 0 to 15.
+    #
+    # The method returns a float representing the duration in seconds for the decay or release phase.
+    # The actual values might slightly differ due to variations in the clock rate of different C64 models
+    # (PAL or NTSC). The provided values assume a clock rate of 1 MHz.
+    #
+    # It raises an exception for any unknown decay or release value, ensuring only valid values are processed.
     def convert_decay_or_release(decay_or_release)
-      # Conversion based on SID 6581 specifications
-      # Implement SID's ADSR conversion for decay and release
       case decay_or_release
-      when 0 then 0.006
+      when 0 then 0.006  # 6 milliseconds
       when 1 then 0.024
       when 2 then 0.048
       when 3 then 0.072
@@ -210,16 +219,18 @@ end
       when 5 then 0.168
       when 6 then 0.204
       when 7 then 0.240
-      when 8 then 0.3
-      when 9 then 0.75
-      when 10 then 1.5
+      when 8 then 0.3   # 300 milliseconds
+      when 9 then 0.75  # 750 milliseconds
+      when 10 then 1.5  # 1.5 seconds
       when 11 then 2.4
-      when 12 then 3
+      when 12 then 3    # 3 seconds
       when 13 then 9
       when 14 then 15
-      when 15 then 24
-      else raise "Unknown value: #{decay_or_release}"
+      when 15 then 24   # 24 seconds, the longest duration
+      else
+        raise "Unknown decay or release value: #{decay_or_release}"
       end
     end
+
   end
 end
