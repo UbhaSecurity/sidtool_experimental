@@ -1,9 +1,14 @@
 module Sidtool
   class Voice
+    # Accessors for various voice parameters like frequency, pulse, control registers, and ADSR values.
     attr_accessor :frequency_low, :frequency_high, :pulse_low, :pulse_high
     attr_accessor :control_register, :attack_decay, :sustain_release
+
+    # Reader for the array of synthesizer instances used by this voice.
     attr_reader :synths
 
+    # Initialize a new Voice instance with SID chip and voice number.
+    # Initializes various parameters and sets up an array to hold synthesizer instances.
     def initialize(sid6581, voice_number)
       @sid6581 = sid6581
       @voice_number = voice_number
@@ -16,6 +21,7 @@ module Sidtool
       @previous_midi_note = nil
     end
 
+    # Called at the end of each frame to update the state of the voice.
     def finish_frame
       if gate
         handle_gate_on
@@ -24,6 +30,7 @@ module Sidtool
       end
     end
 
+    # Immediately stop the current synthesizer.
     def stop!
       @current_synth&.stop!
       @current_synth = nil
@@ -31,14 +38,17 @@ module Sidtool
 
     private
 
+    # Determine if the gate flag is set in the control register.
     def gate
       @control_register & 1 == 1
     end
 
+    # Calculate the frequency from the low and high byte values.
     def frequency
       (@frequency_high << 8) + @frequency_low
     end
 
+    # Determine the waveform type based on the control register.
     def waveform
       case @control_register & 0xF0
       when 0x10 then :tri
@@ -51,18 +61,22 @@ module Sidtool
       end
     end
 
+    # Convert attack value from SID format to a more usable format.
     def attack
       convert_attack(@attack_decay >> 4)
     end
 
+    # Convert decay value from SID format to a more usable format.
     def decay
       convert_decay_or_release(@attack_decay & 0xF)
     end
 
+    # Convert release value from SID format to a more usable format.
     def release
       convert_decay_or_release(@sustain_release & 0xF)
     end
 
+    # Handle logic for when the gate is on.
     def handle_gate_on
       if @current_synth&.released?
         @current_synth.stop!
@@ -79,10 +93,12 @@ module Sidtool
       end
     end
 
+    # Handle logic for when the gate is off.
     def handle_gate_off
       @current_synth&.release!
     end
 
+    # Update properties of the current synthesizer.
     def update_synth_properties
       midi_note = frequency_to_midi(frequency)
       if midi_note != @previous_midi_note
@@ -96,6 +112,7 @@ module Sidtool
       @current_synth.release = release
     end
 
+    # Handle a change in MIDI note.
     def handle_midi_note_change(midi_note)
       if slide_detected?(@previous_midi_note, midi_note)
         handle_slide(@previous_midi_note, midi_note)
@@ -104,10 +121,12 @@ module Sidtool
       end
     end
 
+    # Detect if a slide is occurring between two MIDI notes.
     def slide_detected?(prev_midi_note, new_midi_note)
       (new_midi_note - prev_midi_note).abs > SLIDE_THRESHOLD
     end
 
+    # Handle a slide between two MIDI notes.
     def handle_slide(start_midi, end_midi)
       num_frames = SLIDE_DURATION_FRAMES
       midi_increment = (end_midi - start_midi) / num_frames.to_f
@@ -117,15 +136,29 @@ module Sidtool
       end
     end
 
+    # Convert a MIDI note number to a frequency.
     def midi_to_frequency(midi_note)
       440 * 2 ** ((midi_note - 69) / 12.0)
     end
 
+    # Convert a frequency to a MIDI note number.
     def frequency_to_midi(frequency)
       midi_note = 69 + 12 * Math.log2(frequency / 440.0)
       midi_note.round
     end
 
+    # Conversion function for attack parameter based on SID 6581 specifications.
+    def convert_attack(attack)
+      # Implement conversion logic here...
+      # ...
+    end
+
+    # Conversion function for decay and release parameters based on SID 6581 specifications.
+    def convert_decay_or_release(decay_or_release)
+      # Implement conversion logic here...
+      # ...
+    end
+ 
     def convert_attack(attack)
       # Conversion based on SID 6581 specifications
       # Implement SID's ADSR conversion for attack
