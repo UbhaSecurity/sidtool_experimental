@@ -117,23 +117,39 @@ module Sidtool
     end
 
 
-    def initialize(synths_for_voices, sid6581, cia_timer_a, cia_timer_b)
-      @synths_for_voices = synths_for_voices
-      @sid6581 = sid6581
-      @cia_timer_a = cia_timer_a
-      @cia_timer_b = cia_timer_b
-    end
+# The initialize method sets up the MidiFileWriter with the necessary components for SID-to-MIDI conversion.
+# It takes parameters for different voices of the SID chip, the SID chip itself, and CIA timers.
+#
+# synths_for_voices: Represents the voices (oscillators) of the SID chip.
+# sid6581: Represents the SID chip model (6581 or other) being emulated.
+# cia_timer_a, cia_timer_b: Represent the CIA timers used in SID for timing control.
+#
+# This method initializes the internal state of the MidiFileWriter with these components.
+def initialize(synths_for_voices, sid6581, cia_timer_a, cia_timer_b)
+  @synths_for_voices = synths_for_voices
+  @sid6581 = sid6581
+  @cia_timer_a = cia_timer_a
+  @cia_timer_b = cia_timer_b
+end
 
-    def write_to(path)
-      tracks = @synths_for_voices.map { |synths| build_track(synths) }
-      
-      File.open(path, 'wb') do |file|
-        write_header(file)
-        tracks.each_with_index do |track, index|
-          write_track(file, track, "Voice #{index + 1}")
-        end
-      end
+
+# The write_to method writes the MIDI data to a specified file path.
+# It converts the SID synthesizer data into MIDI tracks and saves them in a MIDI file format.
+#
+# path: The file path where the MIDI file will be saved.
+#
+# This method handles the conversion of SID chip synthesizer data into a standard MIDI file.
+def write_to(path)
+  tracks = @synths_for_voices.map { |synths| build_track(synths) }
+  
+  File.open(path, 'wb') do |file|
+    write_header(file)
+    tracks.each_with_index do |track, index|
+      write_track(file, track, "Voice #{index + 1}")
     end
+  end
+end
+
 
     ControlChange = Struct.new(:channel, :controller, :value) do
       def bytes
@@ -143,6 +159,13 @@ module Sidtool
         [0xB0 + channel, controller, value]
       end
     end
+
+# The build_track method constructs a MIDI track from a set of synthesizer parameters.
+# It translates SID voice data into MIDI messages, accounting for waveform, timing, and effects.
+#
+# synths: Represents a set of synthesizer parameters for a single SID voice.
+#
+# This method creates a MIDI track that mirrors the behavior of a SID voice, considering waveforms, ADSR, and other parameters.
 
     def build_track(synths)
       waveforms = [:tri, :saw, :pulse, :noise]
