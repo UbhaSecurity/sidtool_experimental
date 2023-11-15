@@ -191,14 +191,21 @@ module Sidtool
       track << NoteOff.new(channel, synth.tone, 0)
     end
 
+    # The map_envelope_to_midi method converts SID's ADSR parameters to MIDI values.
+    # It uses the SID's specific attack, decay, sustain, and release rates to determine
+    # the corresponding MIDI values.
+    #
+    # SID's attack, decay, and release values are mapped to time-based MIDI parameters,
+    # while the sustain value is mapped to a MIDI level. This method ensures that the
+    # ADSR behavior of the SID is represented accurately in the MIDI output.
     def map_envelope_to_midi(attack, decay, sustain, release)
-  # Implementing a 1:1 mapping of SID's ADSR parameters to MIDI with scaling and lookup tables
-  velocity = attack * 8  # Scale attack
-  decay_value = ENVELOPE_RATES[:sid_decay][decay]  # Lookup decay rate
-  sustain_value = ENVELOPE_RATES[:sid_sustain][sustain]  # Lookup sustain rate
-  release_value = ENVELOPE_RATES[:sid_release][release]  # Lookup release rate
-  [velocity, decay_value, sustain_value, release_value]
-end
+      # Implementing a 1:1 mapping of SID's ADSR parameters to MIDI with scaling and lookup tables
+      velocity = attack * 8  # Scale attack
+      decay_value = ENVELOPE_RATES[:sid_decay][decay]  # Lookup decay rate
+      sustain_value = ENVELOPE_RATES[:sid_sustain][sustain]  # Lookup sustain rate
+      release_value = ENVELOPE_RATES[:sid_release][release]  # Lookup release rate
+      [velocity, decay_value, sustain_value, release_value]
+    end
 
 def calculate_pitch_from_sid(sid_frequency)
   # Find the closest frequency in the table and return its corresponding MIDI note number
