@@ -176,6 +176,13 @@ module Sidtool
       consolidate_events(track)
     end
 
+    # The handle_adsr method processes the ADSR envelope parameters (Attack, Decay, Sustain, Release)
+    # for a given synth object and applies them to the MIDI track. This method uses the SID chip's
+    # ADSR characteristics to generate MIDI equivalent values.
+    #
+    # The SID chip's ADSR envelope controls the amplitude of a voice with specific rates for attack,
+    # decay, and release, and a sustain level. This method uses these SID parameters to construct
+    # a MIDI envelope that mimics the SID's behavior.
     def handle_adsr(synth, track, channel)
       envelope_type = determine_envelope_type(synth.attack, synth.decay, synth.sustain, synth.release)
       velocity, note_length = map_envelope_to_midi(envelope_type, synth.attack, synth.decay, synth.sustain, synth.release)
