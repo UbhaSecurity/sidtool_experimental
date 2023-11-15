@@ -1,89 +1,91 @@
 module Sidtool
-class Voice
-  attr_accessor :frequency_low, :frequency_high, :pulse_low, :pulse_high
-  attr_accessor :control_register, :attack_decay, :sustain_release
-  attr_reader :synths
+  class Voice
+    attr_accessor :frequency_low, :frequency_high, :pulse_low, :pulse_high
+    attr_accessor :control_register, :attack_decay, :sustain_release
+    attr_reader :synths
 
-  # Initialize a new Voice instance with a reference to the SID chip and its voice number.
-  # @param sid6581 [Sid6581] Reference to the SID chip instance.
-  # @param voice_number [Integer] The number of the voice on the SID chip.
-  def initialize(sid6581, voice_number)
-    @sid6581 = sid6581
-    @voice_number = voice_number
-    @frequency_low = @frequency_high = 0
-    @pulse_low = @pulse_high = 0
-    @control_register = 0
-    @attack_decay = @sustain_release = 0
-    @current_synth = nil
-    @synths = []
-    @previous_midi_note = nil
-  end
-
-  # Updates the state of the voice at the end of each frame.
-  def finish_frame
-    update_sustain_level
-    if gate
-      handle_gate_on
-    else
-      handle_gate_off
+    # Initialize a new Voice instance with a reference to the SID chip and its voice number.
+    #
+    # @param sid6581 [Sid6581] Reference to the SID chip instance.
+    # @param voice_number [Integer] The number of the voice on the SID chip.
+    def initialize(sid6581, voice_number)
+      @sid6581 = sid6581
+      @voice_number = voice_number
+      @frequency_low = @frequency_high = 0
+      @pulse_low = @pulse_high = 0
+      @control_register = 0
+      @attack_decay = @sustain_release = 0
+      @current_synth = nil
+      @synths = []
+      @previous_midi_note = nil
     end
-  end
 
-  # Immediately stops the current synthesizer.
-  def stop!
-    @current_synth&.stop!
-    @current_synth = nil
-  end
-
-  private
-
-  # Determines if the gate flag is set in the control register.
-  # @return [Boolean] True if the gate is on, false otherwise.
-  def gate
-    @control_register & 1 == 1
-  end
-
-  # Calculates the frequency from the low and high byte values.
-  # @return [Float] The frequency value.
-  def frequency
-    (@frequency_high << 8) + @frequency_low
-  end
-
-  # Determines the waveform type based on the control register.
-  # @return [Symbol] The waveform type (:tri, :saw, :pulse, :noise).
-  def waveform
-    case @control_register & 0xF0
-    when 0x10 then :tri
-    when 0x20 then :saw
-    when 0x40 then :pulse
-    when 0x80 then :noise
-    else
-      :noise
+    # Updates the state of the voice at the end of each frame.
+    def finish_frame
+      update_sustain_level
+      if gate
+        handle_gate_on
+      else
+        handle_gate_off
+      end
     end
-  end
 
-  # Converts the attack value from SID format to a usable format.
-  # @return [Float] The converted attack value.
-  def attack
-    convert_attack(@attack_decay >> 4)
-  end
+    # Immediately stops the current synthesizer.
+    def stop!
+      @current_synth&.stop!
+      @current_synth = nil
+    end
 
-  # Converts the decay value from SID format to a usable format.
-  # @return [Float] The converted decay value.
-  def decay
-    convert_decay_or_release(@attack_decay & 0xF)
-  end
+    private
 
-  # Converts the release value from SID format to a usable format.
-  # @return [Float] The converted release value.
-  def release
-    convert_decay_or_release(@sustain_release & 0xF)
-  end
+    # Determines if the gate flag is set in the control register.
+    # @return [Boolean] True if the gate is on, false otherwise.
+    def gate
+      @control_register & 1 == 1
+    end
 
-  # Updates the sustain level based on the sustain_release register.
-  def update_sustain_level
-    @sustain_level = @sustain_release >> 4
-  end
+    # Calculates the frequency from the low and high byte values.
+    # @return [Float] The frequency value.
+    def frequency
+      (@frequency_high << 8) + @frequency_low
+    end
+
+    # Determines the waveform type based on the control register.
+    # @return [Symbol] The waveform type (:tri, :saw, :pulse, :noise).
+    def waveform
+      case @control_register & 0xF0
+      when 0x10 then :tri
+      when 0x20 then :saw
+      when 0x40 then :pulse
+      when 0x80 then :noise
+      else
+        :noise
+      end
+    end
+
+    # Converts the attack value from SID format to a usable format.
+    # @return [Float] The converted attack value.
+    def attack
+      convert_attack(@attack_decay >> 4)
+    end
+
+    # Converts the decay value from SID format to a usable format.
+    # @return [Float] The converted decay value.
+    def decay
+      convert_decay_or_release(@attack_decay & 0xF)
+    end
+
+    # Converts the release value from SID format to a usable format.
+    # @return [Float] The converted release value.
+    def release
+      convert_decay_or_release(@sustain_release & 0xF)
+    end
+
+    # Updates the sustain level based on the sustain_release register.
+    def update_sustain_level
+      @sustain_level = @sustain_release >> 4
+    end
+
     # Handle logic for when the gate is on.
     def handle_gate_on
       if @current_synth&.released?
@@ -154,57 +156,32 @@ class Voice
       midi_note = 69 + 12 * Math.log2(frequency / 440.0)
       midi_note.round
     end
- 
-def convert_attack(attack)
-  # Converts the SID's attack rate value (0-15) to a corresponding time duration.
-  # These durations determine how quickly the sound reaches its peak amplitude from silence.
-  # The values provided here are based on the SID 6581 chip's specifications and represent
-  # the duration of the attack phase in seconds.
-  #
-  # attack - The attack rate value from the SID chip, ranging from 0 to 15.
-  #
-  # The method returns a float representing the duration in seconds for the attack phase.
-  # For example, a value of 0.002 means the attack phase will last 2 milliseconds.
-  #
-  # It is important to adjust these values to match the real behavior of the SID model being emulated,
-  # as different models or revisions of the SID chip might have slightly different ADSR timings.
-  #
-  # The method raises an exception if an unknown attack value is provided, ensuring that
-  # only valid SID attack values are processed.
-  case attack
-  when 0 then 0.002  # Fastest attack, 2 milliseconds
-  when 1 then 0.008
-  when 2 then 0.016
-  when 3 then 0.024
-  when 4 then 0.038
-  when 5 then 0.056
-  when 6 then 0.068
-  when 7 then 0.08
-  when 8 then 0.1   # 100 milliseconds
-  when 9 then 0.25  # Quarter of a second
-  when 10 then 0.5  # Half a second
-  when 11 then 0.8
-  when 12 then 1    # One second
-  when 13 then 3    # Three seconds
-  when 14 then 5    # Five seconds
-  when 15 then 8    # Slowest attack, eight seconds
-  else
-    raise "Unknown attack value: #{attack}"
-  end
-end
- # Converts the SID's decay or release value to a duration in seconds.
-    # This method translates the SID chip's decay and release rates (ranging from 0 to 15)
-    # into actual time durations based on the SID 6581 specifications. These values determine
-    # the time it takes for the sound to fall from its peak amplitude to the sustain level (decay)
-    # or to silence (release).
-    #
-    # decay_or_release - The decay or release rate value from the SID chip, ranging from 0 to 15.
-    #
-    # The method returns a float representing the duration in seconds for the decay or release phase.
-    # The actual values might slightly differ due to variations in the clock rate of different C64 models
-    # (PAL or NTSC). The provided values assume a clock rate of 1 MHz.
-    #
-    # It raises an exception for any unknown decay or release value, ensuring only valid values are processed.
+
+    # Converts the SID's attack rate value to a corresponding time duration.
+    def convert_attack(attack)
+      case attack
+      when 0 then 0.002  # Fastest attack, 2 milliseconds
+      when 1 then 0.008
+      when 2 then 0.016
+      when 3 then 0.024
+      when 4 then 0.038
+      when 5 then 0.056
+      when 6 then 0.068
+      when 7 then 0.08
+      when 8 then 0.1   # 100 milliseconds
+      when 9 then 0.25  # Quarter of a second
+      when 10 then 0.5  # Half a second
+      when 11 then 0.8
+      when 12 then 1    # One second
+      when 13 then 3    # Three seconds
+      when 14 then 5    # Five seconds
+      when 15 then 8    # Slowest attack, eight seconds
+      else
+        raise "Unknown attack value: #{attack}"
+      end
+    end
+
+    # Converts the SID's decay or release value to a duration in seconds.
     def convert_decay_or_release(decay_or_release)
       case decay_or_release
       when 0 then 0.006  # 6 milliseconds
@@ -227,6 +204,5 @@ end
         raise "Unknown decay or release value: #{decay_or_release}"
       end
     end
-
   end
 end
