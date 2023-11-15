@@ -7,22 +7,30 @@ module Sidtool
     SLIDE_THRESHOLD = 60
     SLIDE_DURATION_FRAMES = 20
 
-    def initialize(start_frame)
-      @start_frame = start_frame
-      @controls = []
-      @frequency = nil
-      @released_at = nil
-      @waveform = :triangle
-      @pulse_width = 0
-      @attack = 0
-      @decay = 0
-      @sustain = 0
-      @release = 0
-      @filter_cutoff = 1024  # Default middle value for the SID filter cutoff
-      @filter_resonance = 8  # Default middle value for the SID filter resonance
-      @osc_sync = 0
-      @ring_mod_effect = 0
-    end
+def initialize(start_frame)
+  # Store the start frame for this synth voice
+  @start_frame = start_frame
+
+  # Initialize an empty array to store control change messages
+  @controls = []
+
+  # Initialize attributes for various parameters
+  @frequency = nil              # Current frequency
+  @released_at = nil            # Release timestamp
+  @waveform = :triangle         # Default waveform
+  @pulse_width = 0              # Pulse width (if applicable)
+  @attack = 0                   # Attack time (in seconds)
+  @decay = 0                    # Decay time (in seconds)
+  @sustain = 0                  # Sustain level (0.0 to 1.0)
+  @release = 0                  # Release time (in seconds)
+  @filter_cutoff = 1024         # Default middle value for the SID filter cutoff
+  @filter_resonance = 8         # Default middle value for the SID filter resonance
+  @osc_sync = 0                 # Oscillator sync effect parameter
+  @ring_mod_effect = 0          # Ring modulation effect parameter
+  @modulation = 0               # Modulation parameter (default to 0)
+  @expression = 0               # Expression parameter (default to 0)
+  @pitch_bend = 0               # Pitch bend parameter (default to 0, neutral position)
+end
 
     def frequency=(frequency)
       if @frequency
