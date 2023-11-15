@@ -194,8 +194,7 @@ module Sidtool
       (sid_frequency * (CLOCK_FREQUENCY / 16777216)).round(2)
     end
 
-    # Other private methods for modulation, pitch bend, ADSR handling, etc., go here...
-  end
+ end
 end
 
 
