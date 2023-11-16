@@ -1,19 +1,16 @@
 # Require necessary components for the Sidtool module.
 require 'sidtool/version'
+require 'sidtool/file_reader'
+require 'sidtool/ruby_file_writer'
+require 'sidtool/midi_file_writer'
+require 'sidtool/synth'
+require 'sidtool/voice'
+require 'sidtool/sid'
+require 'sidtool/state' # This now includes the CIATimer class as well
+require 'sidtool/sid_6581'
+require 'mos6510'
 
 module Sidtool
-  # Include various components of the Sidtool module.
-  require 'sidtool/file_reader'
-  require 'sidtool/ruby_file_writer'
-  require 'sidtool/midi_file_writer'
-  require 'sidtool/synth'
-  require 'sidtool/voice'
-  require 'sidtool/sid'
-  require 'sidtool/state'
-  require 'sidtool/cia_timer'
-  require 'sidtool/sid_6581'
-  require 'mos6510'
-
   # Define constants for PAL properties.
   # FRAMES_PER_SECOND sets the frame rate for the emulation, specific to the PAL system.
   # CLOCK_FREQUENCY sets the clock frequency of the SID chip in the PAL system.
@@ -76,3 +73,4 @@ end
 
 # Initialize the SID emulation setup by calling the class method.
 Sidtool.initialize_sid_emulation
+
