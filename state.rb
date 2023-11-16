@@ -137,4 +137,24 @@ module Sidtool
     def update
       @cia_timers.each(&:update)
       handle_interrupts
-      @sid
+      @sid6581.update
+      @current_frame += 1
+    end
+
+    private
+
+    # Handle interrupts from CIA timers or other sources
+    def handle_interrupts
+      @cia_timers.each do |timer|
+        if timer.underflow
+          # Actions to be taken on timer underflow
+        end
+      end
+
+      # Additional logic for handling interrupts
+    end
+
+    # Additional methods for state management
+    # ...
+  end
+end
