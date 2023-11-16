@@ -219,14 +219,6 @@ module Sidtool
       midi_tone.round
     end
 
-    # Convert SID frequency to actual frequency (in Hz).
-    #
-    # @param sid_frequency [Integer] The SID frequency.
-    # @return [Float] The actual frequency in Hz.
-    def sid_frequency_to_actual_frequency(sid_frequency)
-      (sid_frequency * (CLOCK_FREQUENCY / 16777216)).round(2)
-    end
-
     # Convert modulation parameters to MIDI controller messages.
     #
     # This method handles the conversion of SID's modulation effects to MIDI's modulation wheel or expression controller.
