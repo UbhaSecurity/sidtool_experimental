@@ -1,4 +1,3 @@
-```markdown
 # state.rb
 
 ```ruby
