@@ -20,6 +20,19 @@ module Sidtool
       @previous_midi_note = nil
     end
 
+    # Method to apply LFO modulation to voice parameters
+    def modulate_with_lfo
+      @synth.apply_lfo
+      update_sid_registers
+    end
+
+    # Update the SID registers based on the modulated synth parameters
+    def update_sid_registers
+      update_frequency_registers
+      update_pulse_width_registers
+      # Update other registers as needed...
+    end
+
     # Updates the state of the voice at the end of each frame.
     def finish_frame
       update_sustain_level
@@ -37,6 +50,22 @@ module Sidtool
     end
 
     private
+
+    # Update SID frequency registers for this voice
+    def update_frequency_registers
+      frequency = @synth.frequency
+      # Split the frequency into low and high byte and update SID registers
+      @sid6581.set_frequency_low(@voice_number, frequency & 0xFF)
+      @sid6581.set_frequency_high(@voice_number, (frequency >> 8) & 0xFF)
+    end
+
+    # Update SID pulse width registers for this voice
+    def update_pulse_width_registers
+      pulse_width = @synth.pulse_width
+      # Split the pulse width into low and high byte and update SID registers
+      @sid6581.set_pulse_width_low(@voice_number, pulse_width & 0xFF)
+      @sid6581.set_pulse_width_high(@voice_number, (pulse_width >> 8) & 0xFF)
+    end
 
     # Determines if the gate flag is set in the control register.
     # @return [Boolean] True if the gate is on, false otherwise.
