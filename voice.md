@@ -1,5 +1,3 @@
-Here's the Markdown code with formatting for your `Voice` class documentation:
-
 ```markdown
 # Voice Class
 
@@ -227,7 +225,3 @@ def convert_decay_or_release(decay_or_release)
   # ...
 end
 ```
-
-This documentation provides an overview of the `Voice` class, its attributes, and methods, along with explanations for each method's purpose and usage.
-
-Feel free to copy and paste this Markdown code into your project's documentation or README file, making sure to maintain the code formatting and structure.
