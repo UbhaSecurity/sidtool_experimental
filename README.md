@@ -1,7 +1,8 @@
-# README.md for Sidtool Experimental Project
+# Sidtool Experimental Project
 
 ## Overview
-The Sidtool Experimental Project is an advanced emulation suite for the SID (Sound Interface Device) chip, primarily found in the Commodore 64. This project aims to accurately replicate the sound synthesis capabilities of the SID chip for music creation, educational purposes, and historical preservation.
+The Sidtool Experimental Project is an advanced emulation suite for the SID (Sound Interface Device) chip, primarily found in the Commodore 64. 
+This project aims to accurately replicate the sound synthesis capabilities of the SID chip for music creation, educational purposes, and historical preservation.
 
 ## File Descriptions and Functionalities
 
