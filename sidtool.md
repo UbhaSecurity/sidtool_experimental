@@ -1,5 +1,3 @@
-Here's the Markdown (MD) format for the `sidtool.rb` Ruby script you provided. Markdown is great for documenting code, as it allows for clear formatting and easy readability.
-
 ```markdown
 # Sidtool Module in Ruby
 
