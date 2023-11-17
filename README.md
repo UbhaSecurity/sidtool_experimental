@@ -1,74 +1,77 @@
 # Sidtool Experimental Project
 
 ## Overview
-The Sidtool Experimental Project, created by Ole Friis Østergaard, is a sophisticated emulation and interaction suite for the SID (Sound Interface Device) chip, notably used in the Commodore 64. This project aims to accurately replicate the SID's sound synthesis capabilities for educational, musical, and historical preservation purposes.
+The Sidtool Experimental Project, based on by Ole Friis Østergaard sidtool , is an intricate emulation suite for the SID (Sound Interface Device) chip used in the Commodore 64.
+ This project facilitates the accurate emulation of the SID's sound synthesis capabilities for educational purposes, musical production, and technological preservation.
 
 ## Project Details
 - **Author**: Ole Friis Østergaard
-- (c) Ulf Bertilsson (EXPERIMENTAL VERSION)
+- (c) Ulf Bertilsson (Experimental fork)
 - **Source Code**: [GitHub Repository](https://github.com/olefriis/sidtool)
 
-## File Descriptions and Functionalities
+## File Descriptions, Functionalities, and Constants
 
-### 1. Sidtool Module (sidtool.rb)
-- **Purpose**: Main interface and control script for the SID emulation tool.
+### General Constants
+- **FRAMES_PER_SECOND**: Defines the emulation's frame rate, set to match the PAL system's 50 frames per second.
+- **CLOCK_FREQUENCY**: Specifies the clock frequency of the SID chip in a PAL system, set at 985248 Hz, which is crucial for timing and sound generation.
+- **SLIDE_THRESHOLD**: Used in voice handling to determine when a slide between notes is significant enough to be considered a slide rather than a direct step.
+- **SLIDE_DURATION_FRAMES**: Defines how many frames a slide between notes should take, affecting the portamento effect between pitches.
+
+### Sidtool Module (sidtool.rb)
+- **Purpose**: Orchestrates the initialization and execution of the SID emulation.
 - **Key Functionalities**:
-  - **initialize_sid_emulation**: Sets up the emulation environment with `SidWrapper` and `Mos6510::Cpu`.
-  - **emulate**: Runs the main emulation loop, handling SID chip cycles.
+  - **initialize_sid_emulation**: Prepares the emulation environment.
+  - **emulate**: Engages the emulation process, calling the `emulate_cycle` method in a loop.
 
-### 2. Sid Class (sid.rb)
-- **Purpose**: Manages SID chip operations, including register reads/writes and cycle emulation.
+### Sid Class (sid.rb)
+- **Purpose**: Manages the SID chip's state and operations, including register reads/writes and the emulation cycle.
 - **Key Functionalities**:
-  - **write_register**: Handles writing values to SID chip registers.
-  - **read_register**: Manages reading values from SID chip registers.
-  - **emulate_cycle**: Emulates a single cycle of the SID chip, updating timers and generating sound.
+  - **initialize**: Sets up the SID emulation environment with timers and voices.
+  - **emulate_cycle**: Performs a single cycle of SID chip emulation, a cornerstone for sound production.
 
-### 3. Mos6510 Class (Mos6510.rb)
-- **Purpose**: Emulates the MOS Technology 6510 microprocessor.
+### Mos6510 Class (Mos6510.rb)
+- **Purpose**: Emulates the MOS 6510 CPU, integral to the Commodore 64's operation and the SID's functioning.
 - **Key Functionalities**:
-  - **set_mem/get_mem**: Manages memory read/write operations.
-  - **step**: Executes one instruction of the CPU.
-  - **run_cycles**: Runs a specified number of CPU cycles.
+  - **initialize**: Sets up the CPU emulation, including memory and SID reference.
+  - **set_mem/get_mem**: Manages memory operations and SID register interactions.
+  - **step**: Processes a single CPU instruction and updates the cycle count.
 
-### 4. MidiFileWriter Class (midi_file_writer.rb)
-- **Purpose**: Converts SID parameters to MIDI format for use in digital audio workstations (DAWs).
+### MidiFileWriter Class (midi_file_writer.rb)
+- **Purpose**: Transforms SID synthesizer data into a MIDI format usable in various DAWs.
 - **Key Functionalities**:
-  - **write_to**: Writes MIDI data to a specified file path.
-  - **build_track**: Constructs a MIDI track from synthesizer parameters.
+  - **write_to**: Outputs MIDI data to a file, translating SID synthesis into MIDI tracks.
+  - **build_track**: Converts synthesizer parameters into MIDI messages, encapsulating waveform and ADSR envelope handling.
 
-### 5. Voice Class (voice.rb)
-- **Purpose**: Manages individual voices of the SID chip.
+### Voice Class (voice.rb)
+- **Purpose**: Handles individual voices of the SID chip, managing waveform generation and ADSR envelope processing.
 - **Key Functionalities**:
-  - **initialize**: Sets up a new voice instance.
-  - **finish_frame**: Updates the state of the voice at the end of each frame.
-  - **frequency_to_midi** and **midi_to_frequency**: Converts between frequency and MIDI note values.
+  - **initialize**: Constructs a new voice with references to the SID chip and its parameters.
+  - **finish_frame**: Concludes the processing of a single frame, updating voice state accordingly.
 
-### 6. Synth Class (synth.rb)
-- **Purpose**: Handles the synthesis of audio waveforms and modulation.
+### Synth Class (synth.rb)
+- **Purpose**: Manages audio synthesis, including waveform generation and modulation.
 - **Key Functionalities**:
-  - **initialize**: Initializes a new synth instance.
-  - **frequency=**: Sets the frequency and manages slides.
-  - **release!**: Triggers the release phase of the synth.
+  - **initialize**: Starts a new synth instance, setting default parameters and initializing modulation controls.
+  - **frequency=**: Assigns a frequency to the synth, managing slides and frequency transitions.
 
-### 7. FileReader Class (filereader.rb)
-- **Purpose**: Reads and processes input files for the SID emulation.
-- **Key Functionalities**:
-  - Specific methods and functionalities were not detailed in the provided information.
+### FileReader Class (filereader.rb)
+- **Purpose**: Reads and interprets input files for SID emulation, parsing raw data into structured formats.
+- **Key Functionalities**: 
+  - Detailed methods and functionality should be described here based on the specifics of the `filereader.rb` file.
 
-### 8. Sid6581 Class (Sid6581.rb)
-- **Purpose**: Emulates the SID 6581 chip model.
-- **Key Functionalities**:
-  - Specific methods and functionalities were not detailed in the provided information.
+### Sid6581 Class (Sid6581.rb)
+- **Purpose**: Emulates the specific functionalities of the SID 6581 chip model.
+- **Key Functionalities**: 
+  - Detailed methods and functionality should be described here based on the specifics of the `Sid6581.rb` file.
 
-### 9. State Class (state.rb)
-- **Purpose**: Manages the state of the SID emulation.
-- **Key Functionalities**:
-  - Specific methods and functionalities were not detailed in the provided information.
-
-## Usage and Setup
-(Instructions on how to set up and use the project, including requirements and basic usage examples.)
+### State Class (state.rb)
+- **Purpose**: Maintains the state of the SID emulation, including the current settings and statuses of various components.
+- **Key Functionalities**: 
+  - Detailed methods and functionality should be described here based on the specifics of the `state.rb` file.
 
 ## Additional Resources
 - [Commodore 64 SID Chip Overview](https://www.c64-wiki.com/wiki/SID)
-- [SID 6581/8580 Datasheet](http://www.waitingforfriday.com/index.php/Commodore_SID_6581_Datasheet)
+- [SID 6581/8580 Datasheet](http://www.waitingforfriday.com/index.php/Commodore_SID
+
+_6581_Datasheet)
 - [MOS 6510 CPU Details](https://en.wikipedia.org/wiki/MOS_Technology_6510)
