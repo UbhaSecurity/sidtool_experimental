@@ -5,6 +5,20 @@ module Sidtool
     attr_accessor :filter_cutoff, :filter_resonance  # New filter parameters
     attr_reader :synths
 
+    # Method to update parameters based on data from Synth
+    def update_from_synth(synth_params)
+      # Update each parameter based on the data received from Synth
+      self.frequency_low, self.frequency_high = split_frequency(synth_params[:frequency])
+      self.pulse_low, self.pulse_high = split_pulse_width(synth_params[:pulse_width])
+      @filter_cutoff = synth_params[:filter_cutoff]
+      @filter_resonance = synth_params[:filter_resonance]
+      @osc_sync = synth_params[:osc_sync]
+      @ring_mod_effect = synth_params[:ring_mod_effect]
+      # Convert ADSR values if needed and update
+      self.attack_decay = combine_attack_decay(synth_params[:attack], synth_params[:decay])
+      self.sustain_release = combine_sustain_release(synth_params[:sustain], synth_params[:release])
+    end
+
     # Initialize a new Voice instance with a reference to the SID chip and its voice number.
     #
     # @param sid6581 [Sid6581] Reference to the SID chip instance.
@@ -23,6 +37,8 @@ module Sidtool
       @filter_cutoff = 1024          # Initial filter cutoff frequency
       @filter_resonance = 8          # Initial filter resonance
     end
+
+
 
     def modulate_and_update
       @synth.apply_lfo  # Apply LFO modulation
