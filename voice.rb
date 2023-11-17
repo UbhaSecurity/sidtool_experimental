@@ -93,6 +93,29 @@ module Sidtool
 
     private
 
+
+    # Example helper methods to split frequency and pulse width into low and high bytes
+    def split_frequency(frequency)
+      [frequency & 0xFF, (frequency >> 8) & 0xFF]
+    end
+
+    def split_pulse_width(pulse_width)
+      [pulse_width & 0xFF, (pulse_width >> 8) & 0xFF]
+    end
+
+    # Combine attack and decay values into a single byte (if needed)
+    def combine_attack_decay(attack, decay)
+      # Example: pack attack and decay into a single byte
+      ((attack & 0xF) << 4) | (decay & 0xF)
+    end
+
+    # Combine sustain and release values into a single byte (if needed)
+    def combine_sustain_release(sustain, release)
+      # Example: pack sustain and release into a single byte
+      ((sustain & 0xF) << 4) | (release & 0xF)
+    end
+
+
     # Update SID frequency registers for this voice
     def update_frequency_registers
       frequency = @synth.frequency
