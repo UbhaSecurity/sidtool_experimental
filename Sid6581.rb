@@ -95,8 +95,33 @@ module Sidtool
 
     # Calculate the register address for a given voice and type
     def calculate_register_address(type, voice_number)
-      # Implementation to calculate the register address
-      # Return the appropriate address based on type and voice_number
+      case type
+      when 'FREQ_LO'
+        return FREQ_LO[voice_number]
+      when 'FREQ_HI'
+        return FREQ_HI[voice_number]
+      when 'PW_LO'
+        return PW_LO[voice_number]
+      when 'PW_HI'
+        return PW_HI[voice_number]
+      when 'CR'
+        return CR[voice_number]
+      when 'AD'
+        return AD[voice_number]
+      when 'SR'
+        return SR[voice_number]
+      when 'FC_LO'
+        return FC_LO
+      when 'FC_HI'
+        return FC_HI
+      when 'RES_FILT'
+        return RES_FILT
+      when 'MODE_VOL'
+        return MODE_VOL
+      else
+        handle_sid_register_error("Unsupported SID register type: #{type}")
+        return nil
+      end
     end
 
     # Write a value to a SID register
@@ -129,37 +154,5 @@ module Sidtool
       update_registers
       generate_sound
     end
-
-    def calculate_register_address(type, voice_number)
-      case type
-      when 'FREQ_LO'
-        return FREQ_LO[voice_number]
-      when 'FREQ_HI'
-        return FREQ_HI[voice_number]
-      when 'PW_LO'
-        return PW_LO[voice_number]
-      when 'PW_HI'
-        return PW_HI[voice_number]
-      when 'CR'
-        return CR[voice_number]
-      when 'AD'
-        return AD[voice_number]
-      when 'SR'
-        return SR[voice_number]
-      when 'FC_LO'
-        return FC_LO
-      when 'FC_HI'
-        return FC_HI
-      when 'RES_FILT'
-        return RES_FILT
-      when 'MODE_VOL'
-        return MODE_VOL
-      else
-        handle_sid_register_error("Unsupported SID register type: #{type}")
-        return nil
-      end
-    end
-
-    # Rest of the methods...
   end
 end
