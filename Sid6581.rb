@@ -29,31 +29,22 @@ module Sidtool
       @global_volume = 0
     end
 
- # Set the low byte of the frequency for a specific voice
     def set_frequency_low(voice_number, value)
-      # Write the low byte of the frequency to the corresponding SID register
-      # Example register address calculation
       freq_lo_address = calculate_register_address('FREQ_LO', voice_number)
       write_register(freq_lo_address, value)
     end
 
-    # Set the high byte of the frequency for a specific voice
     def set_frequency_high(voice_number, value)
-      # Write the high byte of the frequency to the corresponding SID register
       freq_hi_address = calculate_register_address('FREQ_HI', voice_number)
       write_register(freq_hi_address, value)
     end
 
-    # Set the low byte of the pulse width for a specific voice
     def set_pulse_width_low(voice_number, value)
-      # Write the low byte of the pulse width to the corresponding SID register
       pw_lo_address = calculate_register_address('PW_LO', voice_number)
       write_register(pw_lo_address, value)
     end
 
-    # Set the high byte of the pulse width for a specific voice
     def set_pulse_width_high(voice_number, value)
-      # Write the high byte of the pulse width to the corresponding SID register
       pw_hi_address = calculate_register_address('PW_HI', voice_number)
       write_register(pw_hi_address, value)
     end
@@ -86,11 +77,9 @@ module Sidtool
       when FC_HI
         @global_filter_cutoff = (@global_filter_cutoff & 0x00FF) | (value << 8)
       when RES_FILT
-        @global_filter_resonance = value & 0xF0 # Upper 4 bits for resonance
-        # Additional handling for filter routing if necessary
+        @global_filter_resonance = value & 0xF0
       when MODE_VOL
-        @global_volume = value & 0x0F # Lower 4 bits for volume
-        # Additional handling for mode bits if necessary
+        @global_volume = value & 0x0F
       end
     end
 
@@ -126,21 +115,16 @@ module Sidtool
       when MODE_VOL
         return @global_volume
       else
-        # Handle unsupported SID register or other errors
         handle_sid_register_error(address)
-        return 0x00  # You can return a default value or handle errors as needed
+        return 0x00
       end
     end
 
-    # Implement a method to handle SID register errors
     def handle_sid_register_error(address)
-      # You can implement custom error handling logic here
-      # For example, you can raise an exception or log the error
       raise "Unsupported SID register address: #{address}"
     end
 
     def generate_sound
-      # Iterate over each voice to generate sound
       @voices.each do |voice|
         voice.finish_frame
       end
@@ -158,21 +142,36 @@ module Sidtool
 
     private
 
-  # Calculate the register address based on the type and voice number
     def calculate_register_address(type, voice_number)
-      # Calculate and return the address for the given register type and voice number
-      # This method needs to be implemented based on the SID register map
+      case type
+      when 'FREQ_LO'
+        return FREQ_LO[voice_number]
+      when 'FREQ_HI'
+        return FREQ_HI[voice_number]
+      when 'PW_LO'
+        return PW_LO[voice_number]
+      when 'PW_HI'
+        return PW_HI[voice_number]
+      when 'CR'
+        return CR[voice_number]
+      when 'AD'
+        return AD[voice_number]
+      when 'SR'
+        return SR[voice_number]
+      when 'FC_LO'
+        return FC_LO
+      when 'FC_HI'
+        return FC_HI
+      when 'RES_FILT'
+        return RES_FILT
+      when 'MODE_VOL'
+        return MODE_VOL
+      else
+        handle_sid_register_error("Unsupported SID register type: #{type}")
+        return nil
+      end
     end
 
-    # Write a value to a SID register
-    def write_register(address, value)
-      # Code to write a value to the SID register at the specified address
-      # This method should interact with the underlying memory or emulation framework
-    end
-
-    def calculate_phase(voice, sample_rate)
-      voice.phase = (voice.phase + (voice.frequency.to_f / sample_rate)) % 1.0
-      voice.phase
-    end
+    # Rest of the methods...
   end
 end
