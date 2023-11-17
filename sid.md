@@ -1,4 +1,3 @@
-```markdown
 # sid.rb
 
 ```ruby
@@ -58,6 +57,3 @@ module Sidtool
     end
   end
 end
-```
-
-This Markdown representation includes the code from your `sid.rb` file, preserving the syntax highlighting and structure. You can copy and paste this Markdown code into your documentation or readme files.
