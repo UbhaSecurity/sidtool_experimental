@@ -19,7 +19,7 @@ module Sidtool
       self.sustain_release = combine_sustain_release(synth_params[:sustain], synth_params[:release])
     end
 
-    # Initialize a new Voice instance with a reference to the SID chip and its voice number.
+ # Initialize a new Voice instance with a reference to the SID chip and its voice number.
     #
     # @param sid6581 [Sid6581] Reference to the SID chip instance.
     # @param voice_number [Integer] The number of the voice on the SID chip.
@@ -40,8 +40,9 @@ module Sidtool
 
 
 
-    def modulate_and_update
-      @synth.apply_lfo  # Apply LFO modulation
+   # Apply LFO modulation to voice parameters and filter parameters
+    def apply_lfo_modulation
+      @synth.apply_lfo  # Apply LFO modulation to synth parameters
 
       # Update SID chip registers with modulated values
       @sid6581.set_frequency_low(@voice_number, @synth.frequency & 0xFF)
@@ -49,9 +50,10 @@ module Sidtool
       @sid6581.set_pulse_width_low(@voice_number, @synth.pulse_width & 0xFF)
       @sid6581.set_pulse_width_high(@voice_number, (@synth.pulse_width >> 8) & 0xFF)
 
-      # Update filter parameters
+      # Update filter parameters with LFO modulation
       modulate_filter_with_lfo
     end
+
 
     # Handle filter modulation by LFO
     def modulate_filter_with_lfo
@@ -62,20 +64,20 @@ module Sidtool
       @sid6581.set_filter_resonance(@voice_number, @synth.filter_resonance & 0xFF)
     end
 
-    # Method to apply LFO modulation to voice parameters
+   # Method to apply LFO modulation to voice parameters
     def modulate_with_lfo
       @synth.apply_lfo
       update_sid_registers
     end
 
-    # Update the SID registers based on the modulated synth parameters
+  # Update the SID registers based on the modulated synth parameters
     def update_sid_registers
       update_frequency_registers
       update_pulse_width_registers
       # Update other registers as needed...
     end
 
-    # Updates the state of the voice at the end of each frame.
+ # Updates the state of the voice at the end of each frame.
     def finish_frame
       update_sustain_level
       if gate
