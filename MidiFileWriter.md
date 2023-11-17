@@ -1,4 +1,3 @@
-```markdown
 # Sidtool::MidiFileWriter Class
 
 The `MidiFileWriter` class in the `Sidtool` module is designed to convert SID chip parameters to MIDI format for use in Digital Audio Workstations (DAWs). This allows for importing the MIDI output into standard DAWs like Ableton, FL Studio, Logic Pro, etc. The class handles specific setups for filters, ring modulation controllers, and other SID chip characteristics to accurately replicate the SID chip's sound in a MIDI format.
@@ -47,6 +46,3 @@ The `consolidate_events` method optimizes MIDI data by streamlining tracks and r
 Methods `write_header`, `write_track`, `write_uint32`, `write_uint16`, and `write_byte` handle the actual writing of MIDI data to a file, including headers, track data, and specific MIDI byte formats.
 
 ## Waveform to MIDI Channel Mapping
-
-`map_waveform_to_channel` assigns MIDI channels based on the waveform of a SID voice, helping to recreate the unique sound characteristics of SID waveforms in MIDI format.
-```
