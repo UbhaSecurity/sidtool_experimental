@@ -27,17 +27,15 @@
 
 module Sidtool
   class MidiFileWriter
-# Constants for MIDI Controller Numbers
-# These constants represent standard MIDI controller numbers used for mapping various SID parameters to MIDI.
-# The specific numbers are chosen based on standard MIDI implementation or can be customized as needed.
-FILTER_CUTOFF_CONTROLLER = 74
-FILTER_RESONANCE_CONTROLLER = 71
-OSC_SYNC_CONTROLLER = 102  # Placeholder value, adjust based on MIDI setup
-RING_MOD_CONTROLLER = 103  # Placeholder value, adjust based on MIDI setup
-PULSE_WIDTH_CONTROLLER = 74  # MIDI controller number for pulse width modulation
-MAX_CUTOFF_FREQUENCY = 20000.0  # Maximum frequency for the filter cutoff, typical for MIDI devices
-MAX_RESONANCE = 1.0  # Maximum resonance value, typical for MIDI devices
-FRAMES_PER_SECOND = 50  # Frames per second, relevant for time-based calculations in SID
+ # Constants for MIDI Controller Numbers
+    FILTER_CUTOFF_CONTROLLER = 74
+    FILTER_RESONANCE_CONTROLLER = 71
+    OSC_SYNC_CONTROLLER = 102  # Placeholder value, adjust based on MIDI setup
+    RING_MOD_CONTROLLER = 103  # Placeholder value, adjust based on MIDI setup
+    PULSE_WIDTH_CONTROLLER = 74  # MIDI controller number for pulse width modulation
+    MAX_CUTOFF_FREQUENCY = 20000.0  # Maximum frequency for the filter cutoff, typical for MIDI devices
+    MAX_RESONANCE = 1.0  # Maximum resonance value, typical for MIDI devices
+    FRAMES_PER_SECOND = 50  # Frames per second, relevant for time-based calculations in SID
 
  ENVELOPE_RATES = {
       # The following rates are placeholders and should be adjusted to reflect
@@ -121,19 +119,14 @@ FRAMES_PER_SECOND = 50  # Frames per second, relevant for time-based calculation
     # The calculations here consider the standard frequency for each MIDI note and
     # map it to the closest possible frequency that the SID chip can produce,
     # thereby allowing accurate MIDI representation of SID sounds.
+  # SID to MIDI note table
     SID_TO_MIDI_NOTE_TABLE = begin
       table = {}
       start_frequency = 16.35  # Frequency of C0 in Hz (MIDI standard)
       start_note_number = 0    # MIDI note number for C0
-
-      # Number of octaves to cover in the MIDI standard
       num_octaves = 10  # Covers all MIDI note octaves (0 to 9)
-
-      # Semitone ratios for equal-tempered scale
       semitone_ratios = [1.0, 1.059463, 1.122462, 1.189207, 1.259921, 1.334840, 
                          1.414214, 1.498307, 1.587401, 1.681793, 1.781797, 1.887749]
-
-      # Populate the table with frequencies for each MIDI note
       (0..num_octaves).each do |octave|
         semitone_ratios.each_with_index do |ratio, semitone|
           frequency = start_frequency * (2.0**octave) * ratio
@@ -141,10 +134,8 @@ FRAMES_PER_SECOND = 50  # Frames per second, relevant for time-based calculation
           table[frequency.round(2)] = midi_note_number
         end
       end
-
-      table.freeze  # Freeze the table to prevent modifications
+      table.freeze
     end
-
 
 # The initialize method sets up the MidiFileWriter with the necessary components for SID-to-MIDI conversion.
 # It takes parameters for different voices of the SID chip, the SID chip itself, and CIA timers.
@@ -154,12 +145,13 @@ FRAMES_PER_SECOND = 50  # Frames per second, relevant for time-based calculation
 # cia_timer_a, cia_timer_b: Represent the CIA timers used in SID for timing control.
 #
 # This method initializes the internal state of the MidiFileWriter with these components.
-def initialize(synths_for_voices, sid6581, cia_timer_a, cia_timer_b)
-  @synths_for_voices = synths_for_voices
-  @sid6581 = sid6581
-  @cia_timer_a = cia_timer_a
-  @cia_timer_b = cia_timer_b
-end
+  # Initialization
+    def initialize(synths_for_voices, sid6581, cia_timer_a, cia_timer_b)
+      @synths_for_voices = synths_for_voices
+      @sid6581 = sid6581
+      @cia_timer_a = cia_timer_a
+      @cia_timer_b = cia_timer_b
+    end
 
 
 # The write_to method writes the MIDI data to a specified file path.
@@ -168,18 +160,20 @@ end
 # path: The file path where the MIDI file will be saved.
 #
 # This method handles the conversion of SID chip synthesizer data into a standard MIDI file.
-def write_to(path)
-  tracks = @synths_for_voices.map { |synths| build_track(synths) }
-  
-  File.open(path, 'wb') do |file|
-    write_header(file)
-    tracks.each_with_index do |track, index|
-      write_track(file, track, "Voice #{index + 1}")
+ # Writing to file
+    def write_to(path)
+      tracks = @synths_for_voices.map { |synths| build_track(synths) }
+      File.open(path, 'wb') do |file|
+        write_header(file)
+        tracks.each_with_index do |track, index|
+          write_track(file, track, "Voice #{index + 1}")
+        end
+      end
     end
-  end
-end
 
 
+
+    # MIDI event structures
     ControlChange = Struct.new(:channel, :controller, :value) do
       def bytes
         raise "Channel too big: #{channel}" if channel > 15
@@ -196,11 +190,11 @@ end
 #
 # This method creates a MIDI track that mirrors the behavior of a SID voice, considering waveforms, ADSR, and other parameters.
 
+ # Building MIDI tracks
     def build_track(synths)
       waveforms = [:tri, :saw, :pulse, :noise]
       track = []
       current_frame = 0
-
       synths.each do |synth|
         channel = map_waveform_to_channel(synth.waveform)
         track << DeltaTime.new(synth.start_frame - current_frame)
