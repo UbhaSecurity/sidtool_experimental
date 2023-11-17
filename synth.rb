@@ -89,8 +89,58 @@ module Sidtool
       @modulation = 0
       @expression = 0
       @pitch_bend = 0
+      initialize_defaults
+      initialize_lfo
     end
 
+ def initialize_defaults
+      @waveform = :triangle
+      @pulse_width = 0
+      @attack = 0
+      @decay = 0
+      @sustain = 0
+      @release = 0
+      @filter_cutoff = 1024
+      @filter_resonance = 8
+      @osc_sync = 0
+      @ring_mod_effect = 0
+    end
+
+    def initialize_lfo
+      @lfo_rate = 1.0
+      @lfo_depth = 0.5
+      @lfo_waveform = :sine
+      @lfo_phase = 0.0
+      @lfo_destination = :pitch
+    end
+
+    def apply_lfo
+      modulated_value = calculate_lfo_modulation
+      case @lfo_destination
+      when :pitch
+        self.frequency = frequency + modulated_value
+      when :pulse_width
+        self.pulse_width = [0, [pulse_width + modulated_value, 4096].min].max
+      # Additional cases for different destinations...
+      end
+    end
+
+    private
+
+   def calculate_lfo_modulation
+      phase_in_radians = @lfo_phase * Math::PI / 180.0
+      time = @start_frame / FRAMES_PER_SECOND.to_f
+
+      case @lfo_waveform
+      when :sine
+        Math.sin(2.0 * Math::PI * @lfo_rate * time + phase_in_radians)
+      when :square
+        Math.sin(2.0 * Math::PI * @lfo_rate * time + phase_in_radians) >= 0 ? 1 : -1
+      when :triangle
+        (2 / Math::PI) * Math.asin(Math.sin(2.0 * Math::PI * @lfo_rate * time + phase_in_radians))
+      # Additional waveform cases...
+      end * @lfo_depth
+    end
     # Set the frequency and handle slides if detected.
     #
     # @param frequency [Float] The new frequency to set.
