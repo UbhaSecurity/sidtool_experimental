@@ -20,6 +20,17 @@ module Sidtool
       @previous_midi_note = nil
     end
 
+   def modulate_and_update
+      @synth.apply_lfo  # Apply LFO modulation
+
+      # Update SID chip registers with modulated values
+      @sid6581.set_frequency_low(@voice_number, @synth.frequency & 0xFF)
+      @sid6581.set_frequency_high(@voice_number, (@synth.frequency >> 8) & 0xFF)
+      @sid6581.set_pulse_width_low(@voice_number, @synth.pulse_width & 0xFF)
+      @sid6581.set_pulse_width_high(@voice_number, (@synth.pulse_width >> 8) & 0xFF)
+    end
+
+
     # Method to apply LFO modulation to voice parameters
     def modulate_with_lfo
       @synth.apply_lfo
