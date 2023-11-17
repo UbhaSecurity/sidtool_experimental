@@ -122,39 +122,46 @@ module Sidtool
 
   # Class representing the state of the emulation
   class State
-    # Accessors for current frame and readers for SID and CIA timers
     attr_accessor :current_frame
     attr_reader :sid6581, :cia_timers
 
-    # Initialize the state with default values
     def initialize
       @current_frame = 0
       @sid6581 = Sid6581.new
       @cia_timers = [CIATimer.new(self), CIATimer.new(self)]
     end
 
-    # Update the state for the current frame
     def update
-      @cia_timers.each(&:update)
-      handle_interrupts
-      @sid6581.update
-      @current_frame += 1
+      update_timers
+      handle_timer_events
+      update_sid
+      increment_frame
     end
 
     private
 
-    # Handle interrupts from CIA timers or other sources
-    def handle_interrupts
-      @cia_timers.each do |timer|
-        if timer.underflow
-          # Actions to be taken on timer underflow
-        end
-      end
-
-      # Additional logic for handling interrupts
+    def update_timers
+      @cia_timers.each(&:update)
     end
 
-    # Additional methods for state management
-    # ...
+    def handle_timer_events
+      @cia_timers.each do |timer|
+        if timer.underflow
+          # Here, handle the specific actions on timer underflow.
+          # For example, trigger sound changes in SID or update other components.
+          # Example: sid6581.trigger_sound(timer.some_parameter) if timer.underflow_condition?
+        end
+      end
+    end
+
+    def update_sid
+      # This is where the Sid6581 and its related components (like Voice and Synth) are updated.
+      # Ensure that they use the current state, especially the current_frame for synchronization.
+      @sid6581.update(current_frame)
+    end
+
+    def increment_frame
+      @current_frame += 1
+    end
   end
 end
