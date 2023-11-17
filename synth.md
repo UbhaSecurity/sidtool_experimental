@@ -1,4 +1,3 @@
-```markdown
 # Sidtool::Synth Class
 
 The `Synth` class is a component of the `Sidtool` module, responsible for sound synthesis and modulation. It includes an LFO (Low-Frequency Oscillator) to modulate various parameters of the synthesizer, allowing for dynamic and expressive sound shaping.
