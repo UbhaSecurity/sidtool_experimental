@@ -1,4 +1,3 @@
-```markdown
 # Voice Class
 
 The `Voice` class is a part of the `Sidtool` module and represents an individual voice on the MOS Technology 6581 SID (Sound Interface Device) chip. Each SID chip has three voices, and this class provides functionality for controlling and modulating the properties of a single voice.
