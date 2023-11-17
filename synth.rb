@@ -63,6 +63,24 @@ module Sidtool
     SLIDE_THRESHOLD = 60
     SLIDE_DURATION_FRAMES = 20
 
+# Converts internal parameters to a standardized format for Voice
+    def to_standard_format
+      {
+        frequency: scale_frequency(@frequency),
+        pulse_width: @pulse_width,  # Assuming pulse width does not need scaling
+        filter_cutoff: @filter_cutoff,
+        filter_resonance: @filter_resonance,
+        osc_sync: @osc_sync,
+        ring_mod_effect: @ring_mod_effect,
+        attack: @attack,
+        decay: @decay,
+        sustain: @sustain,
+        release: @release
+        # Add other parameters as needed
+      }
+    end
+
+
     # Initialize a new Synth instance.
     #
     # @param start_frame [Integer] The frame number where this synth instance begins.
@@ -210,6 +228,14 @@ module Sidtool
     end
 
     private
+
+  # Example method to scale frequency to a range suitable for Voice
+    def scale_frequency(frequency)
+      # Assuming frequency should be in the range 0 to MAX_FREQUENCY
+      MAX_FREQUENCY ||= 20000  # Example max frequency, adjust as needed
+      [[frequency, MAX_FREQUENCY].min, 0].max
+    end
+
 
     # Detect if a slide is occurring between two frequencies.
     #
