@@ -29,6 +29,35 @@ module Sidtool
       @global_volume = 0
     end
 
+ # Set the low byte of the frequency for a specific voice
+    def set_frequency_low(voice_number, value)
+      # Write the low byte of the frequency to the corresponding SID register
+      # Example register address calculation
+      freq_lo_address = calculate_register_address('FREQ_LO', voice_number)
+      write_register(freq_lo_address, value)
+    end
+
+    # Set the high byte of the frequency for a specific voice
+    def set_frequency_high(voice_number, value)
+      # Write the high byte of the frequency to the corresponding SID register
+      freq_hi_address = calculate_register_address('FREQ_HI', voice_number)
+      write_register(freq_hi_address, value)
+    end
+
+    # Set the low byte of the pulse width for a specific voice
+    def set_pulse_width_low(voice_number, value)
+      # Write the low byte of the pulse width to the corresponding SID register
+      pw_lo_address = calculate_register_address('PW_LO', voice_number)
+      write_register(pw_lo_address, value)
+    end
+
+    # Set the high byte of the pulse width for a specific voice
+    def set_pulse_width_high(voice_number, value)
+      # Write the high byte of the pulse width to the corresponding SID register
+      pw_hi_address = calculate_register_address('PW_HI', voice_number)
+      write_register(pw_hi_address, value)
+    end
+
     def write_register(address, value)
       case address
       when *FREQ_LO
@@ -128,6 +157,18 @@ module Sidtool
     end
 
     private
+
+  # Calculate the register address based on the type and voice number
+    def calculate_register_address(type, voice_number)
+      # Calculate and return the address for the given register type and voice number
+      # This method needs to be implemented based on the SID register map
+    end
+
+    # Write a value to a SID register
+    def write_register(address, value)
+      # Code to write a value to the SID register at the specified address
+      # This method should interact with the underlying memory or emulation framework
+    end
 
     def calculate_phase(voice, sample_rate)
       voice.phase = (voice.phase + (voice.frequency.to_f / sample_rate)) % 1.0
