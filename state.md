@@ -1,5 +1,3 @@
-Here's a Markdown (MD) representation of the `state.rb` file you provided:
-
 ```markdown
 # state.rb
 
@@ -165,5 +163,3 @@ module Sidtool
   end
 end
 ```
-
-This Markdown representation includes the code from your `state.rb` file, preserving the syntax highlighting and structure. You can copy and paste this Markdown code into your documentation or readme files.
