@@ -27,6 +27,7 @@ module Sidtool
       @global_filter_cutoff = 0
       @global_filter_resonance = 0
       @global_volume = 0
+      # Initialize other necessary attributes
     end
 
     def set_frequency_low(voice_number, value)
@@ -138,6 +139,20 @@ module Sidtool
         final_output = waveform_output * adsr_output
         # Further processing like applying global filters can be done here
       end
+    end
+
+    # Integrating LFO functionality
+    def apply_lfo_to_voices
+      @voices.each do |voice|
+        voice.modulate_with_lfo  # Apply LFO modulation from the Synth class
+      end
+    end
+
+    # Update the SID chip's state including LFO modulation
+    def update_sid_state
+      apply_lfo_to_voices
+      update_registers
+      generate_sound
     end
 
     private
