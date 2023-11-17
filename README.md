@@ -1,65 +1,91 @@
 # Sidtool Experimental Project
 
 ## Overview
-The Sidtool Experimental Project is an advanced emulation suite for the SID (Sound Interface Device) chip, primarily found in the Commodore 64. 
-This project aims to accurately replicate the sound synthesis capabilities of the SID chip for music creation, educational purposes, and historical preservation.
+The Sidtool Experimental Project is a sophisticated emulation suite for the SID (Sound Interface Device) chip of the Commodore 64, designed for sound synthesis and exploration of chip functionalities.
 
-## File Descriptions and Functionalities
+## File Descriptions, Functionalities, and Technical Details
 
 ### 1. voice.rb
-- **Description**: Manages the synthesis voices of the SID chip.
+- **Class**: `Voice`
+- **Private Classes/Modules**: `WaveformGenerator`, `ADSRController`
+- **Description**: Manages individual voices with waveform generation and ADSR envelope.
 - **Key Functions**:
-  - `initialize`: Sets up a new voice instance.
-  - `update_parameters`: Adjusts voice parameters like frequency and waveform.
-  - `apply_adsr_envelope(attack, decay, sustain, release)`: Applies the ADSR envelope to the voice.
+  - `initialize(sid: SID, voice_number: Integer)`: Sets up a new voice with reference to the SID instance and voice number.
+  - `set_waveform(waveform: Symbol)`: Configures the waveform (square, triangle, etc.).
+  - `set_frequency(frequency: Float)`: Adjusts the frequency, range typically 0-4kHz.
+  - `set_pulse_width(pulse_width: Integer)`: Sets pulse width, valid range 0-4095.
+  - `apply_adsr(attack: Integer, decay: Integer, sustain: Integer, release: Integer)`: Sets ADSR parameters, timing based on SID chip clock.
 
 ### 2. synth.rb
-- **Description**: Core synthesis engine for generating audio waveforms.
+- **Class**: `Synth`
+- **Private Classes/Modules**: `LFO`, `Filter`
+- **Description**: Central synthesis module for audio generation.
 - **Key Functions**:
-  - `generate_waveform(wave_type, frequency)`: Generates a specific waveform.
-  - `modulate_waveform(lfo_rate, lfo_depth)`: Applies LFO modulation to the waveform.
+  - `initialize()`: Sets up the synthesis engine.
+  - `generate_waveform(wave_type: Symbol, frequency: Float)`: Generates audio waveforms.
+  - `apply_lfo(lfo_rate: Float, lfo_depth: Integer)`: Modulates waveform with LFO.
 
 ### 3. state.rb
-- **Description**: Handles the state management of the SID emulation.
+- **Class**: `State`
+- **Private Classes/Modules**: `StateSaver`, `StateLoader`
+- **Description**: Manages the current state and settings of the SID emulation.
 - **Key Functions**:
-  - `save_state`: Saves the current state of the emulation.
-  - `load_state(state_file)`: Loads a saved state from a file.
+  - `initialize()`: Initializes the state manager.
+  - `save_state()`: Serializes and saves the current state.
+  - `load_state(file_path: String)`: Deserializes and loads a saved state.
 
 ### 4. sidtool.rb
-- **Description**: Main script for initializing and running the SID emulation.
+- **Module**: `Sidtool`
+- **Private Classes/Modules**: `EmulationInitializer`, `EmulationRunner`
+- **Description**: Orchestrates the initialization and execution of the SID emulation.
 - **Key Functions**:
-  - `setup_emulation`: Configures and initializes the emulation environment.
-  - `run_emulation`: Starts the emulation process.
+  - `initialize_emulation()`: Configures and starts the emulation setup.
+  - `start_emulation()`: Executes the main emulation loop.
 
 ### 5. Sid6581.rb
-- **Description**: Specific emulation of the SID 6581 chip model.
+- **Class**: `Sid6581`
+- **Private Classes/Modules**: `RegisterManager`
+- **Description**: Emulates the SID 6581 chip, handling sound generation and chip-specific features.
 - **Key Functions**:
-  - `write_register(address, value)`: Writes a value to a specific register in the SID chip.
-  - `read_register(address)`: Reads the value from a specific register.
+  - `write_register(address: Integer, value: Integer)`: Writes to chip registers.
+  - `read_register(address: Integer)`: Reads values from chip registers.
+  - `reset()`: Resets the chip to default state.
 
 ### 6. sid.rb
-- **Description**: General interface for the SID chip functionalities.
+- **Class**: `SID`
+- **Private Classes/Modules**: `VoiceManager`, `ControlRegister`
+- **Description**: Interface layer for SID chip operations.
 - **Key Functions**:
-  - `play_note(note, duration)`: Plays a note for a specified duration.
-  - `stop_note(note)`: Stops a currently playing note.
+  - `play(note: Integer, duration: Integer)`: Plays a musical note.
+  - `stop(note: Integer)`: Stops a currently playing note.
+  - `set_volume(volume: Integer)`: Adjusts the overall volume.
 
 ### 7. Mos6510.rb
-- **Description**: Emulator for the MOS 6510 CPU used in Commodore 64.
+- **Class**: `Mos6510`
+- **Private Classes/Modules**: `InstructionSet`, `InterruptHandler`
+- **Description**: Emulates the MOS Technology 6510 microprocessor.
 - **Key Functions**:
-  - `execute_instruction(instruction)`: Executes a CPU instruction.
-  - `handle_interrupt`: Handles CPU interrupts.
+  - `execute(instruction: String)`: Processes an assembly instruction.
+  - `interrupt()`: Manages CPU interrupts.
+  - `reset()`: Resets the CPU state.
 
 ### 8. filereader.rb
-- **Description**: Reads and interprets data files for SID emulation.
+- **Class**: `FileReader`
+- **Private Classes/Modules**: `DataParser`, `FileLoader`
+- **Description**: Reads and interprets data files for the emulator.
 - **Key Functions**:
-  - `read_file(file_path)`: Reads data from a specified file.
-  - `parse_data(data)`: Parses raw data into a usable format.
+  - `read(file_path: String)`: Reads data from specified file.
+  - `parse(content: String)`: Converts raw data into structured format.
 
 ### 9. midi_file_writer.rb
-- **Description**: Converts SID emulation data to MIDI format.
+- **Class**: `MidiFileWriter`
+- **
+
+Private Classes/Modules**: `MidiConverter`, `FileWriter`
+- **Description**: Converts SID emulation output to MIDI format.
 - **Key Functions**:
-  - `convert_to_midi(sid_data)`: Converts SID data to MIDI.
-  - `write_midi_file(midi_data, file_path)`: Writes MIDI data to a file.
+  - `convert(sid_data: Array)`: Translates SID data to MIDI format.
+  - `save(midi_data: Array, file_path: String)`: Writes MIDI data to a file.
 
 ### 10. LICENSE
 - Contains the licensing information for the project.
@@ -67,7 +93,14 @@ This project aims to accurately replicate the sound synthesis capabilities of th
 ### 11. README.md
 - This file, providing detailed documentation for the project.
 
+## Technical Timing and Details
+- SID Clock Frequency: 0.985 MHz for PAL, 1.023 MHz for NTSC systems.
+- ADSR Timing: Based on clock cycles of the SID chip.
+- CPU Emulation: MOS 6510 emulation in line with C64 specifications.
+
 ## Additional Resources
 - [Commodore 64 SID Chip Overview](https://www.c64-wiki.com/wiki/SID)
 - [SID 6581/8580 Datasheet](http://www.waitingforfriday.com/index.php/Commodore_SID_6581_Datasheet)
 - [MOS 6510 CPU Details](https://en.wikipedia.org/wiki/MOS_Technology_6510)
+
+---
