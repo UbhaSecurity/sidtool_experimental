@@ -2,6 +2,7 @@ module Sidtool
   class Voice
     attr_accessor :frequency_low, :frequency_high, :pulse_low, :pulse_high
     attr_accessor :control_register, :attack_decay, :sustain_release
+    attr_accessor :filter_cutoff, :filter_resonance  # New filter parameters
     attr_reader :synths
 
     # Initialize a new Voice instance with a reference to the SID chip and its voice number.
@@ -18,9 +19,12 @@ module Sidtool
       @current_synth = nil
       @synths = []
       @previous_midi_note = nil
+
+      @filter_cutoff = 1024          # Initial filter cutoff frequency
+      @filter_resonance = 8          # Initial filter resonance
     end
 
-   def modulate_and_update
+    def modulate_and_update
       @synth.apply_lfo  # Apply LFO modulation
 
       # Update SID chip registers with modulated values
@@ -28,8 +32,19 @@ module Sidtool
       @sid6581.set_frequency_high(@voice_number, (@synth.frequency >> 8) & 0xFF)
       @sid6581.set_pulse_width_low(@voice_number, @synth.pulse_width & 0xFF)
       @sid6581.set_pulse_width_high(@voice_number, (@synth.pulse_width >> 8) & 0xFF)
+
+      # Update filter parameters
+      modulate_filter_with_lfo
     end
 
+    # Handle filter modulation by LFO
+    def modulate_filter_with_lfo
+      @synth.apply_lfo  # Apply LFO modulation
+
+      # Update SID chip registers with modulated filter parameters
+      @sid6581.set_filter_cutoff(@voice_number, @synth.filter_cutoff & 0xFF)
+      @sid6581.set_filter_resonance(@voice_number, @synth.filter_resonance & 0xFF)
+    end
 
     # Method to apply LFO modulation to voice parameters
     def modulate_with_lfo
