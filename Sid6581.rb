@@ -1,5 +1,4 @@
 module Sidtool
-  # Class representing the SID6581 chip for sound synthesis
   class Sid6581
     # Define waveform constants for easy reference
     WAVEFORM_TRIANGLE = 0x01
@@ -76,8 +75,39 @@ module Sidtool
 
     # Read the value from a SID register
     def read_sid_register(address)
-      # Implementation for reading SID registers
-      # Similar structure to write_register method
+      case address
+      when *FREQ_LO
+        voice_index = FREQ_LO.index(address)
+        @voices[voice_index].frequency_low
+      when *FREQ_HI
+        voice_index = FREQ_HI.index(address)
+        @voices[voice_index].frequency_high
+      when *PW_LO
+        voice_index = PW_LO.index(address)
+        @voices[voice_index].pulse_low
+      when *PW_HI
+        voice_index = PW_HI.index(address)
+        @voices[voice_index].pulse_high
+      when *CR
+        voice_index = CR.index(address)
+        @voices[voice_index].control_register
+      when *AD
+        voice_index = AD.index(address)
+        @voices[voice_index].attack_decay
+      when *SR
+        voice_index = SR.index(address)
+        @voices[voice_index].sustain_release
+      when FC_LO
+        @global_filter_cutoff & 0x00FF
+      when FC_HI
+        (@global_filter_cutoff >> 8) & 0x00FF
+      when RES_FILT
+        @global_filter_resonance
+      when MODE_VOL
+        @global_volume
+      else
+        raise "Unsupported SID register address for read: #{address}"
+      end
     end
 
     private
@@ -126,8 +156,39 @@ module Sidtool
 
     # Write a value to a SID register
     def write_register(address, value)
-      # Implementation for writing values to SID registers
-      # Handle different register types and update voice states
+      case address
+      when *FREQ_LO
+        voice_index = FREQ_LO.index(address)
+        @voices[voice_index].set_frequency_low(value)
+      when *FREQ_HI
+        voice_index = FREQ_HI.index(address)
+        @voices[voice_index].set_frequency_high(value)
+      when *PW_LO
+        voice_index = PW_LO.index(address)
+        @voices[voice_index].set_pulse_width_low(value)
+      when *PW_HI
+        voice_index = PW_HI.index(address)
+        @voices[voice_index].set_pulse_width_high(value)
+      when *CR
+        voice_index = CR.index(address)
+        @voices[voice_index].set_control_register(value)
+      when *AD
+        voice_index = AD.index(address)
+        @voices[voice_index].set_attack_decay(value)
+      when *SR
+        voice_index = SR.index(address)
+        @voices[voice_index].set_sustain_release(value)
+      when FC_LO
+        @global_filter_cutoff = (@global_filter_cutoff & 0xFF00) | value
+      when FC_HI
+        @global_filter_cutoff = (@global_filter_cutoff & 0x00FF) | (value << 8)
+      when RES_FILT
+        @global_filter_resonance = value
+      when MODE_VOL
+        @global_volume = value
+      else
+        raise "Unsupported SID register address: #{address}"
+      end
     end
 
     # Generate sound for each voice
