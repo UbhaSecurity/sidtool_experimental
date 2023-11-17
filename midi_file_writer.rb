@@ -427,12 +427,23 @@ def calculate_osc_sync_value(osc_sync)
   [midi_value, 127].min
 end
 
+# Converts SID filter parameters to MIDI control change values.
+# @param filter_value [Float] The filter parameter value from the SID (0.0 to 1.0 range)
+# @return [Integer] The MIDI control change value (0 to 127 range)
+def calculate_filter_value(filter_value)
+  # Assuming the filter_value is normalized between 0.0 and 1.0
+  # Map this value to the MIDI range of 0 to 127
+  (filter_value * 127).round.clamp(0, 127)
+end
+
 # The handle_filter_parameters function maps the SID's filter parameters (cutoff frequency and resonance)
 # to MIDI control changes. The SID chip's filter is a crucial component in shaping the sound,
 # with control over cutoff frequency and resonance.
 #
 # Filter Parameters (from SID documentation): Affect the harmonic content of the sound by filtering frequencies.
 # This function maps these parameters to corresponding MIDI control change values.
+# This function maps the SID's filter parameters (cutoff frequency and resonance)
+# to MIDI control changes.
 def handle_filter_parameters(synth, track, channel)
   track << DeltaTime.new(0)
   track << ControlChange.new(channel, FILTER_CUTOFF_CONTROLLER, calculate_filter_value(synth.filter_cutoff))
