@@ -1,7 +1,7 @@
-```markdown
 # Sidtool Module in Ruby
 
-This Ruby module `Sidtool` is designed for SID chip emulation, particularly for the PAL system. It includes a variety of classes and constants that are essential for accurately emulating the SID chip found in the Commodore 64.
+This Ruby module `Sidtool` is designed for SID chip emulation, particularly for the PAL system. 
+It includes a variety of classes and constants that are essential for accurately emulating the SID chip found in the Commodore 64.
 
 ## Requirements
 
@@ -68,7 +68,5 @@ Sidtool.initialize_sid_emulation
 
 ## Usage
 
-To use this module, simply include it in your Ruby environment and call the initialization method. This will start the SID chip emulation process.
-```
-
-This Markdown document provides a clear overview of the `Sidtool` module, including its dependencies, structure, and usage. Remember to adjust any sections as needed to match the specific details and functionalities of your implementation.
+To use this module, simply include it in your Ruby environment and call the initialization method. 
+This will start the SID chip emulation process.
