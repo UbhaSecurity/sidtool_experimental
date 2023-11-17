@@ -221,6 +221,41 @@ ENVELOPE_RATES = {
       track << NoteOff.new(channel, synth.tone, 0)
     end
 
+def calculate_lfo_value(lfo, time)
+  # Assuming the LFO rate is in Hz and depth is in MIDI value range (0-127)
+  # The time parameter should be in seconds
+  angle = 2 * Math::PI * lfo.rate * time
+  depth_scaled = lfo.depth / 2.0
+  offset = depth_scaled + 64 # Centering the depth around MIDI value 64
+
+  (Math.sin(angle) * depth_scaled + offset).round.clamp(0, 127)
+end
+
+def apply_lfo(track, lfo, start_time, end_time, channel)
+  # Assuming time is in frames and we need to convert it to seconds for LFO calculation
+  frame_rate = FRAMES_PER_SECOND # Frames per second, e.g., 50
+  current_frame = start_time
+
+  while current_frame < end_time
+    current_time = current_frame.to_f / frame_rate
+    lfo_value = calculate_lfo_value(lfo, current_time)
+
+    case lfo.target
+    when :pitch
+      # Pitch Bend in MIDI has a range of -8192 to 8191
+      # Remapping LFO value (0-127) to Pitch Bend range
+      pitch_bend_value = ((lfo_value - 64) * 128).clamp(-8192, 8191)
+      track << PitchBend.new(channel, pitch_bend_value)
+    when :filter_cutoff
+      track << ControlChange.new(channel, FILTER_CUTOFF_CONTROLLER, lfo_value)
+    # Add other targets as needed
+    end
+
+    current_frame += lfo.rate
+  end
+end
+
+
     # The map_envelope_to_midi method converts SID's ADSR parameters to MIDI values.
     # It uses the SID's specific attack, decay, sustain, and release rates to determine
     # the corresponding MIDI values.
@@ -415,6 +450,15 @@ def handle_sid_effects(synth, track, channel)
   track << ControlChange.new(channel, OSC_SYNC_CONTROLLER, calculate_osc_sync_value(synth.osc_sync))
   track << DeltaTime.new(0)
   track << ControlChange.new(channel, RING_MOD_CONTROLLER, calculate_ring_mod_value(synth.ring_mod_effect))
+end
+
+PitchBend = Struct.new(:channel, :value) do
+  def bytes
+    raise "Channel too big: #{channel}" if channel > 15
+    msb = ((value + 8192) >> 7) & 127 # Most Significant Byte
+    lsb = (value + 8192) & 127        # Least Significant Byte
+    [0xE0 + channel, lsb, msb]
+  end
 end
 
 
