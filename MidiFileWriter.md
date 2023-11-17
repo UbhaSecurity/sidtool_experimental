@@ -1,37 +1,52 @@
 ```markdown
 # Sidtool::MidiFileWriter Class
 
-This class is designed to convert SID chip parameters to MIDI format for use in a DAW. The MIDI file output can be imported into any standard DAW (like Ableton, FL Studio, Logic Pro, etc.). To accurately replicate the SID chip's sound, specific setups for filters and ring modulation controllers are required in your DAW.
+The `MidiFileWriter` class in the `Sidtool` module is designed to convert SID chip parameters to MIDI format for use in Digital Audio Workstations (DAWs). This allows for importing the MIDI output into standard DAWs like Ableton, FL Studio, Logic Pro, etc. The class handles specific setups for filters, ring modulation controllers, and other SID chip characteristics to accurately replicate the SID chip's sound in a MIDI format.
 
-## FILTER_CUTOFF_CONTROLLER and FILTER_RESONANCE_CONTROLLER
+## Constants for MIDI Controller Numbers
 
-- These constants represent the MIDI CC (Control Change) messages for filter parameters.
-- The `FILTER_CUTOFF_CONTROLLER` (CC 74) and `FILTER_RESONANCE_CONTROLLER` (CC 71) should be mapped to corresponding controls in your VST synthesizer plugin.
-- Ensure your VST plugin accurately emulates the SID chip's filter characteristics.
-- In your DAW, assign these controllers to the filter cutoff and resonance parameters in your VST plugin.
-- This setup will allow dynamic control over the filter aspects of the SID sound, essential for achieving the characteristic SID tone.
+The class defines several constants for MIDI controller numbers, which are used for mapping various SID parameters to MIDI:
 
-## OSC_SYNC_CONTROLLER and RING_MOD_CONTROLLER
+- `FILTER_CUTOFF_CONTROLLER`: MIDI CC 74 for filter cutoff.
+- `FILTER_RESONANCE_CONTROLLER`: MIDI CC 71 for filter resonance.
+- `OSC_SYNC_CONTROLLER`: MIDI CC 102 for oscillator sync (Placeholder value, adjustable based on MIDI setup).
+- `RING_MOD_CONTROLLER`: MIDI CC 103 for ring modulation (Placeholder value, adjustable based on MIDI setup).
+- `PULSE_WIDTH_CONTROLLER`: MIDI CC for pulse width modulation.
+- `MAX_CUTOFF_FREQUENCY`: Maximum frequency for the filter cutoff, typical for MIDI devices.
+- `MAX_RESONANCE`: Maximum resonance value, typical for MIDI devices.
+- `FRAMES_PER_SECOND`: Frames per second, relevant for time-based calculations in SID.
 
-- `OSC_SYNC_CONTROLLER` and `RING_MOD_CONTROLLER` are custom MIDI CC values for oscillator sync and ring modulation effects.
-- Assign these controllers to the corresponding parameters in your VST plugin that simulates the SID chip.
-- `OSC_SYNC_CONTROLLER` (CC 102) and `RING_MOD_CONTROLLER` (CC 103) should control the oscillator synchronization and ring modulation effects, respectively.
-- If your VST plugin does not have dedicated controls for these effects, you may need to map these controllers to the closest equivalent parameters.
-- In your DAW, fine-tune these parameters to match the behavior of the original SID chip as closely as possible.
+Additionally, the class includes detailed tables for envelope rates (`ENVELOPE_RATES`), decay and release rates (`DECAY_RELEASE_RATES`), and attack rates (`ATTACK_RATES`). These are essential for replicating the SID chip's sound characteristics in MIDI format.
 
-## General DAW Setup
+## SID to MIDI Note Table
 
-- Upon importing the MIDI file, ensure each track is assigned to a separate instance or channel of your VST plugin.
-- Set up your VST plugin with the initial parameters that best emulate the SID chip's sound.
-- Use the MIDI CC automation lanes in your DAW to control the filter and ring modulation parameters dynamically during playback.
-- Experiment with different settings and listen to the output to closely match the iconic SID sound.
+`SID_TO_MIDI_NOTE_TABLE` is a constant within the `MidiFileWriter` class. It maps frequencies to MIDI note numbers based on the SID chip's frequency generation capabilities and the MIDI standard's note numbering.
 
-**Note:** The effectiveness of the MIDI file in replicating the SID sound will greatly depend on the accuracy and capabilities of the chosen VST plugin.
+## Class Initialization
 
-```ruby
-module Sidtool
-  class MidiFileWriter
-    # Constants and methods here
-  end
-end
+The `initialize` method sets up the `MidiFileWriter` with necessary components for SID-to-MIDI conversion, taking parameters for different voices of the SID chip, the SID chip itself, and CIA timers.
+
+## MIDI File Writing
+
+The `write_to` method writes the MIDI data to a specified file path, converting the SID synthesizer data into MIDI tracks and saving them in a MIDI file format.
+
+## MIDI Event Structures
+
+The class includes several structures for MIDI events like `ControlChange`, `DeltaTime`, `TrackName`, `TimeSignature`, `KeySignature`, `EndOfTrack`, `ProgramChange`, `NoteOn`, and `NoteOff`. These structures are used to represent different MIDI messages and their specific data formats.
+
+## MIDI Track Construction
+
+Methods like `build_track`, `handle_adsr`, `map_envelope_to_midi`, and others are responsible for constructing a MIDI track from SID voice data, including translating waveforms, envelope parameters, and effects into MIDI messages.
+
+## Consolidating MIDI Events
+
+The `consolidate_events` method optimizes MIDI data by streamlining tracks and removing redundant events, specifically targeting NoteOff and NoteOn events for the same note.
+
+## Writing MIDI Data
+
+Methods `write_header`, `write_track`, `write_uint32`, `write_uint16`, and `write_byte` handle the actual writing of MIDI data to a file, including headers, track data, and specific MIDI byte formats.
+
+## Waveform to MIDI Channel Mapping
+
+`map_waveform_to_channel` assigns MIDI channels based on the waveform of a SID voice, helping to recreate the unique sound characteristics of SID waveforms in MIDI format.
 ```
