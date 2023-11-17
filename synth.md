@@ -1,5 +1,3 @@
-Here's the Markdown code with formatting for your `Synth` class documentation:
-
 ```markdown
 # Sidtool::Synth Class
 
