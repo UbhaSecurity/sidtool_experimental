@@ -40,8 +40,31 @@ module Sidtool
       when *FREQ_HI
         voice_index = FREQ_HI.index(address)
         @voices[voice_index].frequency_high = value
-      # Similar case statements for other register types
-      # ...
+      when *PW_LO
+        voice_index = PW_LO.index(address)
+        @voices[voice_index].pulse_low = value
+      when *PW_HI
+        voice_index = PW_HI.index(address)
+        @voices[voice_index].pulse_high = value
+      when *CR
+        voice_index = CR.index(address)
+        @voices[voice_index].control_register = value
+      when *AD
+        voice_index = AD.index(address)
+        @voices[voice_index].attack_decay = value
+      when *SR
+        voice_index = SR.index(address)
+        @voices[voice_index].sustain_release = value
+      when FC_LO
+        @global_filter_cutoff = (@global_filter_cutoff & 0xFF00) | value
+      when FC_HI
+        @global_filter_cutoff = (@global_filter_cutoff & 0x00FF) | (value << 8)
+      when RES_FILT
+        @global_filter_resonance = value
+      when MODE_VOL
+        @global_volume = value
+      else
+        raise "Unsupported SID register address: #{address}"
       end
     end
 
@@ -54,8 +77,31 @@ module Sidtool
       when *FREQ_HI
         voice_index = FREQ_HI.index(address)
         return @voices[voice_index].frequency_high
-      # Similar case statements for other register types
-      # ...
+      when *PW_LO
+        voice_index = PW_LO.index(address)
+        return @voices[voice_index].pulse_low
+      when *PW_HI
+        voice_index = PW_HI.index(address)
+        return @voices[voice_index].pulse_high
+      when *CR
+        voice_index = CR.index(address)
+        return @voices[voice_index].control_register
+      when *AD
+        voice_index = AD.index(address)
+        return @voices[voice_index].attack_decay
+      when *SR
+        voice_index = SR.index(address)
+        return @voices[voice_index].sustain_release
+      when FC_LO
+        return @global_filter_cutoff & 0x00FF
+      when FC_HI
+        return (@global_filter_cutoff >> 8) & 0x00FF
+      when RES_FILT
+        return @global_filter_resonance
+      when MODE_VOL
+        return @global_volume
+      else
+        raise "Unsupported SID register address for read: #{address}"
       end
     end
 
