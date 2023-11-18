@@ -347,36 +347,58 @@ end
       end
     end
 
-    def set_address(mode, value)
-      case mode
-      when Mode::ABS
-        @cycles += 2
-        ad = get_mem(pc - 2)
-        ad |= get_mem(pc - 1) << 8
-        set_mem(ad, value)
-      when Mode::ABSX
-        @cycles += 3
-        ad = get_mem(pc - 2)
-        ad |= get_mem(pc - 1) << 8
-        ad2 = ad + @x
-        ad2 &= 0xffff
-        @cycles -= 1 if (ad2 & 0xff00) != (ad & 0xff00)
-        set_mem(ad2, value)
-      when Mode::ZP
-        @cycles += 2
-        ad = get_mem(pc - 1)
-        set_mem(ad, value)
-      when Mode::ZPX
-        @cycles += 2
-        ad = get_mem(pc - 1)
-        ad += @x
-        set_mem(ad & 0xff, value)
-      when Mode::ACC
-        @a = value
-      else
-        raise "Unhandled addressing mode"
-      end
-    end
+   def set_address(mode, value)
+  case mode
+  when Mode::ABS
+    @cycles += 2
+    ad = get_mem(pc - 2)
+    ad |= get_mem(pc - 1) << 8
+    set_mem(ad, value)
+  when Mode::ABSX
+    @cycles += 3
+    ad = get_mem(pc - 2)
+    ad |= get_mem(pc - 1) << 8
+    ad2 = ad + @x
+    ad2 &= 0xffff
+    @cycles -= 1 if (ad2 & 0xff00) != (ad & 0xff00)
+    set_mem(ad2, value)
+  when Mode::ABSY
+    @cycles += 3
+    ad = get_mem(pc - 2)
+    ad |= get_mem(pc - 1) << 8
+    ad2 = ad + @y
+    ad2 &= 0xffff
+    @cycles -= 1 if (ad2 & 0xff00) != (ad & 0xff00)
+    set_mem(ad2, value)
+  when Mode::ZP
+    @cycles += 2
+    ad = get_mem(pc - 1)
+    set_mem(ad, value)
+  when Mode::ZPX
+    @cycles += 2
+    ad = get_mem(pc - 1)
+    ad += @x
+    set_mem(ad & 0xff, value)
+  when Mode::ZPY
+    @cycles += 2
+    ad = get_mem(pc - 1)
+    ad += @y
+    set_mem(ad & 0xff, value)
+  when Mode::INDY
+    @cycles += 3
+    ad = get_mem(pc - 1)
+    ad2 = get_mem(ad)
+    ad2 |= get_mem((ad + 1) & 0xff) << 8
+    ad2 = ad2 + @y
+    ad2 &= 0xffff
+    set_mem(ad2, value)
+  when Mode::ACC
+    @a = value
+  else
+    raise "Unhandled addressing mode"
+  end
+end
+
 
     def fetch_byte
       get_mem(pc_increment)
