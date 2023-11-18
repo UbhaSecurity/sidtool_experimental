@@ -287,14 +287,13 @@ end
     # SID's attack, decay, and release values are mapped to time-based MIDI parameters,
     # while the sustain value is mapped to a MIDI level. This method ensures that the
     # ADSR behavior of the SID is represented accurately in the MIDI output.
-    def map_envelope_to_midi(attack, decay, sustain, release)
-      # Implementing a 1:1 mapping of SID's ADSR parameters to MIDI with scaling and lookup tables
-      velocity = attack * 8  # Scale attack
-      decay_value = ENVELOPE_RATES[:sid_decay][decay]  # Lookup decay rate
-      sustain_value = ENVELOPE_RATES[:sid_sustain][sustain]  # Lookup sustain rate
-      release_value = ENVELOPE_RATES[:sid_release][release]  # Lookup release rate
-      [velocity, decay_value, sustain_value, release_value]
-    end
+def map_envelope_to_midi(envelope_type, attack, decay, sustain, release)
+  velocity = map_attack_to_midi(attack)
+  decay_value = map_decay_to_midi(envelope_type, decay)
+  sustain_value = map_sustain_to_midi(sustain)
+  release_value = map_release_to_midi(envelope_type, release)
+  [velocity, decay_value, sustain_value, release_value]
+end
 
     # The calculate_pitch_from_sid method converts a SID frequency to a corresponding MIDI note number.
     # The SID chip generates frequencies based on a 16-bit number and the system clock frequency.
@@ -344,6 +343,33 @@ end
 
       [velocity, attack_time, decay_time, sustain_level, release_time]
     end
+
+def map_attack_to_midi(attack)
+  # The attack rate depends on the SID's clock frequency and may require specific mapping.
+  # This example assumes a linear mapping from SID's 0-15 to MIDI's 0-127.
+  attack_midi_value = (attack / 15.0 * 127).round.clamp(0, 127)
+  attack_midi_value
+end
+
+def map_decay_to_midi(envelope_type, decay)
+  # Map SID's decay to MIDI based on envelope type (fast or slow decay).
+  decay_table = (envelope_type == :fast) ? ENVELOPE_RATES[:sid_fast_decay] : ENVELOPE_RATES[:sid_slow_decay]
+  decay_midi_value = decay_table[decay].clamp(0, 127)
+  decay_midi_value
+end
+
+def map_sustain_to_midi(sustain)
+  # Map SID's sustain to MIDI directly, as they are similar in range (0-15 to 0-127).
+  sustain_midi_value = (sustain / 15.0 * 127).round.clamp(0, 127)
+  sustain_midi_value
+end
+
+def map_release_to_midi(envelope_type, release)
+  # Map SID's release to MIDI based on envelope type (fast or slow release).
+  release_table = (envelope_type == :fast) ? ENVELOPE_RATES[:sid_fast_release] : ENVELOPE_RATES[:sid_slow_release]
+  release_midi_value = release_table[release].clamp(0, 127)
+  release_midi_value
+end
 
     # The decay_release_time method calculates the time in milliseconds for decay or release based on the SID value.
     # The SID chip has specific rates for decay and release, represented in a range from 0 to 15, each corresponding to a different time.
