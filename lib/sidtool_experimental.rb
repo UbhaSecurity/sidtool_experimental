@@ -1,4 +1,4 @@
-# Require necessary components for the Sidtool module.
+require 'optparse'
 require 'sidtool_experimental-main/lib/sidtool_experimental/version'
 require 'sidtool_experimental-main/lib/sidtool_experimental/file_reader'
 require 'sidtool_experimental-main/lib/sidtool_experimental/ruby_file_writer'
@@ -6,11 +6,11 @@ require 'sidtool_experimental-main/lib/sidtool_experimental/midi_file_writer'
 require 'sidtool_experimental-main/lib/sidtool_experimental/synth'
 require 'sidtool_experimental-main/lib/sidtool_experimental/voice'
 require 'sidtool_experimental-main/lib/sidtool_experimental/sid'
-require 'sidtool_experimental-main/lib/sidtool_experimental/state' # This now includes the CIATimer class as well
+require 'sidtool_experimental-main/lib/sidtool_experimental/state'
 require 'sidtool_experimental-main/lib/sidtool_experimental/sid_6581'
 require 'sidtool_experimental-main/lib/sidtool_experimental/mos6510'
 
-module Sidtool
+module SidtoolExperimental
   # Define constants for PAL properties.
   FRAMES_PER_SECOND = 50.0
   CLOCK_FREQUENCY = 985248.0
@@ -18,6 +18,22 @@ module Sidtool
   # Constants for slide detection and handling in the emulation.
   SLIDE_THRESHOLD = 60
   SLIDE_DURATION_FRAMES = 20
+
+  # Default number of frames from Sidtool (update this value as needed)
+  DEFAULT_FRAME_COUNT = 5000
+
+  # Parse command-line arguments
+  def self.parse_arguments
+    options = { frames: DEFAULT_FRAME_COUNT }
+    OptionParser.new do |opts|
+      opts.banner = "Usage: sidtool_experimental [options]"
+
+      opts.on("-fFRAMES", "--frames=FRAMES", Integer, "Number of frames to render (default: #{DEFAULT_FRAME_COUNT})") do |f|
+        options[:frames] = f
+      end
+    end.parse!
+    options
+  end
 
   # Create a global state object for managing the overall state of the SID emulation.
   STATE = State.new
@@ -53,14 +69,26 @@ module Sidtool
     @cpu = Mos6510::Cpu.new(sid: @sid_wrapper)
   end
 
-  # Class method to run the emulation loop.
-  def self.emulate
+  # Class method to run the emulation loop with a specified number of frames.
+  def self.emulate(frame_limit)
+    frame_count = 0
     loop do
+      break if frame_count >= frame_limit
+
       @sid_wrapper.emulate_cycle
+      frame_count += 1
+
       # Additional logic for the emulation loop, if required.
     end
   end
+
+  # Initialize the SID emulation setup and run the emulation loop for a given number of frames.
+  def self.run
+    options = parse_arguments
+    initialize_sid_emulation
+    emulate(options[:frames])
+  end
 end
 
-# Initialize the SID emulation setup by calling the class method.
-Sidtool.initialize_sid_emulation
+# Run the SID emulation with command-line arguments.
+SidtoolExperimental.run
