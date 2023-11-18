@@ -251,7 +251,7 @@ module Mos6510
 end
 
   class Mos6510
-   def set_mem(addr, value)
+    def set_mem(addr, value)
       if (0..65535).cover?(addr) && (0..255).cover?(value)
         if (0xd400..0xd41b).cover?(addr) && @sid
           @sid.poke(addr & 0x1f, value)
