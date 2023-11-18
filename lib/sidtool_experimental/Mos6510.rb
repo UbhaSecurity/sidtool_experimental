@@ -1,16 +1,71 @@
 module Mos6510
-  class Mos6510
-    attr_accessor :cycles, :a, :x, :y, :s, :p, :pc
+  class Cpu
+    attr_accessor :a, :x, :y, :s, :p, :pc, :mem
 
-    def initialize(mem, sid: nil)
+    def initialize(mem)
+      @a = 0x00
+      @x = 0x00
+      @y = 0x00
+      @s = 0xff
+      @p = 0x34
+      @pc = 0x0000
+
       @mem = mem
-      @sid = sid
+
       reset
     end
 
-    def get_mem(addr)
-      @mem[addr]
+    def reset
+      @a = 0x00
+      @x = 0x00
+      @y = 0x00
+      @s = 0xff
+      @p = 0x34
+      @pc = 0x0000
     end
+
+    # Add other methods and functionality as needed
+  end
+
+  class CpuController
+    def initialize(sid: nil)
+      @memory = [0] * 65536
+      @sid = sid
+    end
+
+    def load(bytes, from: 0)
+      bytes.each_with_index do |byte, index|
+        @memory[from + index] = byte
+      end
+    end
+
+    def start
+      @cpu = Cpu.new(@memory)  # Create an instance of Mos6510::Cpu
+    end
+
+    def jsr(address, accumulator_value=0)
+      @cpu.jsr(address, accumulator_value)
+    end
+
+    def step
+      @cpu.step
+    end
+
+    def pc
+      @cpu.pc
+    end
+
+    def pc=(new_pc)
+      @cpu.pc = new_pc
+    end
+
+    def peek(address)
+      @cpu.getmem(address)
+    end
+  end
+end
+
+  class Mos6510
 
     def set_mem(addr, value)
       if (0..65535).cover?(addr) && (0..255).cover?(value)
