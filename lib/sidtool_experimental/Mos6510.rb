@@ -270,82 +270,87 @@ end
       old_pc
     end
 
-    def get_address(mode)
-      case mode
-      when Mode::IMP
-        @cycles += 2
-        0
-      when Mode::IMM
-        @cycles += 2
-        get_mem(pc_increment)
-      when Mode::ABS
-        @cycles += 4
-        ad = get_mem(pc_increment)
-        ad |= get_mem(pc_increment) << 8
-        get_mem(ad)
-      when Mode::ABSX
-        @cycles += 4
-        ad = get_mem(pc_increment)
-        ad |= get_mem(pc_increment) << 8
-        ad2 = ad + @x
-        ad2 &= 0xffff
-        @cycles += 1 if (ad2 & 0xff00) != (ad & 0xff00)
-        get_mem(ad2)
-      when Mode::ABSY
-        @cycles += 4
-        ad = get_mem(pc_increment)
-        ad |= get_mem(pc_increment) << 8
-        ad2 = ad + @y
-        ad2 &= 0xffff
-        @cycles += 1 if (ad2 & 0xff00) != (ad & 0xff00)
-        get_mem(ad2)
-      when Mode::ZP
-        @cycles += 3
-        ad = get_mem(pc_increment)
-        get_mem(ad)
-      when Mode::ZPX
-        @cycles += 4
-        ad = get_mem(pc_increment)
-        ad += @x
-        get_mem(ad & 0xff)
-      when Mode::ZPY
-        @cycles += 4
-        ad = get_mem(pc_increment)
-        ad += @y
-        get_mem(ad & 0xff)
-      when Mode::INDX
-        @cycles += 6
-        ad = get_mem(pc_increment)
-        ad += @x
-        ad2 = get_mem(ad & 0xff)
-        ad += 1
-        ad2 |= get_mem(ad & 0xff) << 8
-        get_mem(ad2)
-      when Mode::INDY
-        @cycles += 5
-        ad = get_mem(pc_increment)
-        ad2 = get_mem(ad)
-        ad2 |= get_mem((ad + 1) & 0xff) << 8
-        ad = ad2 + @y
-        ad &= 0xffff
-        @cycles += 1 if (ad2 & 0xff00) != (ad & 0xff00)
-        get_mem(ad)
-      when Mode::IND
-        @cycles += 5
-        ad = get_mem(pc_increment)
-        ad |= get_mem(pc_increment) << 8
-        # Handle page boundary hardware bug
-        ad2 = (ad & 0xFF00) | ((ad + 1) & 0x00FF)
-        lo = get_mem(ad)
-        hi = get_mem(ad2)
-        (hi << 8) | lo
-      when Mode::ACC
-        @cycles += 2
-        @a
-      else
-        raise "Unhandled addressing mode"
-      end
-    end
+def get_address(mode)
+  case mode
+  when Mode::IMP
+    @cycles += 2
+    0
+  when Mode::IMM
+    @cycles += 2
+    get_mem(pc_increment)
+  when Mode::ABS
+    @cycles += 4
+    ad = get_mem(pc_increment)
+    ad |= get_mem(pc_increment) << 8
+    get_mem(ad)
+  when Mode::ABSX
+    @cycles += 4
+    ad = get_mem(pc_increment)
+    ad |= get_mem(pc_increment) << 8
+    ad2 = ad + @x
+    ad2 &= 0xffff
+    @cycles += 1 if (ad2 & 0xff00) != (ad & 0xff00)
+    get_mem(ad2)
+  when Mode::ABSY
+    @cycles += 4
+    ad = get_mem(pc_increment)
+    ad |= get_mem(pc_increment) << 8
+    ad2 = ad + @y
+    ad2 &= 0xffff
+    @cycles += 1 if (ad2 & 0xff00) != (ad & 0xff00)
+    get_mem(ad2)
+  when Mode::ZP
+    @cycles += 3
+    ad = get_mem(pc_increment)
+    get_mem(ad)
+  when Mode::ZPX
+    @cycles += 4
+    ad = get_mem(pc_increment)
+    ad += @x
+    get_mem(ad & 0xff)
+  when Mode::ZPY
+    @cycles += 4
+    ad = get_mem(pc_increment)
+    ad += @y
+    get_mem(ad & 0xff)
+  when Mode::INDX
+    @cycles += 6
+    ad = get_mem(pc_increment)
+    ad += @x
+    ad2 = get_mem(ad & 0xff)
+    ad += 1
+    ad2 |= get_mem(ad & 0xff) << 8
+    get_mem(ad2)
+  when Mode::INDY
+    @cycles += 5
+    ad = get_mem(pc_increment)
+    ad2 = get_mem(ad)
+    ad2 |= get_mem((ad + 1) & 0xff) << 8
+    ad = ad2 + @y
+    ad &= 0xffff
+    @cycles += 1 if (ad2 & 0xff00) != (ad & 0xff00)
+    get_mem(ad)
+  when Mode::IND
+    @cycles += 5
+    ad = get_mem(pc_increment)
+    ad |= get_mem(pc_increment) << 8
+    ad2 = (ad & 0xFF00) | ((ad + 1) & 0x00FF)
+    lo = get_mem(ad)
+    hi = get_mem(ad2)
+    (hi << 8) | lo
+  when Mode::ACC
+    @cycles += 2
+    @a
+  when Mode::REL
+    @cycles += 2
+    offset = get_mem(pc_increment)
+    offset = (offset & 0x80) == 0 ? offset : (offset | 0xFF00)
+    pc + offset
+  else
+    raise "Unhandled addressing mode: #{mode}"
+  end
+end
+
 
    def set_address(mode, value)
   case mode
