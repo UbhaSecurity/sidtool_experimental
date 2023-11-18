@@ -428,4 +428,3 @@ end
  0x11F => { operation: method(:sbc), addr_mode: Mode::ABX, cycles: 7 }
 }
   end
-end
