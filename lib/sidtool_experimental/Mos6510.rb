@@ -330,6 +330,15 @@ end
         ad &= 0xffff
         @cycles += 1 if (ad2 & 0xff00) != (ad & 0xff00)
         get_mem(ad)
+      when Mode::IND
+        @cycles += 5
+        ad = get_mem(pc_increment)
+        ad |= get_mem(pc_increment) << 8
+        # Handle page boundary hardware bug
+        ad2 = (ad & 0xFF00) | ((ad + 1) & 0x00FF)
+        lo = get_mem(ad)
+        hi = get_mem(ad2)
+        (hi << 8) | lo
       when Mode::ACC
         @cycles += 2
         @a
