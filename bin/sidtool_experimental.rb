@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 require 'optparse'
 require_relative '../lib/sidtool_experimental'
+require_relative 'Mos6510'  # Import the Mos6510 library
 
 DEFAULT_FRAMES_TO_PROCESS = 15000
 
@@ -60,7 +61,7 @@ if output_file
   load_address = sid_file.data[0] + (sid_file.data[1] << 8)
 
   sid = SidtoolExperimental::Sid.new
-  cpu = SidtoolExperimental::Cpu.new(sid: sid)
+  cpu = Mos6510::Cpu.new  # Initialize the Mos6510 CPU
 
   cpu.load(sid_file.data[2..-1], from: load_address)
   cpu.start
