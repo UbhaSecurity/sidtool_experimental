@@ -351,8 +351,7 @@ def get_address(mode)
   end
 end
 
-
-   def set_address(mode, value)
+def set_address(mode, value)
   case mode
   when Mode::ABS
     @cycles += 2
@@ -397,15 +396,22 @@ end
     ad2 = ad2 + @y
     ad2 &= 0xffff
     set_mem(ad2, value)
-   when Mode::INDX
+  when Mode::INDX
     @cycles += 3
     zero_page_addr = (get_mem(pc - 1) + @x) & 0xff
     effective_addr = get_mem(zero_page_addr) | (get_mem((zero_page_addr + 1) & 0xff) << 8)
     set_mem(effective_addr, value)
   when Mode::ACC
     @a = value
+  when Mode::IND
+    @cycles += 4
+    ad = get_mem(pc - 2)
+    ad |= get_mem(pc - 1) << 8
+    ad2 = (ad & 0xFF00) | ((ad + 1) & 0x00FF)
+    set_mem(ad, value)
+    set_mem(ad2, value >> 8)
   else
-    raise "Unhandled addressing mode"
+    raise "Unhandled addressing mode: #{mode}"
   end
 end
 
