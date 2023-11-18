@@ -1,14 +1,13 @@
 require 'optparse'
-require_relative 'sidtool_experimental/version'
-require_relative 'sidtool_experimental/file_reader'
-require_relative 'sidtool_experimental/ruby_file_writer'
+require_relative 'sidtool_experimental/filereader'
 require_relative 'sidtool_experimental/midi_file_writer'
-require_relative 'sidtool_experimental/synth'
-require_relative 'sidtool_experimental/voice'
+require_relative 'sidtool_experimental/mos6510'
+require_relative 'sidtool_experimental/sid6581'
 require_relative 'sidtool_experimental/sid'
 require_relative 'sidtool_experimental/state'
-require_relative 'sidtool_experimental/sid_6581'
-require_relative 'sidtool_experimental/mos6510'
+require_relative 'sidtool_experimental/synth'
+require_relative 'sidtool_experimental/voice'
+require_relative 'sidtool_experimental/version'
 
 module SidtoolExperimental
   # Define constants for PAL properties.
