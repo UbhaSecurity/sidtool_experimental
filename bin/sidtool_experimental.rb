@@ -1,11 +1,11 @@
 #!/usr/bin/env ruby
 require 'optparse'
 require_relative '../lib/sidtool_experimental'
-require_relative 'Mos6510'  # Import the Mos6510 library
+require_relative 'Mos6510'
+require_relative 'State'
 
 DEFAULT_FRAMES_TO_PROCESS = 15000
 
-# Define exporters
 EXPORTERS = {
   'ruby' => SidtoolExperimental::RubyFileWriter,
   'midi' => SidtoolExperimental::MidiFileWriter
@@ -60,30 +60,21 @@ end
 if output_file_path
   load_address = sid_file.data[0] + (sid_file.data[1] << 8)
 
-  sid = SidtoolExperimental::Sid.new
-  cpu = Mos6510::Cpu.new  # Initialize the Mos6510 CPU
-
-  cpu.load(sid_file.data[2..-1], from: load_address)
-  cpu.start
+  state = Sidtool::State.new
+  state.cpu.load(sid_file.data[2..-1], from: load_address)
+  state.cpu.start
 
   play_address = sid_file.play_address
   if play_address == 0
-    cpu.jsr sid_file.init_address
-    play_address = (cpu.peek(0x0315) << 8) + cpu.peek(0x0314)
+    state.cpu.jsr(sid_file.init_address)
+    play_address = (state.cpu.peek(0x0315) << 8) + state.cpu.peek(0x0314)
     STDERR.puts "New play address #{play_address}"
   end
 
-  cpu.jsr sid_file.init_address, selected_song - 1
+  state.cpu.jsr(sid_file.init_address, selected_song - 1)
+  state.run_emulation_loop(selected_frames)
 
-  selected_frames.times do
-    cpu.jsr play_address
-    sid.finish_frame
-    SidtoolExperimental::STATE.current_frame += 1
-  end
-
-  sid.stop!
-
+  state.sid6581.stop!
+  exporter_class.new(state.sid6581.synths_for_voices).write_to(output_file_path)
   STDERR.puts("Processed #{selected_frames} frames")
-
-  exporter_class.new(sid.synths_for_voices).write_to(output_file_path)
 end
