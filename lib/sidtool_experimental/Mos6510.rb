@@ -392,6 +392,11 @@ end
     ad2 = ad2 + @y
     ad2 &= 0xffff
     set_mem(ad2, value)
+   when Mode::INDX
+    @cycles += 3
+    zero_page_addr = (get_mem(pc - 1) + @x) & 0xff
+    effective_addr = get_mem(zero_page_addr) | (get_mem((zero_page_addr + 1) & 0xff) << 8)
+    set_mem(effective_addr, value)
   when Mode::ACC
     @a = value
   else
