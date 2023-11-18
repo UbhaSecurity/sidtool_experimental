@@ -33,7 +33,7 @@ module Sidtool
     OSC_SYNC_CONTROLLER = 102  # Placeholder value, adjust based on MIDI setup
     RING_MOD_CONTROLLER = 103  # Placeholder value, adjust based on MIDI setup
     PULSE_WIDTH_CONTROLLER = 74  # MIDI controller number for pulse width modulation
-    MAX_CUTOFF_FREQUENCY = 20000.0  # Maximum frequency for the filter cutoff, typical for MIDI devices
+    MAX_CUTOFF_FREQUENCY = 12000.0
     MAX_RESONANCE = 1.0  # Maximum resonance value, typical for MIDI devices
     FRAMES_PER_SECOND = 50  # Frames per second, relevant for time-based calculations in SID
 
@@ -407,12 +407,13 @@ end
     # are based on typical SID chip behavior as outlined in its technical documentation.
     # These formulas might need refinement to more accurately emulate the specific
     # filter characteristics of the SID model in use.
-    def map_filter_to_midi(cutoff_frequency, resonance)
-      cutoff_midi_value = (cutoff_frequency / MAX_CUTOFF_FREQUENCY * 127).round.clamp(0, 127)
-      resonance_midi_value = (resonance / MAX_RESONANCE * 127).round.clamp(0, 127)
+def map_filter_to_midi(cutoff_frequency, resonance)
+  # Corrected mapping with updated MAX_CUTOFF_FREQUENCY
+  cutoff_midi_value = (cutoff_frequency / MAX_CUTOFF_FREQUENCY * 127).round.clamp(0, 127)
+  resonance_midi_value = (resonance / MAX_RESONANCE * 127).round.clamp(0, 127)
 
-      [cutoff_midi_value, resonance_midi_value]
-    end
+  [cutoff_midi_value, resonance_midi_value]
+end
 
 # The map_sid_effects_to_midi function maps the SID's oscillator sync and ring modulation parameters
 # to MIDI values. This is based on the SID's behavior where certain bits in the control register
