@@ -426,5 +426,5 @@ end
  0x11D => { operation: method(:sbc), addr_mode: Mode::ABX, cycles: 4 },
  0x11E => { operation: method(:inc), addr_mode: Mode::ABX, cycles: 7 },
  0x11F => { operation: method(:sbc), addr_mode: Mode::ABX, cycles: 7 }
-} # This is the closing brace for the INSTRUCTIONS hash
-# No 'end' needed here
+}
+  end
