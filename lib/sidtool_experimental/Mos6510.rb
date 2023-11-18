@@ -416,9 +416,11 @@ def set_address(mode, value)
 end
 
 
-    def fetch_byte
-      get_mem(pc_increment)
-    end
+def fetch_byte
+  value = get_mem(@pc)
+  @pc += 1
+  value
+end
 
     def step
       opc = fetch_byte
@@ -473,5 +475,4 @@ end
       INDY = 9
       ACC = 10
     end
-
-
+  end
