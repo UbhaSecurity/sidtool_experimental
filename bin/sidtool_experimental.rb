@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 require 'optparse'
-require 'sidtool_experimental'
+require_relative '../lib/sidtool_experimental'
 
 DEFAULT_FRAMES_TO_PROCESS = 15000
 
