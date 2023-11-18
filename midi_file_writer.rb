@@ -221,6 +221,14 @@ ENVELOPE_RATES = {
       track << NoteOff.new(channel, synth.tone, 0)
     end
 
+def initialize_lfo
+  @lfo_rate = 1.0 # LFO frequency in Hz
+  @lfo_depth = 0.5 # Depth of the LFO effect, range 0-1
+  @lfo_waveform = :sine # Waveform of the LFO (sine, square, etc.)
+  @lfo_phase = 0.0 # Phase of the LFO in degrees
+  @lfo_destination = :pitch # Target parameter for modulation (pitch, filter, etc.)
+end
+
 def calculate_lfo_value(lfo, time)
   # Assuming the LFO rate is in Hz and depth is in MIDI value range (0-127)
   # The time parameter should be in seconds
@@ -231,28 +239,44 @@ def calculate_lfo_value(lfo, time)
   (Math.sin(angle) * depth_scaled + offset).round.clamp(0, 127)
 end
 
-def apply_lfo(track, lfo, start_time, end_time, channel)
-  # Assuming time is in frames and we need to convert it to seconds for LFO calculation
-  frame_rate = FRAMES_PER_SECOND # Frames per second, e.g., 50
-  current_frame = start_time
+def apply_lfo(frame_number)
+  # Calculate the current time in seconds based on the frame number
+  current_time = frame_number.to_f / FRAMES_PER_SECOND
 
-  while current_frame < end_time
-    current_time = current_frame.to_f / frame_rate
-    lfo_value = calculate_lfo_value(lfo, current_time)
+  # Calculate the modulation value based on the LFO settings
+  lfo_value = calculate_lfo_modulation(current_time)
 
-    case lfo.target
-    when :pitch
-      # Pitch Bend in MIDI has a range of -8192 to 8191
-      # Remapping LFO value (0-127) to Pitch Bend range
-      pitch_bend_value = ((lfo_value - 64) * 128).clamp(-8192, 8191)
-      track << PitchBend.new(channel, pitch_bend_value)
-    when :filter_cutoff
-      track << ControlChange.new(channel, FILTER_CUTOFF_CONTROLLER, lfo_value)
-    # Add other targets as needed
-    end
-
-    current_frame += lfo.rate
+  # Apply modulation based on the target parameter
+  case @lfo_destination
+  when :pitch
+    # Range of frequency modulation
+    frequency_range = 4000 # 0-4 kHz for SID
+    modulated_frequency = @frequency + (lfo_value * frequency_range * @lfo_depth)
+    # Set the new frequency value
+    self.frequency = modulated_frequency
+  when :filter_cutoff
+    # Range of filter cutoff modulation
+    cutoff_range = 12000 - 30 # 30 Hz to 12 kHz for SID
+    modulated_cutoff = @filter_cutoff + (lfo_value * cutoff_range * @lfo_depth)
+    # Set the new filter cutoff value
+    self.filter_cutoff = modulated_cutoff
+  # Additional cases for other destinations can be added here...
   end
+end
+
+def calculate_lfo_modulation(current_time)
+  phase_in_radians = @lfo_phase * Math::PI / 180.0
+  angle = 2 * Math::PI * @lfo_rate * current_time + phase_in_radians
+
+  case @lfo_waveform
+  when :sine
+    Math.sin(angle)
+  when :square
+    Math.sin(angle) >= 0 ? 1 : -1
+  when :triangle
+    (2 / Math::PI) * Math.asin(Math.sin(angle))
+  # Additional waveform cases can be added here...
+  end * @lfo_depth
 end
 
 
