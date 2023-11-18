@@ -1,14 +1,14 @@
 # Require necessary components for the Sidtool module.
-require 'sidtool/version'
-require 'sidtool/file_reader'
-require 'sidtool/ruby_file_writer'
-require 'sidtool/midi_file_writer'
-require 'sidtool/synth'
-require 'sidtool/voice'
-require 'sidtool/sid'
-require 'sidtool/state' # This now includes the CIATimer class as well
-require 'sidtool/sid_6581'
-require 'mos6510'
+require 'sidtool_experimental-main/lib/sidtool_experimental/version'
+require 'sidtool_experimental-main/lib/sidtool_experimental/file_reader'
+require 'sidtool_experimental-main/lib/sidtool_experimental/ruby_file_writer'
+require 'sidtool_experimental-main/lib/sidtool_experimental/midi_file_writer'
+require 'sidtool_experimental-main/lib/sidtool_experimental/synth'
+require 'sidtool_experimental-main/lib/sidtool_experimental/voice'
+require 'sidtool_experimental-main/lib/sidtool_experimental/sid'
+require 'sidtool_experimental-main/lib/sidtool_experimental/state' # This now includes the CIATimer class as well
+require 'sidtool_experimental-main/lib/sidtool_experimental/sid_6581'
+require 'sidtool_experimental-main/lib/sidtool_experimental/mos6510'
 
 module Sidtool
   # Define constants for PAL properties.
