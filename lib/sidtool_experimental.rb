@@ -1,7 +1,7 @@
 require 'optparse'
 require_relative 'sidtool_experimental/filereader'
 require_relative 'sidtool_experimental/midi_file_writer'
-require_relative 'sidtool_experimental/mos6510'
+require_relative 'sidtool_experimental/Mos6510'
 require_relative 'sidtool_experimental/sid6581'
 require_relative 'sidtool_experimental/sid'
 require_relative 'sidtool_experimental/state'
