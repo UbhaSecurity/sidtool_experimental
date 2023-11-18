@@ -11,7 +11,7 @@ EXPORTERS = {
   'midi' => SidtoolExperimental::MidiFileWriter
 }
 
-params = {}
+options = {}
 OptionParser.new do |parser|
   parser.banner = 'Usage: sidtool_experimental [options] <inputfile.sid>'
 
@@ -28,26 +28,26 @@ OptionParser.new do |parser|
     puts SidtoolExperimental::VERSION
     exit
   end
-end.parse!(into: params)
+end.parse!(into: options)
 
 raise 'Missing input file' if ARGV.empty?
 raise 'Too many arguments' if ARGV.length > 1
-input_file = ARGV.pop
-sid_file = SidtoolExperimental::FileReader.read(input_file)
+input_file_path = ARGV.pop
+sid_file = SidtoolExperimental::FileReader.read(input_file_path)
 
-output_file = params[:out]
-show_info = !!params[:info]
-raise 'Either provide -i or -o, or I have nothing to do!' unless output_file || show_info
+output_file_path = options[:out]
+show_info = !!options[:info]
+raise 'Either provide -i or -o, or I have nothing to do!' unless output_file_path || show_info
 
-format = params[:format] || EXPORTERS.keys.first
-exporter_class = EXPORTERS[format]
-raise "Invalid format: #{format}. Valid formats: #{EXPORTERS.keys.join(', ')}" unless exporter_class
+selected_format = options[:format] || EXPORTERS.keys.first
+exporter_class = EXPORTERS[selected_format]
+raise "Invalid format: #{selected_format}. Valid formats: #{EXPORTERS.keys.join(', ')}" unless exporter_class
 
-song = params[:song] || sid_file.start_song
-raise 'Song must be at least 1' if song < 1
-raise "File only has #{sid_file.songs} songs" if song > sid_file.songs
+selected_song = options[:song] || sid_file.start_song
+raise 'Song must be at least 1' if selected_song < 1
+raise "File only has #{sid_file.songs} songs" if selected_song > sid_file.songs
 
-frames = params[:frames] || DEFAULT_FRAMES_TO_PROCESS
+selected_frames = options[:frames] || DEFAULT_FRAMES_TO_PROCESS
 
 if show_info
   puts "Read #{sid_file.format} version #{sid_file.version} file."
@@ -57,7 +57,7 @@ if show_info
   puts "Songs: #{sid_file.songs} (start song: #{sid_file.start_song})"
 end
 
-if output_file
+if output_file_path
   load_address = sid_file.data[0] + (sid_file.data[1] << 8)
 
   sid = SidtoolExperimental::Sid.new
@@ -73,9 +73,9 @@ if output_file
     STDERR.puts "New play address #{play_address}"
   end
 
-  cpu.jsr sid_file.init_address, song - 1
+  cpu.jsr sid_file.init_address, selected_song - 1
 
-  frames.times do
+  selected_frames.times do
     cpu.jsr play_address
     sid.finish_frame
     SidtoolExperimental::STATE.current_frame += 1
@@ -83,7 +83,7 @@ if output_file
 
   sid.stop!
 
-  STDERR.puts("Processed #{frames} frames")
+  STDERR.puts("Processed #{selected_frames} frames")
 
-  exporter_class.new(sid.synths_for_voices).write_to(output_file)
+  exporter_class.new(sid.synths_for_voices).write_to(output_file_path)
 end
