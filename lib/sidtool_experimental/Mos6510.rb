@@ -346,9 +346,9 @@ def get_address(mode)
   when Mode::ZPY
     (read_memory(pc_increment) + @registers[:Y]) & 0xFF
   when Mode::INDX
-    base_address = (read_memory(pc_increment) + @registers[:X]) & 0xFF
-    low_byte = read_memory(base_address)
-    high_byte = read_memory((base_address + 1) & 0xFF)
+    zero_page_addr = (read_memory(pc_increment) + @registers[:X]) & 0xFF
+    low_byte = read_memory(zero_page_addr)
+    high_byte = read_memory((zero_page_addr + 1) & 0xFF)
     (high_byte << 8) | low_byte
   when Mode::INDY
     base_address = read_memory(pc_increment)
