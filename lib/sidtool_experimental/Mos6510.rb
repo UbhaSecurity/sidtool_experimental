@@ -36,7 +36,7 @@ module Mos6510
   0x11 => { operation: method(:ora), addr_mode: Mode::IZY, cycles: 5 },
   0x15 => { operation: method(:ora), addr_mode: Mode::ZPX, cycles: 4 },
   0x16 => { operation: method(:asl), addr_mode: Mode::ZPX, cycles: 6 },
-  0x18 => { operation: method(:clc), addr_mode: Mode::IMP, cycles: 2 },
+  0x18 => { operation: method(:), addr_mode: Mode::IMP, cycles: 2 },
   0x19 => { operation: method(:ora), addr_mode: Mode::ABY, cycles: 4 },
   0x1D => { operation: method(:ora), addr_mode: Mode::ABX, cycles: 4 },
   0x1E => { operation: method(:asl), addr_mode: Mode::ABX, cycles: 7 },
@@ -406,30 +406,30 @@ def get_address(mode)
   end
 end
 
- # Implement the Clear Carry Flag (CLC) instruction
-  def clc
-    @registers[:P][:C] = 0
-  end
+# Clear Carry Flag
+def clc
+  @registers[:P][:C] = false
+end
 
-  # Implement the Set Carry Flag (SEC) instruction
-  def sec
-    @registers[:P][:C] = 1
-  end
+# Set Carry Flag
+def sec
+  @registers[:P][:C] = true
+end
 
-  # Implement the Clear Interrupt Disable Flag (CLI) instruction
-  def cli
-    @registers[:P][:I] = 0
-  end
+# Clear Interrupt Disable Flag
+def cli
+  @registers[:P][:I] = false
+end
 
-  # Implement the Set Interrupt Disable Flag (SEI) instruction
-  def sei
-    @registers[:P][:I] = 1
-  end
+# Set Interrupt Disable Flag
+def sei
+  @registers[:P][:I] = true
+end
 
-  # Implement the No Operation (NOP) instruction
-  def nop
-    # This instruction does nothing, just move to the next instruction
-  end
+# No Operation (if needed)
+def nop
+  # This instruction does nothing
+end
 
   # Implement the Load Accumulator (LDA) instruction with immediate addressing mode
   def lda_immediate
