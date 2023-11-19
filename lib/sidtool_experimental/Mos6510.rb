@@ -249,20 +249,12 @@ end
 
   class Mos6510
   attr_accessor :memory, :registers
-  def initialize
-    # Initialize memory as an array with 64KB (0x10000) of bytes
-    @memory = Array.new(0x10000, 0x00)
-
-    # Initialize CPU registers
-    @registers = {
-      A: 0x00,   # Accumulator
-      X: 0x00,   # X Register
-      Y: 0x00,   # Y Register
-      P: 0x34,   # Processor Status
-      SP: 0xFF,  # Stack Pointer
-      PC: 0x0000 # Program Counter
-    }
-  end
+ def initialize
+      @memory = Array.new(0x10000, 0x00)
+      @registers = {
+        A: 0x00, X: 0x00, Y: 0x00, P: 0x34, SP: 0xFF, PC: 0x0000
+      }
+    end
 
    def set_mem(addr, value)
   if (0..65535).cover?(addr) && (0..255).cover?(value)
@@ -282,17 +274,15 @@ end
       old_pc
     end
 
- # Utility method to read a byte from memory at the specified address
-  def read_memory(address)
-    validate_address(address)
-    @memory[address]
-  end
+ def read_memory(address)
+      validate_address(address)
+      @memory[address]  # Use @memory instead of any other variable
+    end
 
-  # Utility method to write a byte to memory at the specified address
-  def write_memory(address, byte)
-    validate_address(address)
-    @memory[address] = byte
-  end
+    def write_memory(address, byte)
+      validate_address(address)
+      @memory[address] = byte  # Use @memory instead of any other variable
+    end
 
   # Utility method to fetch a byte from memory at the program counter (PC)
   def fetch_byte
