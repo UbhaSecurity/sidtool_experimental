@@ -429,6 +429,257 @@ end
     update_flags(@registers[:Y])
   end
 
+  # Implement the Store Accumulator (STA) instruction with zero page addressing mode
+  def sta_zero_page
+    address = fetch_byte
+    write_memory(address, @registers[:A])
+  end
+
+  # Implement the Store Accumulator (STA) instruction with zero page X addressing mode
+  def sta_zero_page_x
+    address = (fetch_byte + @registers[:X]) & 0xFF
+    write_memory(address, @registers[:A])
+  end
+
+  # Implement the Store Accumulator (STA) instruction with absolute addressing mode
+  def sta_absolute
+    address = fetch_word
+    write_memory(address, @registers[:A])
+  end
+
+  # Implement the Store Accumulator (STA) instruction with absolute X addressing mode
+  def sta_absolute_x
+    address = (fetch_word + @registers[:X]) & 0xFFFF
+    write_memory(address, @registers[:A])
+  end
+
+  # Implement the Store Accumulator (STA) instruction with absolute Y addressing mode
+  def sta_absolute_y
+    address = (fetch_word + @registers[:Y]) & 0xFFFF
+    write_memory(address, @registers[:A])
+  end
+
+  # Implement the Store Accumulator (STA) instruction with indexed indirect addressing mode
+  def sta_indexed_indirect
+    zp_address = fetch_byte
+    zp_address_x = (zp_address + @registers[:X]) & 0xFF
+    address = read_memory(zp_address_x) | (read_memory((zp_address_x + 1) & 0xFF) << 8)
+    write_memory(address, @registers[:A])
+  end
+
+  # Implement the Store Accumulator (STA) instruction with indirect indexed addressing mode
+  def sta_indirect_indexed
+    zp_address = fetch_byte
+    address = read_memory(zp_address) | (read_memory((zp_address + 1) & 0xFF) << 8)
+    address += @registers[:Y]
+    write_memory(address, @registers[:A])
+  end
+
+  # Implement the Transfer Accumulator to X (TAX) instruction
+  def tax
+    @registers[:X] = @registers[:A]
+    update_flags(@registers[:X])
+  end
+
+  # Implement the Transfer Accumulator to Y (TAY) instruction
+  def tay
+    @registers[:Y] = @registers[:A]
+    update_flags(@registers[:Y])
+  end
+
+  # Implement the Transfer X to Accumulator (TXA) instruction
+  def txa
+    @registers[:A] = @registers[:X]
+    update_flags(@registers[:A])
+  end
+
+  # Implement the Transfer Y to Accumulator (TYA) instruction
+  def tya
+    @registers[:A] = @registers[:Y]
+    update_flags(@registers[:A])
+  end
+
+  # Implement the Transfer Stack Pointer to X (TSX) instruction
+  def tsx
+    @registers[:X] = @registers[:SP]
+    update_flags(@registers[:X])
+  end
+
+  # Implement the Transfer X to Stack Pointer (TXS) instruction
+  def txs
+    @registers[:SP] = @registers[:X]
+  end
+
+  # Implement the Increment X (INX) instruction
+  def inx
+    @registers[:X] = (@registers[:X] + 1) & 0xFF
+    update_flags(@registers[:X])
+  end
+
+  # Implement the Increment Y (INY) instruction
+  def iny
+    @registers[:Y] = (@registers[:Y] + 1) & 0xFF
+    update_flags(@registers[:Y])
+  end
+
+  # Implement the Decrement X (DEX) instruction
+  def dex
+    @registers[:X] = (@registers[:X] - 1) & 0xFF
+    update_flags(@registers[:X])
+  end
+
+  # Implement the Decrement Y (DEY) instruction
+  def dey
+    @registers[:Y] = (@registers[:Y] - 1) & 0xFF
+    update_flags(@registers[:Y])
+  end
+
+  # Implement the Push Accumulator (PHA) instruction
+  def pha
+    push_stack(@registers[:A])
+  end
+
+  # Implement the Pop Accumulator (PLA) instruction
+  def pla
+    @registers[:A] = pop_stack
+    update_flags(@registers[:A])
+  end
+
+  # Implement the Push Processor Status (PHP) instruction
+  def php
+    status = @registers[:P][:value] | 0x10
+    push_stack(status)
+  end
+
+  # Implement the Pop Processor Status (PLP) instruction
+  def plp
+    status = pop_stack
+    @registers[:P] = FlagsRegister.new(status)
+  end
+
+  # Implement the No Operation (NOP) instruction
+  def nop
+    # No operation
+  end
+
+  # Implement the Branch if Carry Clear (BCC) instruction
+  def bcc
+    branch(!@registers[:P][:C])
+  end
+
+  # Implement the Branch if Carry Set (BCS) instruction
+  def bcs
+    branch(@registers[:P][:C])
+  end
+
+  # Implement the Branch if Equal (BEQ) instruction
+  def beq
+    branch(@registers[:P][:Z])
+  end
+
+  # Implement the Branch if Negative (BMI) instruction
+  def bmi
+    branch(@registers[:P][:N])
+  end
+
+  # Implement the Branch if Not Equal (BNE) instruction
+  def bne
+    branch(!@registers[:P][:Z])
+  end
+
+  # Implement the Branch if Positive (BPL) instruction
+  def bpl
+    branch(!@registers[:P][:N])
+  end
+
+  # Implement the Branch if Overflow Clear (BVC) instruction
+  def bvc
+    branch(!@registers[:P][:V])
+  end
+
+  # Implement the Branch if Overflow Set (BVS) instruction
+  def bvs
+    branch(@registers[:P][:V])
+  end
+
+  # Implement the Interrupt Request (IRQ) instruction
+  def irq
+    interrupt(0xFFFE)
+  end
+
+  # Implement the Non-Maskable Interrupt (NMI) instruction
+  def nmi
+    interrupt(0xFFFA)
+  end
+
+  # Implement the Software Interrupt (SWI/BRK) instruction
+  def swi
+    push_stack(@registers[:P][:value] | 0x10)
+    push_stack(@registers[:PC] >> 8)
+    push_stack(@registers[:PC] & 0xFF)
+    @registers[:P][:I] = 1
+    @registers[:PC] = read_memory(0xFFFF) << 8 | read_memory(0xFFFE)
+  end
+
+  # Implement the Return from Interrupt (RTI) instruction
+  def rti
+    status = pop_stack
+    @registers[:P] = FlagsRegister.new(status)
+    low_byte = pop_stack
+    high_byte = pop_stack
+    @registers[:PC] = (high_byte << 8) | low_byte
+  end
+
+  # Helper method to push a value onto the stack
+  def push_stack(value)
+    write_memory(0x100 + @registers[:SP], value)
+    @registers[:SP] = (@registers[:SP] - 1) & 0xFF
+  end
+
+  # Helper method to pop a value from the stack
+  def pop_stack
+    @registers[:SP] = (@registers[:SP] + 1) & 0xFF
+    read_memory(0x100 + @registers[:SP])
+  end
+
+  # Helper method to perform a branch instruction
+  def branch(condition)
+    offset = fetch_byte
+    if condition
+      new_pc = (@registers[:PC] + offset).to_i
+      # Check if the branch crosses a page boundary
+      if new_pc & 0xFF00 != @registers[:PC] & 0xFF00
+        @cycles += 2
+      else
+        @cycles += 1
+      end
+      @registers[:PC] = new_pc & 0xFFFF
+    end
+  end
+
+  # Helper method to perform an interrupt
+  def interrupt(vector_address)
+    push_stack(@registers[:PC] >> 8)
+    push_stack(@registers[:PC] & 0xFF)
+    push_stack(@registers[:P][:value] | 0x10)
+    @registers[:P][:I] = 1
+    @registers[:PC] = read_memory(vector_address) << 8 | read_memory(vector_address - 1)
+  end
+end
+
+# Create an instance of the CPU
+cpu = CPU.new
+
+# Load a program into memory (you need to define this method)
+# load_program(cpu, program)
+
+# Execute the program
+cpu.execute
+
+# Print the final state of the CPU
+puts cpu
+
+
 def set_address(mode, value)
   case mode
   when Mode::ABS
