@@ -369,18 +369,20 @@ def clc
   @registers[:P] &= ~Flags::CARRY
 end
 
+
 def sec
   @registers[:P] |= Flags::CARRY
 end
 
 # Clear Interrupt Disable Flag
 def cli
-  @registers[:P][:I] = false
+  @registers[:P] &= ~Flags::INTERRUPT_DISABLE
 end
+
 
 # Set Interrupt Disable Flag
 def sei
-  @registers[:P][:I] = true
+  @registers[:P] |= Flags::INTERRUPT_DISABLE
 end
 
   # BRK (Break)
@@ -1033,14 +1035,22 @@ def fetch_byte
   value
 end
 
-# Add the update_flags method to update the processor status flags
-def update_flags(value)
-  # Update the Zero Flag (Z)
-  @registers[:P][:Z] = (value & 0xFF) == 0 ? 1 : 0
-  
-  # Update the Negative Flag (N)
-  @registers[:P][:N] = (value & 0x80) != 0 ? 1 : 0
+def push_stack(value)
+  write_memory(0x0100 + @registers[:SP], value)
+  @registers[:SP] = (@registers[:SP] - 1) & 0xFF
 end
+
+def pop_stack
+  @registers[:SP] = (@registers[:SP] + 1) & 0xFF
+  read_memory(0x0100 + @registers[:SP])
+end
+
+def update_flags(value)
+  @registers[:P] &= ~(Flags::ZERO | Flags::NEGATIVE) # Clear flags
+  @registers[:P] |= Flags::ZERO if value == 0       # Set zero flag
+  @registers[:P] |= Flags::NEGATIVE if value & 0x80 != 0 # Set negative flag
+end
+
 
 # Add a method to execute the program
 def execute_program(program)
@@ -1070,7 +1080,7 @@ def execute_next_instruction
   when 0x11 then ora(get_address(Mode::IZY))
   when 0x15 then ora(get_address(Mode::ZPX))
   when 0x16 then asl(get_address(Mode::ZPX))
-  when 0x18 then clc
+  when 0x18 then 
   when 0x19 then ora(get_address(Mode::ABY))
   when 0x1D then ora(get_address(Mode::ABX))
   when 0x1E then asl(get_address(Mode::ABX))
