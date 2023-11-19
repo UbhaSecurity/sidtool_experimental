@@ -1,5 +1,16 @@
 module Mos6510
   class Cpu
+      module Flags
+        CARRY = 0x01
+        ZERO = 0x02
+        INTERRUPT_DISABLE = 0x04
+        DECIMAL = 0x08
+        BREAK = 0x10
+        UNUSED = 0x20
+        OVERFLOW = 0x40
+        NEGATIVE = 0x80
+      end
+
   # Use accessors for registers consistently
     def a; @registers[:A]; end
     def x; @registers[:X]; end
@@ -9,7 +20,6 @@ module Mos6510
     # Constants for flag bits
     CARRY_FLAG = 0x01
     INTERRUPT_DISABLE_FLAG = 0x04
-
 
     def initialize(mem)
       @a = 0x00
@@ -218,16 +228,16 @@ module Mos6510
  0x11F => { operation: method(:sbc), addr_mode: Mode::ABX, cycles: 7 }
 }
 
- # Set and Clear Flag Methods
+    # Set and Clear Flag Methods
     def set_flag(flag)
-      @p |= flag
+      @registers[:P] |= flag
     end
 
     def clear_flag(flag)
-      @p &= ~flag
+      @registers[:P] &= ~flag
     end
 
-  # Refactor flag methods
+    # Modify existing flag methods
     def clc
       clear_flag(Flags::CARRY)
     end
@@ -244,7 +254,7 @@ module Mos6510
       set_flag(Flags::INTERRUPT_DISABLE)
     end
 
-   # Unified update_flags method
+    # Update Flags Method
     def update_flags(result)
       clear_flag(Flags::ZERO)
       clear_flag(Flags::NEGATIVE)
@@ -252,7 +262,6 @@ module Mos6510
       set_flag(Flags::ZERO) if result == 0
       set_flag(Flags::NEGATIVE) if result & 0x80 != 0
     end
-
    class CpuController
     attr_accessor :memory, :cpu
 
