@@ -1028,25 +1028,233 @@ def execute_program(program)
   end
 end
 
-# Implement the execute_next_instruction method
 def execute_next_instruction
   opcode = fetch_byte
   case opcode
   when 0x00 then brk
-  when 0x01 then ora_indexed_indirect
-  when 0x05 then ora_zero_page
-  when 0x06 then asl_zero_page
+  when 0x01 then ora(get_address(Mode::IZX))
+  when 0x05 then ora(get_address(Mode::ZP))
+  when 0x06 then asl(get_address(Mode::ZP))
   when 0x08 then php
-  when 0x09 then ora_immediate
+  when 0x09 then ora(get_address(Mode::IMM))
   when 0x0A then asl_accumulator
-  when 0x0D then ora_absolute
-  when 0x0E then asl_absolute
+  when 0x0D then ora(get_address(Mode::ABS))
+  when 0x0E then asl(get_address(Mode::ABS))
   when 0x10 then bpl
-  when 0x11 then ora_indirect_indexed
-  when 0x15 then ora_zero_page_x
-  when 0x16 then asl_zero_page_x
+  when 0x11 then ora(get_address(Mode::IZY))
+  when 0x15 then ora(get_address(Mode::ZPX))
+  when 0x16 then asl(get_address(Mode::ZPX))
   when 0x18 then clc
-  # Add more cases for other instructions...
+  when 0x19 then ora(get_address(Mode::ABY))
+  when 0x1D then ora(get_address(Mode::ABX))
+  when 0x1E then asl(get_address(Mode::ABX))
+  when 0x20 then jsr(get_address(Mode::ABS))
+  when 0x21 then and(get_address(Mode::IZX))
+  when 0x24 then bit(get_address(Mode::ZP))
+  when 0x25 then and(get_address(Mode::ZP))
+  when 0x26 then rol(get_address(Mode::ZP))
+  when 0x28 then plp
+  when 0x29 then and(get_address(Mode::IMM))
+  when 0x2A then rol_accumulator
+  when 0x2C then bit(get_address(Mode::ABS))
+  when 0x2D then and(get_address(Mode::ABS))
+  when 0x2E then rol(get_address(Mode::ABS))
+  when 0x30 then bmi
+  when 0x31 then and(get_address(Mode::IZY))
+  when 0x35 then and(get_address(Mode::ZPX))
+  when 0x36 then rol(get_address(Mode::ZPX))
+  when 0x38 then sec
+  when 0x39 then and(get_address(Mode::ABY))
+  when 0x3D then and(get_address(Mode::ABX))
+  when 0x3E then rol(get_address(Mode::ABX))
+  when 0x40 then rti
+  when 0x41 then eor(get_address(Mode::IZX))
+  when 0x45 then eor(get_address(Mode::ZP))
+  when 0x46 then lsr(get_address(Mode::ZP))
+  when 0x48 then pha
+  when 0x49 then eor(get_address(Mode::IMM))
+  when 0x4A then lsr_accumulator
+  when 0x4C then jmp(get_address(Mode::ABS))
+  when 0x4D then eor(get_address(Mode::ABS))
+  when 0x4E then lsr(get_address(Mode::ABS))
+  when 0x50 then bvc
+  when 0x51 then eor(get_address(Mode::IZY))
+  when 0x55 then eor(get_address(Mode::ZPX))
+  when 0x56 then lsr(get_address(Mode::ZPX))
+  when 0x58 then cli
+  when 0x59 then eor(get_address(Mode::ABY))
+  when 0x5D then eor(get_address(Mode::ABX))
+  when 0x5E then lsr(get_address(Mode::ABX))
+  when 0x60 then rts
+  when 0x61 then adc(get_address(Mode::IZX))
+  when 0x65 then adc(get_address(Mode::ZP))
+  when 0x66 then ror(get_address(Mode::ZP))
+  when 0x68 then pla
+  when 0x69 then adc(get_address(Mode::IMM))
+  when 0x6A then ror_accumulator
+  when 0x6C then jmp(get_address(Mode::IND))
+  when 0x6D then adc(get_address(Mode::ABS))
+  when 0x6E then ror(get_address(Mode::ABS))
+  when 0x70 then bvs
+  when 0x71 then adc(get_address(Mode::IZY))
+  when 0x75 then adc(get_address(Mode::ZPX))
+  when 0x76 then ror(get_address(Mode::ZPX))
+  when 0x78 then sei
+  when 0x79 then adc(get_address(Mode::ABY))
+  when 0x7D then adc(get_address(Mode::ABX))
+  when 0x7E then ror(get_address(Mode::ABX))
+  when 0x81 then sta(get_address(Mode::IZX))
+  when 0x84 then sty(get_address(Mode::ZP))
+  when 0x85 then sta(get_address(Mode::ZP))
+  when 0x86 then stx(get_address(Mode::ZP))
+  when 0x88 then dey
+  when 0x8A then txa
+  when 0x8C then sty(get_address(Mode::ABS))
+  when 0x8D then sta(get_address(Mode::ABS))
+  when 0x8E then stx(get_address(Mode::ABS))
+  when 0x90 then bcc
+  when 0x91 then sta(get_address(Mode::IZY))
+  when 0x94 then sty(get_address(Mode::ZPX))
+  when 0x95 then sta(get_address(Mode::ZPX))
+  when 0x96 then stx(get_address(Mode::ZPY))
+  when 0x98 then tya
+  when 0x99 then sta(get_address(Mode::ABY))
+  when 0x9A then txs
+  when 0x9D then sta(get_address(Mode::ABX))
+  when 0xA0 then ldy(get_address(Mode::IMM))
+  when 0xA1 then lda(get_address(Mode::IZX))
+  when 0xA2 then ldx(get_address(Mode::IMM))
+  when 0xA4 then ldy(get_address(Mode::ZP))
+  when 0xA5 then lda(get_address(Mode::ZP))
+  when 0xA6 then ldx(get_address(Mode::ZP))
+  when 0xA8 then tay
+  when 0xA9 then lda(get_address(Mode::IMM))
+  when 0xAA then tax
+  when 0xAC then ldy(get_address(Mode::ABS))
+  when 0xAD then lda(get_address(Mode::ABS))
+  when 0xAE then ldx(get_address(Mode::ABS))
+  when 0xB0 then bcs
+  when 0xB1 then lda(get_address(Mode::IZY))
+  when 0xB4 then ldy(get_address(Mode::ZPX))
+  when 0xB5 then lda(get_address(Mode::ZPX))
+  when 0xB6 then ldx(get_address(Mode::ZPY))
+  when 0xB8 then clv
+  when 0xB9 then lda(get_address(Mode::ABY))
+  when 0xBA then tsx
+  when 0xBC then ldy(get_address(Mode::ABX))
+  when 0xBD then lda(get_address(Mode::ABX))
+  when 0xBE then ldx(get_address(Mode::ABY))
+  when 0xC0 then cpy(get_address(Mode::IMM))
+  when 0xC1 then cmp(get_address(Mode::IZX))
+  when 0xC4 then cpy(get_address(Mode::ZP))
+  when 0xC5 then cmp(get_address(Mode::ZP))
+  when 0xC6 then dec(get_address(Mode::ZP))
+  when 0xC8 then iny
+  when 0xC9 then cmp(get_address(Mode::IMM))
+  when 0xCA then dex
+  when 0xCC then cpy(get_address(Mode::ABS))
+  when 0xCD then cmp(get_address(Mode::ABS))
+  when 0xCE then dec(get_address(Mode::ABS))
+  when 0xD0 then bne
+   # Compare with Accumulator (CMP) - Indexed Indirect
+  when 0xD1 then cmp(get_address(Mode::INDX))
+
+  # Omitted opcodes (0xD2-0xD4)
+
+  # Compare with Accumulator (CMP) - Zero Page,X
+  when 0xD5 then cmp(get_address(Mode::ZPX))
+
+  # Decrement Memory - Zero Page,X
+  when 0xD6 then dec(get_address(Mode::ZPX))
+
+  # Omitted opcode (0xD7)
+
+  # Clear Decimal Mode (CLD)
+  when 0xD8 then cld
+
+  # Compare with Accumulator (CMP) - Absolute,Y
+  when 0xD9 then cmp(get_address(Mode::ABSY))
+
+  # Omitted opcodes (0xDA-0xDB)
+
+  # Compare with Accumulator (CMP) - Absolute,X
+  when 0xDD then cmp(get_address(Mode::ABSX))
+
+  # Decrement Memory - Absolute,X
+  when 0xDE then dec(get_address(Mode::ABSX))
+
+  # Omitted opcode (0xDF)
+
+  # Compare with X Register (CPX) - Immediate
+  when 0xE0 then cpx(get_address(Mode::IMM))
+
+  # Subtract with Borrow (SBC) - Indexed Indirect
+  when 0xE1 then sbc(get_address(Mode::INDX))
+
+  # Omitted opcodes (0xE2-0xE4)
+
+  # Subtract with Borrow (SBC) - Zero Page
+  when 0xE5 then sbc(get_address(Mode::ZP))
+
+  # Increment Memory - Zero Page
+  when 0xE6 then inc(get_address(Mode::ZP))
+
+  # Omitted opcode (0xE7)
+
+  # Increment X Register (INX)
+  when 0xE8 then inx
+
+  # Subtract with Borrow (SBC) - Immediate
+  when 0xE9 then sbc(get_address(Mode::IMM))
+
+  # No Operation (NOP)
+  when 0xEA then nop
+
+  # Omitted opcode (0xEB)
+
+  # Compare with X Register (CPX) - Absolute
+  when 0xEC then cpx(get_address(Mode::ABS))
+
+  # Subtract with Borrow (SBC) - Absolute
+  when 0xED then sbc(get_address(Mode::ABS))
+
+  # Increment Memory - Absolute
+  when 0xEE then inc(get_address(Mode::ABS))
+
+  # Omitted opcode (0xEF)
+
+  # Branch if Overflow Set (BVS)
+  when 0xF0 then bvs
+
+  # Subtract with Borrow (SBC) - Indirect Indexed
+  when 0xF1 then sbc(get_address(Mode::INDY))
+
+  # Omitted opcodes (0xF2-0xF4)
+
+  # Subtract with Borrow (SBC) - Zero Page,X
+  when 0xF5 then sbc(get_address(Mode::ZPX))
+
+  # Increment Memory - Zero Page,X
+  when 0xF6 then inc(get_address(Mode::ZPX))
+
+  # Omitted opcode (0xF7)
+
+  # Set Decimal Flag (SED)
+  when 0xF8 then sed
+
+  # Subtract with Borrow (SBC) - Absolute,Y
+  when 0xF9 then sbc(get_address(Mode::ABSY))
+
+  # Omitted opcodes (0xFA-0xFB)
+
+  # Subtract with Borrow (SBC) - Absolute,X
+  when 0xFD then sbc(get_address(Mode::ABSX))
+
+  # Increment Memory - Absolute,X
+  when 0xFE then inc(get_address(Mode::ABSX))
+
+  # Omitted opcode (0xFF)
+
   else
     raise "Unknown opcode: 0x#{opcode.to_s(16)}"
   end
