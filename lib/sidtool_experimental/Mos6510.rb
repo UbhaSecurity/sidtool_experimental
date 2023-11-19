@@ -228,6 +228,26 @@ end
  0x11F => { operation: method(:sbc), addr_mode: Mode::ABX, cycles: 7 }
 }
 
+def step
+      opc = fetch_byte
+      instr = INSTRUCTIONS[opc]
+      raise "Illegal opcode #{opc.to_s(16)}" if instr.nil?
+
+      @cycles += instr[:cycles]
+
+      # Check for additional cycles
+      if page_boundary_crossed?(instr)
+        @cycles += 1
+      end
+
+      if branch_taken?(instr)
+        @cycles += 1
+        @cycles += 1 if page_boundary_crossed?(instr) # Additional cycle for crossing page boundary
+      end
+
+      instr[:operation].call
+    end
+
 def adc(value)
   if @p & Flags::DECIMAL != 0  # Check if Decimal mode is active
     low_nibble = (@a & 0x0F) + (value & 0x0F) + (@p & Flags::CARRY)
@@ -1515,5 +1535,58 @@ main
   def push_stack(value)
     # Assumes a method to write to memory and handle stack pointer
   end
+
+def page_boundary_crossed?(instruction)
+  case instruction[:addr_mode]
+  when Mode::ABSX
+    base_address = fetch_word
+    crossed = (base_address & 0xFF00) != ((base_address + @registers[:X]) & 0xFF00)
+  when Mode::ABSY
+    base_address = fetch_word
+    crossed = (base_address & 0xFF00) != ((base_address + @registers[:Y]) & 0xFF00)
+  when Mode::INDY
+    zp_address = fetch_byte
+    base_address = read_memory(zp_address) | (read_memory((zp_address + 1) & 0xFF) << 8)
+    crossed = (base_address & 0xFF00) != ((base_address + @registers[:Y]) & 0xFF00)
+  else
+    crossed = false
+  end
+  crossed
+end
+
+def branch_taken?(instruction)
+  # Assuming the operand for branch instructions is the next byte
+  offset = fetch_byte if instruction[:addr_mode] == Mode::REL
+
+  case instruction[:operation].name
+  when :bpl
+    taken = @registers[:P] & Flags::NEGATIVE == 0
+  when :bmi
+    taken = @registers[:P] & Flags::NEGATIVE != 0
+  when :bvc
+    taken = @registers[:P] & Flags::OVERFLOW == 0
+  when :bvs
+    taken = @registers[:P] & Flags::OVERFLOW != 0
+  when :bcc
+    taken = @registers[:P] & Flags::CARRY == 0
+  when :bcs
+    taken = @registers[:P] & Flags::CARRY != 0
+  when :bne
+    taken = @registers[:P] & Flags::ZERO == 0
+  when :beq
+    taken = @registers[:P] & Flags::ZERO != 0
+  else
+    taken = false
+  end
+
+  # Calculate the new PC if the branch is taken to check for page crossing
+  if taken
+    new_pc = @registers[:PC] + offset
+    taken &&= (new_pc & 0xFF00) != (@registers[:PC] & 0xFF00)
+  end
+
+  taken
+end
+
 
 end
