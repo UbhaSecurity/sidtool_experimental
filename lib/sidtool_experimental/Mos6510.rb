@@ -532,6 +532,20 @@ end
     update_flags(@registers[:X])
   end
 
+def dec(mode)
+  address = get_address(mode)
+  value = read_memory(address) - 1
+  set_address(mode, value)
+  update_flags(value)
+end
+
+def inc(mode)
+  address = get_address(mode)
+  value = read_memory(address) + 1
+  set_address(mode, value)
+  update_flags(value)
+end
+
   # Implement the Decrement Y (DEY) instruction
   def dey
     @registers[:Y] = (@registers[:Y] - 1) & 0xFF
@@ -818,6 +832,12 @@ def ldy_zero_page
   update_flags(@y)
 end
 
+def stx(mode)
+  address = get_address(mode)
+  set_address(mode, @registers[:X])
+end
+
+
 # Store Accumulator to Zero-Page Memory
 def sta_zero_page
   zero_page_address = fetch_byte
@@ -835,6 +855,12 @@ def sty_zero_page
   zero_page_address = fetch_byte
   write_memory(zero_page_address, @y)
 end
+
+def sty(mode)
+  address = get_address(mode)
+  set_address(mode, @registers[:Y])
+end
+
 
 # Zero Page, X-Indexed Addressing Mode:
 
@@ -1106,7 +1132,7 @@ def execute_next_instruction
   when 0x81 then sta(get_address(Mode::IZX))
   when 0x84 then sty(get_address(Mode::ZP))
   when 0x85 then sta(get_address(Mode::ZP))
-  when 0x86 then stx(get_address(Mode::ZP))
+  when 0x86 then stx(get_address(Mode::ZP)) # STX Zero Page
   when 0x88 then dey
   when 0x8A then txa
   when 0x8C then sty(get_address(Mode::ABS))
@@ -1116,7 +1142,7 @@ def execute_next_instruction
   when 0x91 then sta(get_address(Mode::IZY))
   when 0x94 then sty(get_address(Mode::ZPX))
   when 0x95 then sta(get_address(Mode::ZPX))
-  when 0x96 then stx(get_address(Mode::ZPY))
+  when 0x96 then stx(get_address(Mode::ZPY)) # STX Zero Page, Y
   when 0x98 then tya
   when 0x99 then sta(get_address(Mode::ABY))
   when 0x9A then txs
