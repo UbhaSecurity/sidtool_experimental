@@ -32,15 +32,15 @@ module Mos6510
       reset
     end
 
-    def reset
-      @a = 0x00
-      @x = 0x00
-      @y = 0x00
-      @s = 0xff
-      @p = 0x34
-      @pc = 0x0000
-      @registers[:SP] = 0xFF # Reset stack pointer to 0xFF
-    end
+def reset
+  @a = 0
+  @x = 0
+  @y = 0
+  @registers[:SP] = 0xff # Use @registers[:SP] for the stack pointer
+  @p = Flags::IRQ_DISABLE | Flags::BREAK
+  @pc = read_memory(0xfffc) | (read_memory(0xfffd) << 8)
+  @cycles = 0
+end
 
    INSTRUCTIONS = {
   0x00 => { operation: method(:brk), addr_mode: Mode::IMP, cycles: 7 },
@@ -784,11 +784,13 @@ end
     @registers[:PC] = (high_byte << 8) | low_byte
   end
 
+# Method to push a value onto the stack
 def push_stack(value)
   write_memory(0x0100 + @registers[:SP], value)
   @registers[:SP] = (@registers[:SP] - 1) & 0xFF
 end
 
+# Method to pop a value from the stack
 def pop_stack
   @registers[:SP] = (@registers[:SP] + 1) & 0xFF
   read_memory(0x0100 + @registers[:SP])
