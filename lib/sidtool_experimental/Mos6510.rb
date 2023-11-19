@@ -371,14 +371,12 @@ def get_address(mode)
 end
 
 
-# Clear Carry Flag
 def clc
-  @registers[:P][:C] = false
+  @registers[:P] &= ~Flags::CARRY
 end
 
-# Set Carry Flag
 def sec
-  @registers[:P][:C] = true
+  @registers[:P] |= Flags::CARRY
 end
 
 # Clear Interrupt Disable Flag
