@@ -1,8 +1,6 @@
 module Mos6510
-
   class Cpu
     attr_accessor :a, :x, :y, :s, :p, :pc, :mem
-
     def initialize(mem)
       @a = 0x00
       @x = 0x00
@@ -10,9 +8,7 @@ module Mos6510
       @s = 0xff
       @p = 0x34
       @pc = 0x0000
-
       @mem = mem
-
       reset
     end
 
@@ -24,6 +20,7 @@ module Mos6510
       @p = 0x34
       @pc = 0x0000
     end
+
    INSTRUCTIONS = {
   0x00 => { operation: method(:brk), addr_mode: Mode::IMP, cycles: 7 },
   0x01 => { operation: method(:ora), addr_mode: Mode::IZX, cycles: 6 },
