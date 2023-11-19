@@ -262,6 +262,29 @@ module Mos6510
       set_flag(Flags::ZERO) if result == 0
       set_flag(Flags::NEGATIVE) if result & 0x80 != 0
     end
+
+    def nmi
+      push_stack((@pc >> 8) & 0xFF) # Push PC high byte
+      push_stack(@pc & 0xFF)        # Push PC low byte
+      push_stack(@p & ~Flags::BREAK) # Push processor status, Break flag cleared
+
+      @pc = read_memory(0xFFFA) | (read_memory(0xFFFB) << 8) # Set PC to NMI vector
+    end
+
+    def irq
+      return if (@p & Flags::INTERRUPT_DISABLE) != 0 # Ignore IRQ if interrupt disable flag is set
+
+      push_stack((@pc >> 8) & 0xFF) # Push PC high byte
+      push_stack(@pc & 0xFF)        # Push PC low byte
+      push_stack(@p | Flags::BREAK) # Push processor status, Break flag set
+
+      @pc = read_memory(0xFFFE) | (read_memory(0xFFFF) << 8) # Set PC to IRQ vector
+    end
+
+    # Other methods...
+  end
+
+
    class CpuController
     attr_accessor :memory, :cpu
 
