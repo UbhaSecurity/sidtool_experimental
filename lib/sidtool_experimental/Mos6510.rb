@@ -1,4 +1,29 @@
 module Mos6510
+
+  class Cpu
+    attr_accessor :a, :x, :y, :s, :p, :pc, :mem
+
+    def initialize(mem)
+      @a = 0x00
+      @x = 0x00
+      @y = 0x00
+      @s = 0xff
+      @p = 0x34
+      @pc = 0x0000
+
+      @mem = mem
+
+      reset
+    end
+
+    def reset
+      @a = 0x00
+      @x = 0x00
+      @y = 0x00
+      @s = 0xff
+      @p = 0x34
+      @pc = 0x0000
+    end
    INSTRUCTIONS = {
   0x00 => { operation: method(:brk), addr_mode: Mode::IMP, cycles: 7 },
   0x01 => { operation: method(:ora), addr_mode: Mode::IZX, cycles: 6 },
@@ -184,33 +209,6 @@ module Mos6510
  0x11E => { operation: method(:inc), addr_mode: Mode::ABX, cycles: 7 },
  0x11F => { operation: method(:sbc), addr_mode: Mode::ABX, cycles: 7 }
 }
-  class Cpu
-    attr_accessor :a, :x, :y, :s, :p, :pc, :mem
-
-    def initialize(mem)
-      @a = 0x00
-      @x = 0x00
-      @y = 0x00
-      @s = 0xff
-      @p = 0x34
-      @pc = 0x0000
-
-      @mem = mem
-
-      reset
-    end
-
-    def reset
-      @a = 0x00
-      @x = 0x00
-      @y = 0x00
-      @s = 0xff
-      @p = 0x34
-      @pc = 0x0000
-    end
-
-    # Add other methods and functionality as needed
-  end
 
   class CpuController
     def initialize(sid: nil)
