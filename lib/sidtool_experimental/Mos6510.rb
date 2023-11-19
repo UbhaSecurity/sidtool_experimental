@@ -1,6 +1,10 @@
 module Mos6510
   class Cpu
     attr_accessor :a, :x, :y, :s, :p, :pc, :memory
+    # Constants for flag bits
+    CARRY_FLAG = 0x01
+    INTERRUPT_DISABLE_FLAG = 0x04
+
 
     def initialize(mem)
       @a = 0x00
@@ -208,6 +212,40 @@ module Mos6510
  0x11E => { operation: method(:inc), addr_mode: Mode::ABX, cycles: 7 },
  0x11F => { operation: method(:sbc), addr_mode: Mode::ABX, cycles: 7 }
 }
+
+ # Set and Clear Flag Methods
+    def set_flag(flag)
+      @p |= flag
+    end
+
+    def clear_flag(flag)
+      @p &= ~flag
+    end
+
+    # Modify existing flag methods
+    def clc
+      clear_flag(CARRY_FLAG)
+    end
+
+    def sec
+      set_flag(CARRY_FLAG)
+    end
+
+    def cli
+      clear_flag(INTERRUPT_DISABLE_FLAG)
+    end
+
+    def sei
+      set_flag(INTERRUPT_DISABLE_FLAG)
+    end
+
+ def update_flags(result)
+      clear_flag(Flags::ZERO)
+      clear_flag(Flags::NEGATIVE)
+
+      set_flag(Flags::ZERO) if result == 0
+      set_flag(Flags::NEGATIVE) if result & 0x80 != 0
+    end
 
    class CpuController
     attr_accessor :memory, :cpu
