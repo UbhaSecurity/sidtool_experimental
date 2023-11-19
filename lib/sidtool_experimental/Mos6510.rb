@@ -251,6 +251,8 @@ module Mos6510
 end
 
   class Mos6510
+    # Initialize memory as an array with 64KB (0x10000) of bytes
+    @memory = Array.new(0x10000, 0x00)
     def set_mem(addr, value)
       if (0..65535).cover?(addr) && (0..255).cover?(value)
         if (0xd400..0xd41b).cover?(addr) && @sid
@@ -269,6 +271,41 @@ end
       @pc = (@pc + 1) & 0xffff
       old_pc
     end
+
+ # Utility method to read a byte from memory at the specified address
+  def read_memory(address)
+    validate_address(address)
+    @memory[address]
+  end
+
+  # Utility method to write a byte to memory at the specified address
+  def write_memory(address, byte)
+    validate_address(address)
+    @memory[address] = byte
+  end
+
+  # Utility method to fetch a byte from memory at the program counter (PC)
+  def fetch_byte
+    byte = read_memory(@registers[:PC])
+    @registers[:PC] += 1
+    byte
+  end
+
+  # Utility method to fetch a 16-bit word from memory at the program counter (PC)
+  def fetch_word
+    low_byte = fetch_byte
+    high_byte = fetch_byte
+    (high_byte << 8) | low_byte
+  end
+
+  # Utility method to update CPU flags based on a result value
+  def update_flags(result)
+    @registers[:P][:Z] = result == 0
+    @registers[:P][:N] = (result & 0x80) != 0
+    # Other flag updates...
+  end
+
+
 
 def get_address(mode)
   case mode
@@ -726,5 +763,12 @@ end
       INDX = 8
       INDY = 9
       ACC = 10
+    end
+  end
+  private
+
+  def validate_address(address)
+    unless address >= 0x0000 && address <= 0xFFFF
+      raise "Invalid memory address: 0x#{address.to_s(16)}"
     end
   end
