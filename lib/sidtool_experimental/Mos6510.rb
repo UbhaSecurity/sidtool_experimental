@@ -1,6 +1,11 @@
 module Mos6510
   class Cpu
-    attr_accessor :a, :x, :y, :s, :p, :pc, :memory
+  # Use accessors for registers consistently
+    def a; @registers[:A]; end
+    def x; @registers[:X]; end
+    def y; @registers[:Y]; end
+    def p; @registers[:P]; end
+    def pc; @registers[:PC]; end
     # Constants for flag bits
     CARRY_FLAG = 0x01
     INTERRUPT_DISABLE_FLAG = 0x04
@@ -222,24 +227,25 @@ module Mos6510
       @p &= ~flag
     end
 
-    # Modify existing flag methods
+  # Refactor flag methods
     def clc
-      clear_flag(CARRY_FLAG)
+      clear_flag(Flags::CARRY)
     end
 
     def sec
-      set_flag(CARRY_FLAG)
+      set_flag(Flags::CARRY)
     end
 
     def cli
-      clear_flag(INTERRUPT_DISABLE_FLAG)
+      clear_flag(Flags::INTERRUPT_DISABLE)
     end
 
     def sei
-      set_flag(INTERRUPT_DISABLE_FLAG)
+      set_flag(Flags::INTERRUPT_DISABLE)
     end
 
- def update_flags(result)
+   # Unified update_flags method
+    def update_flags(result)
       clear_flag(Flags::ZERO)
       clear_flag(Flags::NEGATIVE)
 
@@ -349,11 +355,6 @@ end
       @mem = mem
       reset
     endags based on a result value
-  def update_flags(result)
-    @registers[:P][:Z] = result == 0
-    @registers[:P][:N] = (result & 0x80) != 0
-    # Other flag updates...
-  end
 
 def get_address(mode)
   case mode
@@ -1420,10 +1421,4 @@ main
     # Assumes a method to write to memory and handle stack pointer
   end
 
-  # Method to update flags
-  def update_flags(result)
-    @registers[:P] &= ~(Flags::ZERO | Flags::NEGATIVE) # Clear flags
-    @registers[:P] |= Flags::ZERO if result == 0       # Set zero flag
-    @registers[:P] |= Flags::NEGATIVE if result & 0x80 != 0 # Set negative flag
-  end
 end
