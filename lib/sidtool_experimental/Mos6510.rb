@@ -209,10 +209,13 @@ module Mos6510
  0x11F => { operation: method(:sbc), addr_mode: Mode::ABX, cycles: 7 }
 }
 
-  class CpuController
+   class CpuController
+    attr_accessor :memory, :cpu
+
     def initialize(sid: nil)
       @memory = [0] * 65536
       @sid = sid
+      @cpu = Cpu.new(@memory)  # Initialize @cpu with the allocated memory
     end
 
     def load(bytes, from: 0)
@@ -229,7 +232,7 @@ module Mos6510
       @cpu.jsr(address, accumulator_value)
     end
 
-    def step
+ def step
       @cpu.step
     end
 
@@ -242,7 +245,7 @@ module Mos6510
     end
 
     def peek(address)
-      @cpu.read_memory(address)
+      @cpu.memory[address]  # Access memory through the @cpu instance
     end
   end
 end
