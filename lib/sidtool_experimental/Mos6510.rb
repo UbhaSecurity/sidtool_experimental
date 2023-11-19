@@ -210,7 +210,7 @@ module Mos6510
 
   class CpuController
     def initialize(sid: nil)
-      @ory = [0] * 65536
+      @memory = [0] * 65536
       @sid = sid
     end
 
@@ -241,7 +241,7 @@ module Mos6510
     end
 
     def peek(address)
-      @cpu.getmemory(address)
+      @cpu.read_memory(address)
     end
   end
 end
@@ -332,73 +332,73 @@ def get_address(mode)
     0
   when Mode::IMM
     @cycles += 2
-    get_mem(pc_increment)
+    read_memory(pc_increment)
   when Mode::ABS
     @cycles += 4
-    ad = get_mem(pc_increment)
-    ad |= get_mem(pc_increment) << 8
-    get_mem(ad)
+    ad = read_memory(pc_increment)
+    ad |= read_memory(pc_increment) << 8
+    read_memory(ad)
   when Mode::ABSX
     @cycles += 4
-    ad = get_mem(pc_increment)
-    ad |= get_mem(pc_increment) << 8
+    ad = read_memory(pc_increment)
+    ad |= read_memory(pc_increment) << 8
     ad2 = ad + @x
     ad2 &= 0xffff
     @cycles += 1 if (ad2 & 0xff00) != (ad & 0xff00)
-    get_mem(ad2)
+    read_memory(ad2)
   when Mode::ABSY
     @cycles += 4
-    ad = get_mem(pc_increment)
-    ad |= get_mem(pc_increment) << 8
+    ad = read_memory(pc_increment)
+    ad |= read_memory(pc_increment) << 8
     ad2 = ad + @y
     ad2 &= 0xffff
     @cycles += 1 if (ad2 & 0xff00) != (ad & 0xff00)
-    get_mem(ad2)
+    read_memory(ad2)
   when Mode::ZP
     @cycles += 3
-    ad = get_mem(pc_increment)
-    get_mem(ad)
+    ad = read_memory(pc_increment)
+    read_memory(ad)
   when Mode::ZPX
     @cycles += 4
-    ad = get_mem(pc_increment)
+    ad = read_memory(pc_increment)
     ad += @x
-    get_mem(ad & 0xff)
+    read_memory(ad & 0xff)
   when Mode::ZPY
     @cycles += 4
-    ad = get_mem(pc_increment)
+    ad = read_memory(pc_increment)
     ad += @y
-    get_mem(ad & 0xff)
+    read_memory(ad & 0xff)
   when Mode::INDX
     @cycles += 6
-    ad = get_mem(pc_increment)
+    ad = read_memory(pc_increment)
     ad += @x
-    ad2 = get_mem(ad & 0xff)
+    ad2 = read_memory(ad & 0xff)
     ad += 1
-    ad2 |= get_mem(ad & 0xff) << 8
-    get_mem(ad2)
+    ad2 |= read_memory(ad & 0xff) << 8
+    read_memory(ad2)
   when Mode::INDY
     @cycles += 5
-    ad = get_mem(pc_increment)
-    ad2 = get_mem(ad)
-    ad2 |= get_mem((ad + 1) & 0xff) << 8
+    ad = read_memory(pc_increment)
+    ad2 = read_memory(ad)
+    ad2 |= read_memory((ad + 1) & 0xff) << 8
     ad = ad2 + @y
     ad &= 0xffff
     @cycles += 1 if (ad2 & 0xff00) != (ad & 0xff00)
-    get_mem(ad)
+    read_memory(ad)
   when Mode::IND
     @cycles += 5
-    ad = get_mem(pc_increment)
-    ad |= get_mem(pc_increment) << 8
+    ad = read_memory(pc_increment)
+    ad |= read_memory(pc_increment) << 8
     ad2 = (ad & 0xFF00) | ((ad + 1) & 0x00FF)
-    lo = get_mem(ad)
-    hi = get_mem(ad2)
+    lo = read_memory(ad)
+    hi = read_memory(ad2)
     (hi << 8) | lo
   when Mode::ACC
     @cycles += 2
     @a
   when Mode::REL
     @cycles += 2
-    offset = get_mem(pc_increment)
+    offset = read_memory(pc_increment)
     offset = (offset & 0x80) == 0 ? offset : (offset | 0xFF00)
     pc + offset
   else
@@ -707,58 +707,58 @@ def set_address(mode, value)
   case mode
   when Mode::ABS
     @cycles += 2
-    ad = get_mem(pc - 2)
-    ad |= get_mem(pc - 1) << 8
+    ad = read_memory(pc - 2)
+    ad |= read_memory(pc - 1) << 8
     set_mem(ad, value)
   when Mode::ABSX
     @cycles += 3
-    ad = get_mem(pc - 2)
-    ad |= get_mem(pc - 1) << 8
+    ad = read_memory(pc - 2)
+    ad |= read_memory(pc - 1) << 8
     ad2 = ad + @x
     ad2 &= 0xffff
     @cycles -= 1 if (ad2 & 0xff00) != (ad & 0xff00)
     set_mem(ad2, value)
   when Mode::ABSY
     @cycles += 3
-    ad = get_mem(pc - 2)
-    ad |= get_mem(pc - 1) << 8
+    ad = read_memory(pc - 2)
+    ad |= read_memory(pc - 1) << 8
     ad2 = ad + @y
     ad2 &= 0xffff
     @cycles -= 1 if (ad2 & 0xff00) != (ad & 0xff00)
     set_mem(ad2, value)
   when Mode::ZP
     @cycles += 2
-    ad = get_mem(pc - 1)
+    ad = read_memory(pc - 1)
     set_mem(ad, value)
   when Mode::ZPX
     @cycles += 2
-    ad = get_mem(pc - 1)
+    ad = read_memory(pc - 1)
     ad += @x
     set_mem(ad & 0xff, value)
   when Mode::ZPY
     @cycles += 2
-    ad = get_mem(pc - 1)
+    ad = read_memory(pc - 1)
     ad += @y
     set_mem(ad & 0xff, value)
   when Mode::INDY
     @cycles += 3
-    ad = get_mem(pc - 1)
-    ad2 = get_mem(ad)
-    ad2 |= get_mem((ad + 1) & 0xff) << 8
+    ad = read_memory(pc - 1)
+    ad2 = read_memory(ad)
+    ad2 |= read_memory((ad + 1) & 0xff) << 8
     ad2 = ad2 + @y
     ad2 &= 0xffff
     set_mem(ad2, value)
   when Mode::INDX
     @cycles += 3
-    zero_page_addr = (get_mem(pc - 1) + @x) & 0xff
-    effective_addr = get_mem(zero_page_addr) | (get_mem((zero_page_addr + 1) & 0xff) << 8)
+    zero_page_addr = (read_memory(pc - 1) + @x) & 0xff
+    effective_addr = read_memory(zero_page_addr) | (read_memory((zero_page_addr + 1) & 0xff) << 8)
     set_mem(effective_addr, value)
   when Mode::ACC
     @a = value
   when Mode::IND
     @cycles += 4
-    ad = get_mem(pc - 2)
-    ad |= get_mem(pc - 1) << 8
+    ad = read_memory(pc - 2)
+    ad |= read_memory(pc - 1) << 8
     ad2 = (ad & 0xFF00) | ((ad + 1) & 0x00FF)
     set_mem(ad, value)
     set_mem(ad2, value >> 8)
@@ -1021,7 +1021,7 @@ def sta_indirect_indexed_y
 end
 
 def fetch_byte
-  value = get_mem(@pc)
+  value = read_memory(@pc)
   @pc += 1
   value
 end
