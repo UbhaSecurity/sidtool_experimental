@@ -8,7 +8,7 @@ module Mos6510
       @s = 0xff
       @p = 0x34
       @pc = 0x0000
-      @mem = mem
+      @memory = memory
       reset
     end
 
@@ -19,6 +19,7 @@ module Mos6510
       @s = 0xff
       @p = 0x34
       @pc = 0x0000
+      @memory = memory
     end
 
    INSTRUCTIONS = {
@@ -209,18 +210,18 @@ module Mos6510
 
   class CpuController
     def initialize(sid: nil)
-      @memory = [0] * 65536
+      @ory = [0] * 65536
       @sid = sid
     end
 
     def load(bytes, from: 0)
       bytes.each_with_index do |byte, index|
-        @memory[from + index] = byte
+        @ory[from + index] = byte
       end
     end
 
     def start
-      @cpu = Cpu.new(@memory)  # Create an instance of Mos6510::Cpu
+      @cpu = Cpu.new(@ory)  # Create an instance of Mos6510::Cpu
     end
 
     def jsr(address, accumulator_value=0)
@@ -240,7 +241,7 @@ module Mos6510
     end
 
     def peek(address)
-      @cpu.getmem(address)
+      @cpu.getmemory(address)
     end
   end
 end
@@ -1107,7 +1108,7 @@ main
       @y = 0
       @s = 0xff
       @p = Flags::IRQ_DISABLE | Flags::BREAK
-      @pc = get_mem(0xfffc) | (get_mem(0xfffd) << 8)
+      @pc =  read_memory(0xfffc) | ( read_memory(0xfffd) << 8)
       @cycles = 0
     end
 
