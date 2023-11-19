@@ -391,6 +391,20 @@ def sei
   @registers[:P][:I] = true
 end
 
+ # Implement the Break (BRK) instruction
+  def brk
+    # Push the Program Counter (PC) and Processor Status (P) onto the stack
+    push_stack((@registers[:PC] >> 8) & 0xFF)
+    push_stack(@registers[:PC] & 0xFF)
+    push_stack(@registers[:P][:value] | Flags::BREAK)
+
+    # Disable interrupts (set the Interrupt Disable Flag)
+    @registers[:P][:I] = 1
+
+    # Jump to the interrupt vector at address 0xFFFE-0xFFFF
+    interrupt(0xFFFE)
+  end
+
 # No Operation (if needed)
 def nop
   # This instruction does nothing
