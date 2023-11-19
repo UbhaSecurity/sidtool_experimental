@@ -246,21 +246,34 @@ module Mos6510
 end
 
   class Mos6510
+  attr_accessor :memory, :registers
+  def initialize
     # Initialize memory as an array with 64KB (0x10000) of bytes
     @memory = Array.new(0x10000, 0x00)
-    def set_mem(addr, value)
-      if (0..65535).cover?(addr) && (0..255).cover?(value)
-        if (0xd400..0xd41b).cover?(addr) && @sid
-          @sid.poke(addr & 0x1f, value)
-          @sid.poke_digi(addr, value) if addr > 0xd418
-        else
-          @mem[addr] = value
-        end
-      else
-        raise "Out of range address or value"
-      end
-    end
 
+    # Initialize CPU registers
+    @registers = {
+      A: 0x00,   # Accumulator
+      X: 0x00,   # X Register
+      Y: 0x00,   # Y Register
+      P: 0x34,   # Processor Status
+      SP: 0xFF,  # Stack Pointer
+      PC: 0x0000 # Program Counter
+    }
+  end
+
+   def set_mem(addr, value)
+  if (0..65535).cover?(addr) && (0..255).cover?(value)
+    if (0xd400..0xd41b).cover?(addr) && @sid
+      @sid.poke(addr & 0x1f, value)
+      @sid.poke_digi(addr, value) if addr > 0xd418
+    else
+      @memory[addr] = value # Use @memory instead of @mem
+    end
+  else
+    raise "Out of range address or value"
+  end
+end
     def pc_increment
       old_pc = @pc
       @pc = (@pc + 1) & 0xffff
@@ -293,7 +306,16 @@ end
     (high_byte << 8) | low_byte
   end
 
-  # Utility method to update CPU flags based on a result value
+  # Utility method to update CPU fl def initialize(mem)
+      @a = 0x00
+      @x = 0x00
+      @y = 0x00
+      @s = 0xff
+      @p = 0x34
+      @pc = 0x0000
+      @mem = mem
+      reset
+    endags based on a result value
   def update_flags(result)
     @registers[:P][:Z] = result == 0
     @registers[:P][:N] = (result & 0x80) != 0
