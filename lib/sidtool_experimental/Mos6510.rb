@@ -323,88 +323,53 @@ end
     # Other flag updates...
   end
 
-
-
 def get_address(mode)
   case mode
   when Mode::IMP
-    @cycles += 2
-    0
+    nil # Implied mode does not use an address
   when Mode::IMM
-    @cycles += 2
-    read_memory(pc_increment)
+    pc_increment # Immediate mode uses the next byte as a value
   when Mode::ABS
-    @cycles += 4
-    ad = read_memory(pc_increment)
-    ad |= read_memory(pc_increment) << 8
-    read_memory(ad)
+    low_byte = read_memory(pc_increment)
+    high_byte = read_memory(pc_increment)
+    (high_byte << 8) | low_byte
   when Mode::ABSX
-    @cycles += 4
-    ad = read_memory(pc_increment)
-    ad |= read_memory(pc_increment) << 8
-    ad2 = ad + @x
-    ad2 &= 0xffff
-    @cycles += 1 if (ad2 & 0xff00) != (ad & 0xff00)
-    read_memory(ad2)
+    base_address = get_address(Mode::ABS)
+    (base_address + @registers[:X]) & 0xFFFF
   when Mode::ABSY
-    @cycles += 4
-    ad = read_memory(pc_increment)
-    ad |= read_memory(pc_increment) << 8
-    ad2 = ad + @y
-    ad2 &= 0xffff
-    @cycles += 1 if (ad2 & 0xff00) != (ad & 0xff00)
-    read_memory(ad2)
+    base_address = get_address(Mode::ABS)
+    (base_address + @registers[:Y]) & 0xFFFF
   when Mode::ZP
-    @cycles += 3
-    ad = read_memory(pc_increment)
-    read_memory(ad)
+    read_memory(pc_increment)
   when Mode::ZPX
-    @cycles += 4
-    ad = read_memory(pc_increment)
-    ad += @x
-    read_memory(ad & 0xff)
+    (read_memory(pc_increment) + @registers[:X]) & 0xFF
   when Mode::ZPY
-    @cycles += 4
-    ad = read_memory(pc_increment)
-    ad += @y
-    read_memory(ad & 0xff)
+    (read_memory(pc_increment) + @registers[:Y]) & 0xFF
   when Mode::INDX
-    @cycles += 6
-    ad = read_memory(pc_increment)
-    ad += @x
-    ad2 = read_memory(ad & 0xff)
-    ad += 1
-    ad2 |= read_memory(ad & 0xff) << 8
-    read_memory(ad2)
+    base_address = (read_memory(pc_increment) + @registers[:X]) & 0xFF
+    low_byte = read_memory(base_address)
+    high_byte = read_memory((base_address + 1) & 0xFF)
+    (high_byte << 8) | low_byte
   when Mode::INDY
-    @cycles += 5
-    ad = read_memory(pc_increment)
-    ad2 = read_memory(ad)
-    ad2 |= read_memory((ad + 1) & 0xff) << 8
-    ad = ad2 + @y
-    ad &= 0xffff
-    @cycles += 1 if (ad2 & 0xff00) != (ad & 0xff00)
-    read_memory(ad)
+    base_address = read_memory(pc_increment)
+    low_byte = read_memory(base_address)
+    high_byte = read_memory((base_address + 1) & 0xFF)
+    ((high_byte << 8) | low_byte) + @registers[:Y]
   when Mode::IND
-    @cycles += 5
-    ad = read_memory(pc_increment)
-    ad |= read_memory(pc_increment) << 8
-    ad2 = (ad & 0xFF00) | ((ad + 1) & 0x00FF)
-    lo = read_memory(ad)
-    hi = read_memory(ad2)
-    (hi << 8) | lo
+    base_address = get_address(Mode::ABS)
+    low_byte = read_memory(base_address)
+    high_byte = read_memory((base_address & 0xFF00) | ((base_address + 1) & 0xFF))
+    (high_byte << 8) | low_byte
   when Mode::ACC
-    @cycles += 2
-    @a
+    nil # Accumulator mode does not use a memory address
   when Mode::REL
-    @cycles += 2
     offset = read_memory(pc_increment)
-    offset = (offset & 0x80) == 0 ? offset : (offset | 0xFF00)
-    pc + offset
+    (offset < 0x80 ? offset : offset - 0x100) + @registers[:PC]
   else
     raise "Unhandled addressing mode: #{mode}"
   end
 end
+
 
 # Clear Carry Flag
 def clc
