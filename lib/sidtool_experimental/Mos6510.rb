@@ -228,6 +228,64 @@ module Mos6510
  0x11F => { operation: method(:sbc), addr_mode: Mode::ABX, cycles: 7 }
 }
 
+def adc(value)
+  if @p & Flags::DECIMAL != 0  # Check if Decimal mode is active
+    low_nibble = (@a & 0x0F) + (value & 0x0F) + (@p & Flags::CARRY)
+    high_nibble = (@a >> 4) + (value >> 4)
+
+    if low_nibble > 9
+      low_nibble = (low_nibble + 6) & 0x0F
+      high_nibble += 1
+    end
+
+    if high_nibble > 9
+      high_nibble = (high_nibble + 6) & 0x0F
+      @p |= Flags::CARRY
+    else
+      @p &= ~Flags::CARRY
+    end
+
+    @a = (high_nibble << 4) | low_nibble
+  else
+    result = @a + value + (@p & Flags::CARRY)
+    @p &= ~Flags::CARRY  # Clear carry flag
+    @p |= Flags::CARRY if result > 0xFF # Set carry flag if overflow
+    @a = result & 0xFF
+  end
+
+  update_flags(@a)  # Update Zero and Negative flags
+end
+
+def sbc(value)
+  if @p & Flags::DECIMAL != 0  # Check if Decimal mode is active
+    low_nibble = (@a & 0x0F) - (value & 0x0F) - (@p & Flags::CARRY == 0 ? 1 : 0)
+    high_nibble = (@a >> 4) - (value >> 4)
+
+    if low_nibble < 0
+      low_nibble = (low_nibble - 6) & 0x0F
+      high_nibble -= 1
+    end
+
+    if high_nibble < 0
+      high_nibble = (high_nibble - 6) & 0x0F
+      @p &= ~Flags::CARRY  # Clear Carry flag if there is a borrow
+    else
+      @p |= Flags::CARRY   # Set Carry flag if no borrow
+    end
+
+    @a = (high_nibble << 4) | (low_nibble & 0x0F)
+  else
+    value = ~value & 0xFF  # Invert value for subtraction
+    result = @a + value + (@p & Flags::CARRY)
+    @p &= ~Flags::CARRY  # Clear carry flag
+    @p |= Flags::CARRY if result > 0xFF # Set carry flag if no borrow occurred
+    @a = result & 0xFF
+  end
+
+  update_flags(@a)  # Update Zero and Negative flags
+end
+
+
     # Set and Clear Flag Methods
     def set_flag(flag)
       @registers[:P] |= flag
@@ -254,14 +312,19 @@ module Mos6510
       set_flag(Flags::INTERRUPT_DISABLE)
     end
 
-    # Update Flags Method
-    def update_flags(result)
-      clear_flag(Flags::ZERO)
-      clear_flag(Flags::NEGATIVE)
+   def update_flags(result)
+  @p = if result == 0
+         @p | Flags::ZERO
+       else
+         @p & ~Flags::ZERO
+       end
 
-      set_flag(Flags::ZERO) if result == 0
-      set_flag(Flags::NEGATIVE) if result & 0x80 != 0
-    end
+  @p = if result & 0x80 != 0
+         @p | Flags::NEGATIVE
+       else
+         @p & ~Flags::NEGATIVE
+       end
+end
 
     def nmi
       push_stack((@pc >> 8) & 0xFF) # Push PC high byte
