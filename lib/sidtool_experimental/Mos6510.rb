@@ -39,7 +39,7 @@ module Mos6510
       @s = 0xff
       @p = 0x34
       @pc = 0x0000
-      # No need to reassign @memory here as it is already set in initialize
+      @registers[:SP] = 0xFF # Reset stack pointer to 0xFF
     end
 
    INSTRUCTIONS = {
@@ -698,17 +698,15 @@ end
     @registers[:PC] = (high_byte << 8) | low_byte
   end
 
-  # Helper method to push a value onto the stack
-  def push_stack(value)
-    write_memory(0x100 + @registers[:SP], value)
-    @registers[:SP] = (@registers[:SP] - 1) & 0xFF
-  end
+def push_stack(value)
+  write_memory(0x0100 + @registers[:SP], value)
+  @registers[:SP] = (@registers[:SP] - 1) & 0xFF
+end
 
-  # Helper method to pop a value from the stack
-  def pop_stack
-    @registers[:SP] = (@registers[:SP] + 1) & 0xFF
-    read_memory(0x100 + @registers[:SP])
-  end
+def pop_stack
+  @registers[:SP] = (@registers[:SP] + 1) & 0xFF
+  read_memory(0x0100 + @registers[:SP])
+end
 
   # Helper method to perform a branch instruction
   def branch(condition)
