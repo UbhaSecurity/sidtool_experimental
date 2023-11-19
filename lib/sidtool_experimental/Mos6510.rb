@@ -1,6 +1,6 @@
 module Mos6510
   class Cpu
-    attr_accessor :a, :x, :y, :s, :p, :pc, :mem
+    attr_accessor :a, :x, :y, :s, :p, :pc, :memory
 
     def initialize(mem)
       @a = 0x00
@@ -9,7 +9,7 @@ module Mos6510
       @s = 0xff
       @p = 0x34
       @pc = 0x0000
-      @memory = mem  # Corrected from @memory = memory
+      @memory = mem
       reset
     end
 
@@ -20,7 +20,7 @@ module Mos6510
       @s = 0xff
       @p = 0x34
       @pc = 0x0000
-      # Removed the unnecessary reassignment of @memory
+      # No need to reassign @memory here as it is already set in initialize
     end
 
    INSTRUCTIONS = {
