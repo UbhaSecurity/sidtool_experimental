@@ -1003,6 +1003,69 @@ def fetch_byte
   value
 end
 
+# Add the update_flags method to update the processor status flags
+def update_flags(value)
+  # Update the Zero Flag (Z)
+  @registers[:P][:Z] = (value & 0xFF) == 0 ? 1 : 0
+  
+  # Update the Negative Flag (N)
+  @registers[:P][:N] = (value & 0x80) != 0 ? 1 : 0
+end
+
+# Add a method to execute the program
+def execute_program(program)
+  @memory = program.dup
+  @registers[:PC] = 0x0600  # Set the initial program counter (you can adjust this)
+  @registers[:SP] = 0xFF  # Set the initial stack pointer
+
+  # Run the CPU until a halt condition is reached
+  until @halt
+    execute_next_instruction
+  end
+end
+
+# Implement the execute_next_instruction method
+def execute_next_instruction
+  opcode = fetch_byte
+  case opcode
+  when 0x00 then brk
+  when 0x01 then ora_indexed_indirect
+  when 0x05 then ora_zero_page
+  when 0x06 then asl_zero_page
+  when 0x08 then php
+  when 0x09 then ora_immediate
+  when 0x0A then asl_accumulator
+  when 0x0D then ora_absolute
+  when 0x0E then asl_absolute
+  when 0x10 then bpl
+  when 0x11 then ora_indirect_indexed
+  when 0x15 then ora_zero_page_x
+  when 0x16 then asl_zero_page_x
+  when 0x18 then clc
+  # Add more cases for other instructions...
+  else
+    raise "Unknown opcode: 0x#{opcode.to_s(16)}"
+  end
+end
+
+# Implement the CPU's main execution loop
+def execute
+  while !@halt
+    execute_next_instruction
+  end
+end
+
+# Implement the main method to run the CPU
+def main
+  program = [0x01, 0x02, 0x03, ...]  # Replace with your actual program bytes
+  execute_program(program)
+  # You can print the final state of the CPU here if needed
+end
+
+# Run the main method to start the CPU
+main
+
+
     def step
       opc = fetch_byte
       instr = INSTRUCTIONS[opc]
