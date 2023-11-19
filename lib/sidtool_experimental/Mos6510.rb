@@ -383,18 +383,28 @@ def sei
   @registers[:P][:I] = true
 end
 
- # Implement the Break (BRK) instruction
+  # BRK (Break)
   def brk
-    # Push the Program Counter (PC) and Processor Status (P) onto the stack
-    push_stack((@registers[:PC] >> 8) & 0xFF)
-    push_stack(@registers[:PC] & 0xFF)
-    push_stack(@registers[:P][:value] | Flags::BREAK)
+    push_stack((@registers[:PC] >> 8) & 0xFF) # Push high byte of PC to stack
+    push_stack(@registers[:PC] & 0xFF)       # Push low byte of PC to stack
+    push_stack(@registers[:P] | Flags::BREAK | Flags::UNUSED) # Push processor status to stack
+    @registers[:P] |= Flags::IRQ_DISABLE     # Set interrupt disable flag
+    @registers[:PC] = read_memory(0xFFFE) | (read_memory(0xFFFF) << 8) # Set PC to interrupt vector
+  end
 
-    # Disable interrupts (set the Interrupt Disable Flag)
-    @registers[:P][:I] = 1
+  # ORA (OR with Accumulator)
+  def ora(value)
+    @registers[:A] |= value                  # OR the value with the accumulator
+    update_flags(@registers[:A])             # Update the flags based on the result
+  end
 
-    # Jump to the interrupt vector at address 0xFFFE-0xFFFF
-    interrupt(0xFFFE)
+  # ADC (Add with Carry)
+  def adc(value)
+    temp = @registers[:A] + value + (@registers[:P] & Flags::CARRY)
+    @registers[:P] &= ~Flags::CARRY          # Clear carry flag for now
+    @registers[:P] |= Flags::CARRY if temp > 0xFF # Set carry flag if result > 255
+    @registers[:A] = temp & 0xFF             # Only keep the lower 8 bits
+    update_flags(@registers[:A])             # Update flags
   end
 
 # No Operation (if needed)
@@ -1114,6 +1124,7 @@ main
       ACC = 10
     end
   end
+
   private
 
   def validate_address(address)
@@ -1121,3 +1132,16 @@ main
       raise "Invalid memory address: 0x#{address.to_s(16)}"
     end
   end
+
+  # Method to push a value to the stack
+  def push_stack(value)
+    # Assumes a method to write to memory and handle stack pointer
+  end
+
+  # Method to update flags
+  def update_flags(result)
+    @registers[:P] &= ~(Flags::ZERO | Flags::NEGATIVE) # Clear flags
+    @registers[:P] |= Flags::ZERO if result == 0       # Set zero flag
+    @registers[:P] |= Flags::NEGATIVE if result & 0x80 != 0 # Set negative flag
+  end
+end
