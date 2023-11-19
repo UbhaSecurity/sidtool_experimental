@@ -388,6 +388,52 @@ def get_address(mode)
   end
 end
 
+ # Implement the Clear Carry Flag (CLC) instruction
+  def clc
+    @registers[:P][:C] = 0
+  end
+
+  # Implement the Set Carry Flag (SEC) instruction
+  def sec
+    @registers[:P][:C] = 1
+  end
+
+  # Implement the Clear Interrupt Disable Flag (CLI) instruction
+  def cli
+    @registers[:P][:I] = 0
+  end
+
+  # Implement the Set Interrupt Disable Flag (SEI) instruction
+  def sei
+    @registers[:P][:I] = 1
+  end
+
+  # Implement the No Operation (NOP) instruction
+  def nop
+    # This instruction does nothing, just move to the next instruction
+  end
+
+  # Implement the Load Accumulator (LDA) instruction with immediate addressing mode
+  def lda_immediate
+    operand = fetch_byte
+    @registers[:A] = operand
+    update_flags(@registers[:A])
+  end
+
+  # Implement the Load X Register (LDX) instruction with immediate addressing mode
+  def ldx_immediate
+    operand = fetch_byte
+    @registers[:X] = operand
+    update_flags(@registers[:X])
+  end
+
+  # Implement the Load Y Register (LDY) instruction with immediate addressing mode
+  def ldy_immediate
+    operand = fetch_byte
+    @registers[:Y] = operand
+    update_flags(@registers[:Y])
+  end
+
 def set_address(mode, value)
   case mode
   when Mode::ABS
