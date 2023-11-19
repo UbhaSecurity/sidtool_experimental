@@ -216,12 +216,12 @@ module Mos6510
 
     def load(bytes, from: 0)
       bytes.each_with_index do |byte, index|
-        @ory[from + index] = byte
+        @memory[from + index] = byte
       end
     end
 
     def start
-      @cpu = Cpu.new(@ory)  # Create an instance of Mos6510::Cpu
+      @cpu = Cpu.new(@memory)  # Create an instance of Mos6510::Cpu
     end
 
     def jsr(address, accumulator_value=0)
