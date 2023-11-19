@@ -8,7 +8,7 @@ module Mos6510
       @s = 0xff
       @p = 0x34
       @pc = 0x0000
-      @memory = memory
+      @memory = mem
       reset
     end
 
@@ -19,7 +19,7 @@ module Mos6510
       @s = 0xff
       @p = 0x34
       @pc = 0x0000
-      @memory = memory
+      @memory = mem
     end
 
    INSTRUCTIONS = {
