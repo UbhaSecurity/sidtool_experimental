@@ -126,7 +126,6 @@ module SidtoolExperimental
       puts "Invalid format specified. Supported formats: ruby, midi."
       exit(1)
     end
-
     run_emulation(options)
   end
 end
