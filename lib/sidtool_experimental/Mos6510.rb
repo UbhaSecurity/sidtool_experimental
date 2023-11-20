@@ -1,15 +1,15 @@
 module Mos6510
   class Cpu
-      module Flags
-        CARRY = 0x01
-        ZERO = 0x02
-        INTERRUPT_DISABLE = 0x04
-        DECIMAL = 0x08
-        BREAK = 0x10
-        UNUSED = 0x20
-        OVERFLOW = 0x40
-        NEGATIVE = 0x80
-      end
+module Flags
+  CARRY = 0x01
+  ZERO = 0x02
+  INTERRUPT_DISABLE = 0x04
+  DECIMAL = 0x08
+  BREAK = 0x10
+  UNUSED = 0x20
+  OVERFLOW = 0x40
+  NEGATIVE = 0x80
+end
 
   # Use accessors for registers consistently
     def a; @registers[:A]; end
@@ -584,23 +584,18 @@ def get_address(mode)
   end
 end
 
-
 def clc
   @registers[:P] &= ~Flags::CARRY
 end
-
 
 def sec
   @registers[:P] |= Flags::CARRY
 end
 
-# Clear Interrupt Disable Flag
 def cli
   @registers[:P] &= ~Flags::INTERRUPT_DISABLE
 end
 
-
-# Set Interrupt Disable Flag
 def sei
   @registers[:P] |= Flags::INTERRUPT_DISABLE
 end
@@ -640,11 +635,6 @@ end
     @registers[:A] = temp & 0xFF             # Only keep the lower 8 bits
     update_flags(@registers[:A])             # Update flags
   end
-
-# No Operation (if needed)
-def nop
-  # This instruction does nothing
-end
 
   # Implement the Load Accumulator (LDA) instruction with immediate addressing mode
   def lda_immediate
@@ -931,7 +921,6 @@ cpu.execute
 # Print the final state of the CPU
 puts cpu
 
-
 def set_address(mode, value)
   case mode
   when Mode::ABS
@@ -994,28 +983,6 @@ def set_address(mode, value)
   else
     raise "Unhandled addressing mode: #{mode}"
   end
-end
-
-# Implied Addressing Mode:
-
-# Clear Carry Flag
-def clc
-  @p &= ~CARRY_FLAG
-end
-
-# Set Carry Flag
-def sec
-  @p |= CARRY_FLAG
-end
-
-# Clear Interrupt Disable Flag
-def cli
-  @p &= ~INTERRUPT_DISABLE_FLAG
-end
-
-# Set Interrupt Disable Flag
-def sei
-  @p |= INTERRUPT_DISABLE_FLAG
 end
 
 # No Operation
