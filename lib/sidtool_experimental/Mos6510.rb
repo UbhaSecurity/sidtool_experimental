@@ -60,7 +60,7 @@ end
   0x11 => { operation: method(:ora), addr_mode: Mode::IZY, cycles: 5 },
   0x15 => { operation: method(:ora), addr_mode: Mode::ZPX, cycles: 4 },
   0x16 => { operation: method(:asl), addr_mode: Mode::ZPX, cycles: 6 },
-  0x18 => { operation: method(:clc), addr_mode: Mode::IMP, cycles: 2 },
+  0x18 => { operation: method(:), addr_mode: Mode::IMP, cycles: 2 },
   0x19 => { operation: method(:ora), addr_mode: Mode::ABY, cycles: 4 },
   0x1D => { operation: method(:ora), addr_mode: Mode::ABX, cycles: 4 },
   0x1E => { operation: method(:asl), addr_mode: Mode::ABX, cycles: 7 },
@@ -566,22 +566,6 @@ def get_address(mode)
   else
     raise "Unhandled addressing mode: #{mode}"
   end
-end
-
-def clc
-  @registers[:P] &= ~Flags::CARRY
-end
-
-def sec
-  @registers[:P] |= Flags::CARRY
-end
-
-def cli
-  @registers[:P] &= ~Flags::INTERRUPT_DISABLE
-end
-
-def sei
-  @registers[:P] |= Flags::INTERRUPT_DISABLE
 end
 
  def brk
@@ -1216,13 +1200,6 @@ def pop_stack
   read_memory(0x0100 + @registers[:SP])
 end
 
-def update_flags(value)
-  @registers[:P] &= ~(Flags::ZERO | Flags::NEGATIVE) # Clear flags
-  @registers[:P] |= Flags::ZERO if value == 0       # Set zero flag
-  @registers[:P] |= Flags::NEGATIVE if value & 0x80 != 0 # Set negative flag
-end
-
-
 # Add a method to execute the program
 def execute_program(program)
   @memory = program.dup
@@ -1365,103 +1342,66 @@ def execute_next_instruction
   when 0xD0 then bne
    # Compare with Accumulator (CMP) - Indexed Indirect
   when 0xD1 then cmp(get_address(Mode::INDX))
-
   # Omitted opcodes (0xD2-0xD4)
-
   # Compare with Accumulator (CMP) - Zero Page,X
   when 0xD5 then cmp(get_address(Mode::ZPX))
-
   # Decrement Memory - Zero Page,X
   when 0xD6 then dec(get_address(Mode::ZPX))
-
   # Omitted opcode (0xD7)
-
   # Clear Decimal Mode (CLD)
   when 0xD8 then cld
-
   # Compare with Accumulator (CMP) - Absolute,Y
   when 0xD9 then cmp(get_address(Mode::ABSY))
-
   # Omitted opcodes (0xDA-0xDB)
-
   # Compare with Accumulator (CMP) - Absolute,X
   when 0xDD then cmp(get_address(Mode::ABSX))
-
   # Decrement Memory - Absolute,X
   when 0xDE then dec(get_address(Mode::ABSX))
-
   # Omitted opcode (0xDF)
-
   # Compare with X Register (CPX) - Immediate
   when 0xE0 then cpx(get_address(Mode::IMM))
-
   # Subtract with Borrow (SBC) - Indexed Indirect
   when 0xE1 then sbc(get_address(Mode::INDX))
-
   # Omitted opcodes (0xE2-0xE4)
-
   # Subtract with Borrow (SBC) - Zero Page
   when 0xE5 then sbc(get_address(Mode::ZP))
-
   # Increment Memory - Zero Page
   when 0xE6 then inc(get_address(Mode::ZP))
-
   # Omitted opcode (0xE7)
-
   # Increment X Register (INX)
   when 0xE8 then inx
-
   # Subtract with Borrow (SBC) - Immediate
   when 0xE9 then sbc(get_address(Mode::IMM))
-
   # No Operation (NOP)
   when 0xEA then nop
-
   # Omitted opcode (0xEB)
-
   # Compare with X Register (CPX) - Absolute
   when 0xEC then cpx(get_address(Mode::ABS))
-
   # Subtract with Borrow (SBC) - Absolute
   when 0xED then sbc(get_address(Mode::ABS))
-
   # Increment Memory - Absolute
   when 0xEE then inc(get_address(Mode::ABS))
-
   # Omitted opcode (0xEF)
-
   # Branch if Overflow Set (BVS)
   when 0xF0 then bvs
-
   # Subtract with Borrow (SBC) - Indirect Indexed
   when 0xF1 then sbc(get_address(Mode::INDY))
-
   # Omitted opcodes (0xF2-0xF4)
-
   # Subtract with Borrow (SBC) - Zero Page,X
   when 0xF5 then sbc(get_address(Mode::ZPX))
-
   # Increment Memory - Zero Page,X
   when 0xF6 then inc(get_address(Mode::ZPX))
-
   # Omitted opcode (0xF7)
-
   # Set Decimal Flag (SED)
   when 0xF8 then sed
-
   # Subtract with Borrow (SBC) - Absolute,Y
   when 0xF9 then sbc(get_address(Mode::ABSY))
-
   # Omitted opcodes (0xFA-0xFB)
-
   # Subtract with Borrow (SBC) - Absolute,X
   when 0xFD then sbc(get_address(Mode::ABSX))
-
   # Increment Memory - Absolute,X
   when 0xFE then inc(get_address(Mode::ABSX))
-
   # Omitted opcode (0xFF)
-
   else
     raise "Unknown opcode: 0x#{opcode.to_s(16)}"
   end
@@ -1472,13 +1412,6 @@ def execute
   while !@halt
     execute_next_instruction
   end
-end
-
-# Implement the main method to run the CPU
-def main
-  program = [0x01, 0x02, 0x03, ...]  # Replace with your actual program bytes
-  execute_program(program)
-  # You can print the final state of the CPU here if needed
 end
 
 # Run the main method to start the CPU
@@ -1607,6 +1540,5 @@ def branch_taken?(instruction)
     false
   end
 end
-
 
 end
