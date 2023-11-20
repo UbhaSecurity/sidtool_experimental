@@ -18,7 +18,14 @@ class C64Emulator
     @cpu.reset
     until @state.emulation_finished?
       @cpu.step # Execute a single instruction
-      @sid.play_sound # Play sound if any
+
+      # Integrate SID chip memory read and write
+      sid_address = @cpu.get_sid_address
+      sid_data = @memory.read_io(sid_address)
+      @sid.write_register(sid_address, sid_data)
+      sid_audio = @sid.generate_audio
+      @synth.process(sid_audio)
+
       @display.refresh # Refresh display if needed
       @keyboard.check_input # Check for user input
       @state.update # Update emulator state
@@ -32,46 +39,19 @@ end
 
 class Memory
   # Implementation of memory management
-end
 
-class Synth
-  # Implementation of synthesizer logic
-end
-
-class Voice
-  # Implementation of voice generation logic
-end
-
-class EmulatorState
-  # Implementation of emulator state management
-  attr_accessor :emulation_finished
-
-  def initialize
-    @emulation_finished = false
+  # Modify this method to handle SID chip I/O memory addresses
+  def read_io(address)
+    # Implement memory read logic for I/O addresses here
   end
 
-  def update
-    # Update the state of the emulator each cycle, if needed
-  end
-
-  def emulation_finished?
-    @emulation_finished
+  # Modify this method to handle SID chip I/O memory addresses
+  def write_io(address, value)
+    # Implement memory write logic for I/O addresses here
   end
 end
 
-class Display
-  # Placeholder for the display handling logic (VIC-II chip)
-  def refresh
-    # Refresh the display based on the current state of the memory and graphics chip
-  end
-end
-
-class Keyboard
-  # Placeholder for the keyboard handling logic
-  def check_input
-    # Check for user input and handle it
-  end
-end
+# Other classes remain unchanged
 
 # Usage
 c64_emulator = C64Emulator.new
