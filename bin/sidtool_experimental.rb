@@ -1,80 +1,135 @@
-#!/usr/bin/env ruby
 require 'optparse'
-require_relative '../lib/sidtool_experimental'
-require_relative 'Mos6510'
-require_relative 'State'
+require_relative 'lib/sidtool_experimental/filereader'
+require_relative 'lib/sidtool_experimental/midi_file_writer'
+require_relative 'lib/sidtool_experimental/Mos6510'
+require_relative 'lib/sidtool_experimental/sid6581'
+require_relative 'lib/sidtool_experimental/sid'
+require_relative 'lib/sidtool_experimental/state'
+require_relative 'lib/sidtool_experimental/synth'
+require_relative 'lib/sidtool_experimental/voice'
+require_relative 'lib/sidtool_experimental/version'
 
-DEFAULT_FRAMES_TO_PROCESS = 15000
+module SidtoolExperimental
+  # Define constants for PAL properties.
+  FRAMES_PER_SECOND = 50.0
+  CLOCK_FREQUENCY = 985248.0
 
-EXPORTERS = {
-  'ruby' => SidtoolExperimental::RubyFileWriter,
-  'midi' => SidtoolExperimental::MidiFileWriter
-}
+  # Constants for slide detection and handling in the emulation.
+  SLIDE_THRESHOLD = 60
+  SLIDE_DURATION_FRAMES = 20
 
-options = {}
-OptionParser.new do |parser|
-  parser.banner = 'Usage: sidtool_experimental [options] <inputfile.sid>'
+  # Default number of frames from Sidtool (update this value as needed)
+  DEFAULT_FRAME_COUNT = 5000
 
-  parser.on('-i', '--info', 'Show file information')
-  parser.on('--format FORMAT', 'Output format, "ruby" or "midi"')
-  parser.on('-o', '--out FILENAME', 'Output file')
-  parser.on('-s', '--song NUMBER', Integer, 'Song number to process (defaults to the start song in the file)')
-  parser.on('-f', '--frames NUMBER', Integer, "Number of frames to process (default #{DEFAULT_FRAMES_TO_PROCESS})")
-  parser.on_tail('-h', '--help', 'Show this message') do
-    puts parser
-    exit
+  # Parse command-line arguments
+  def self.parse_arguments
+    options = { frames: DEFAULT_FRAME_COUNT, format: 'ruby' }
+    OptionParser.new do |opts|
+      opts.banner = "Usage: sidtool_experimental [options] <inputfile.sid>"
+
+      opts.on('-i', '--info', 'Show file information')
+      opts.on('--format FORMAT', 'Output format, "ruby" or "midi"') do |format|
+        options[:format] = format.downcase
+        unless EXPORTERS.key?(options[:format])
+          puts "Invalid format specified. Supported formats: ruby, midi."
+          exit(1)
+        end
+      end
+      opts.on('-o', '--out FILENAME', 'Output file')
+      opts.on('-s', '--song NUMBER', Integer, 'Song number to process (defaults to the start song in the file)')
+      opts.on('-f', '--frames NUMBER', Integer, "Number of frames to process (default #{DEFAULT_FRAME_COUNT})")
+      opts.on_tail('-h', '--help', 'Show this message') do
+        puts opts
+        exit
+      end
+    end.parse!
+    options
   end
-  parser.on_tail('--version', 'Show version') do
-    puts SidtoolExperimental::VERSION
-    exit
+
+  # Create a global state object for managing the overall state of the SID emulation.
+  STATE = State.new
+
+  # SidWrapper class to interface with the SID chip and CIA timers.
+  class SidWrapper
+    attr_reader :sid6581, :ciaTimerA, :ciaTimerB
+
+    def initialize
+      @sid6581 = Sid6581.new
+      @ciaTimerA = CIATimer.new(STATE)
+      @ciaTimerB = CIATimer.new(STATE)
+    end
+
+    def poke(address, value)
+      case address
+      when 0xD400..0xD41C
+        @sid6581.write_register(address, value)
+      else
+        # Additional handling for other address ranges, if necessary.
+      end
+    end
+
+    def emulate_cycle
+      STATE.update
+      @sid6581.generate_sound
+    end
   end
-end.parse!(into: options)
 
-raise 'Missing input file' if ARGV.empty?
-raise 'Too many arguments' if ARGV.length > 1
-input_file_path = ARGV.pop
-sid_file = SidtoolExperimental::FileReader.read(input_file_path)
+  # Class method to initialize SID chip emulation.
+  def self.initialize_sid_emulation
+    @sid_wrapper = SidWrapper.new
+    @cpu = Mos6510::Cpu.new(sid: @sid_wrapper)
+  end
 
-output_file_path = options[:out]
-show_info = !!options[:info]
-raise 'Either provide -i or -o, or I have nothing to do!' unless output_file_path || show_info
+  # Class method to run the emulation loop with a specified number of frames.
+  def self.emulate(frame_limit)
+    frame_count = 0
+    loop do
+      break if frame_count >= frame_limit
 
-selected_format = options[:format] || EXPORTERS.keys.first
-exporter_class = EXPORTERS[selected_format]
-raise "Invalid format: #{selected_format}. Valid formats: #{EXPORTERS.keys.join(', ')}" unless exporter_class
+      @sid_wrapper.emulate_cycle
+      frame_count += 1
 
-selected_song = options[:song] || sid_file.start_song
-raise 'Song must be at least 1' if selected_song < 1
-raise "File only has #{sid_file.songs} songs" if selected_song > sid_file.songs
+      # Additional logic for the emulation loop, if required.
+    end
+  end
 
-selected_frames = options[:frames] || DEFAULT_FRAMES_TO_PROCESS
+  # Initialize the SID emulation setup and run the emulation loop for a given number of frames.
+  def self.run_emulation(options)
+    initialize_sid_emulation
 
-if show_info
-  puts "Read #{sid_file.format} version #{sid_file.version} file."
-  puts "Name: #{sid_file.name}"
-  puts "Author: #{sid_file.author}"
-  puts "Released: #{sid_file.released}"
-  puts "Songs: #{sid_file.songs} (start song: #{sid_file.start_song})"
+    if options[:info]
+      # Display file information
+      # TODO: Implement file information display logic
+    else
+      # Run SID emulation with the specified number of frames
+      emulate(options[:frames])
+    end
+  end
+
+  # Supported exporters for output format
+  EXPORTERS = {
+    'ruby' => RubyFileWriter,
+    'midi' => MidiFileWriter
+  }
+
+  # Run the SID emulation with command-line arguments.
+  def self.run
+    options = parse_arguments
+    if ARGV.empty?
+      puts "Please provide the path to the input SID file."
+      exit(1)
+    end
+
+    input_file = ARGV[0]
+    exporter = EXPORTERS[options[:format]]
+    unless exporter
+      puts "Invalid format specified. Supported formats: ruby, midi."
+      exit(1)
+    end
+
+    run_emulation(options)
+  end
 end
 
-if output_file_path
-  load_address = sid_file.data[0] + (sid_file.data[1] << 8)
-
-  state = Sidtool::State.new
-  state.cpu.load(sid_file.data[2..-1], from: load_address)
-  state.cpu.start
-
-  play_address = sid_file.play_address
-  if play_address == 0
-    state.cpu.jsr(sid_file.init_address)
-    play_address = (state.cpu.peek(0x0315) << 8) + state.cpu.peek(0x0314)
-    STDERR.puts "New play address #{play_address}"
-  end
-
-  state.cpu.jsr(sid_file.init_address, selected_song - 1)
-  state.run_emulation_loop(selected_frames)
-
-  state.sid6581.stop!
-  exporter_class.new(state.sid6581.synths_for_voices).write_to(output_file_path)
-  STDERR.puts("Processed #{selected_frames} frames")
-end
+# Run the SID emulation with command-line arguments.
+SidtoolExperimental.run
