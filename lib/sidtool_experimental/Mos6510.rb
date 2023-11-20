@@ -22,37 +22,26 @@ end
     INTERRUPT_DISABLE_FLAG = 0x04
 
 def initialize(mem)
-  # Initialize the registers with their default values.
   @registers = {
     A: 0x00, 
     X: 0x00, 
     Y: 0x00, 
-    SP: 0xFF, # Initialize stack pointer (SP)
-    P: 0x34,  # Initialize processor status register (P)
-    PC: 0x0000 # Initialize program counter (PC)
+    SP: 0xFF, 
+    P: Flags::INTERRUPT_DISABLE | Flags::BREAK,
+    PC: read_memory(0xFFFC) | (read_memory(0xFFFD) << 8)
   }
-
-  # Initialize memory
   @memory = mem
-
-  # Call the reset method to set up the CPU to its start state.
+  @cycles = 0
   reset
 end
 
 def reset
-  # Reset the registers to their default values.
   @registers[:A] = 0
   @registers[:X] = 0
   @registers[:Y] = 0
-  @registers[:SP] = 0xFF # Reset stack pointer (SP)
-
-  # Reset the processor status register (P) with IRQ disable and break flags.
+  @registers[:SP] = 0xFF
   @registers[:P] = Flags::INTERRUPT_DISABLE | Flags::BREAK
-
-  # Set the program counter (PC) to the address stored at 0xFFFC and 0xFFFD.
   @registers[:PC] = read_memory(0xFFFC) | (read_memory(0xFFFD) << 8)
-
-  # Reset the cycle count.
   @cycles = 0
 end
 
