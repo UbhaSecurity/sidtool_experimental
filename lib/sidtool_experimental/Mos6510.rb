@@ -21,24 +21,38 @@ module Mos6510
     CARRY_FLAG = 0x01
     INTERRUPT_DISABLE_FLAG = 0x04
 
-    def initialize(mem)
-      @a = 0x00
-      @x = 0x00
-      @y = 0x00
-      @s = 0xff
-      @p = 0x34
-      @pc = 0x0000
-      @memory = mem
-      reset
-    end
+def initialize(mem)
+  # Initialize the registers with their default values.
+  @registers = {
+    A: 0x00, 
+    X: 0x00, 
+    Y: 0x00, 
+    SP: 0xFF, # Initialize stack pointer (SP)
+    P: 0x34,  # Initialize processor status register (P)
+    PC: 0x0000 # Initialize program counter (PC)
+  }
+
+  # Initialize memory
+  @memory = mem
+
+  # Call the reset method to set up the CPU to its start state.
+  reset
+end
 
 def reset
-  @a = 0
-  @x = 0
-  @y = 0
-  @registers[:SP] = 0xff # Use @registers[:SP] for the stack pointer
-  @p = Flags::IRQ_DISABLE | Flags::BREAK
-  @pc = read_memory(0xfffc) | (read_memory(0xfffd) << 8)
+  # Reset the registers to their default values.
+  @registers[:A] = 0
+  @registers[:X] = 0
+  @registers[:Y] = 0
+  @registers[:SP] = 0xFF # Reset stack pointer (SP)
+
+  # Reset the processor status register (P) with IRQ disable and break flags.
+  @registers[:P] = Flags::INTERRUPT_DISABLE | Flags::BREAK
+
+  # Set the program counter (PC) to the address stored at 0xFFFC and 0xFFFD.
+  @registers[:PC] = read_memory(0xFFFC) | (read_memory(0xFFFD) << 8)
+
+  # Reset the cycle count.
   @cycles = 0
 end
 
