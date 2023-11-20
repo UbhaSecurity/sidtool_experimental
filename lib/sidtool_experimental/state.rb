@@ -8,12 +8,13 @@ module Sidtool
     TOGGLE_FLAG = 0x40      # Timer output toggles between high and low on underflow
     INTERRUPT_FLAG = 0x80   # Enable interrupt on timer underflow
 
-    attr_accessor :timer, :latch, :control_register, :underflow, :output_pin
+    attr_accessor :timer, :latch, :control_register, :underflow, :output_pin, :current_frame, :sid6581, :cia_timers, :cpu
 
-    # Initialize the CIA timer with a reference to the CPU
     def initialize(cpu)
-      @cpu = cpu
-      reset
+      @cpu = cpu # Store the reference to the CPU
+      @current_frame = 0
+      @sid6581 = Sid6581.new
+      @cia_timers = [CIATimer.new(@cpu), CIATimer.new(@cpu)] # Pass CPU reference to CIATimer
     end
 
     # Reset the timer to its initial state
