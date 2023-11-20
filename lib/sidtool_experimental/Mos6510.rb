@@ -243,24 +243,42 @@ end
 }
 
 def step
-      opc = fetch_byte
-      instr = INSTRUCTIONS[opc]
-      raise "Illegal opcode #{opc.to_s(16)}" if instr.nil?
+  opc = fetch_byte
+  instr = INSTRUCTIONS[opc]
 
-      @cycles += instr[:cycles]
+  # Check if the opcode is defined in the instruction set
+  if instr.nil?
+    handle_illegal_opcode(opc)  # Handle illegal opcode gracefully
+  else
+    @cycles += instr[:cycles]
 
-      # Check for additional cycles
-      if page_boundary_crossed?(instr)
-        @cycles += 1
-      end
-
-      if branch_taken?(instr)
-        @cycles += 1
-        @cycles += 1 if page_boundary_crossed?(instr) # Additional cycle for crossing page boundary
-      end
-
-      instr[:operation].call
+    # Additional cycle checks for page boundary and branch taken
+    if page_boundary_crossed?(instr)
+      @cycles += 1
     end
+
+    if branch_taken?(instr)
+      @cycles += 1
+      @cycles += 1 if page_boundary_crossed?(instr)  # Additional cycle for crossing page boundary
+    end
+
+    instr[:operation].call  # Execute the instruction
+  end
+end
+
+# Define a method to handle illegal opcodes
+def handle_illegal_opcode(opcode)
+  # Log the illegal opcode for debugging
+  puts "Warning: Illegal opcode 0x#{opcode.to_s(16)} encountered at address 0x#{pc.to_s(16)}"
+
+  # You can define further actions here, such as:
+  # - Ignoring the illegal opcode and continuing execution
+  # - Triggering a specific interrupt or exception handling routine
+  # - Stopping the execution with a specific error code
+
+  # For this example, let's just continue execution
+  # You can modify this behavior based on your specific needs
+end
 
 def adc(value)
   if @registers[:P] & Flags::DECIMAL != 0
