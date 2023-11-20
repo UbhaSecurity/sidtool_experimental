@@ -1,5 +1,7 @@
 module Mos6510
   class Cpu
+ attr_accessor :memory, :registers, :state
+
 module Flags
   CARRY = 0x01
   ZERO = 0x02
@@ -21,19 +23,21 @@ end
     CARRY_FLAG = 0x01
     INTERRUPT_DISABLE_FLAG = 0x04
 
-def initialize(mem)
-  @registers = {
-    A: 0x00, 
-    X: 0x00, 
-    Y: 0x00, 
-    SP: 0xFF, 
-    P: Flags::INTERRUPT_DISABLE | Flags::BREAK,
-    PC: read_memory(0xFFFC) | (read_memory(0xFFFD) << 8)
-  }
-  @memory = mem
-  @cycles = 0
-  reset
-end
+ # Initialize the CPU with memory and set up the state
+    def initialize(mem)
+      @registers = {
+        A: 0x00, 
+        X: 0x00, 
+        Y: 0x00, 
+        SP: 0xFF, 
+        P: Flags::INTERRUPT_DISABLE | Flags::BREAK,
+        PC: mem[0xFFFC] | (mem[0xFFFD] << 8)
+      }
+      @memory = mem
+      @cycles = 0
+      reset
+      @state = Sidtool::State.new(self) # Initialize the state with a reference to this CPU
+    end
 
 def reset
   @registers[:A] = 0
@@ -231,29 +235,35 @@ end
  0x11F => { operation: method(:sbc), addr_mode: Mode::ABX, cycles: 7 }
 }
 
-def step
-  opc = fetch_byte
-  instr = INSTRUCTIONS[opc]
+ # Step through the CPU operations
+    def step
+      opc = fetch_byte
+      instr = INSTRUCTIONS[opc]
 
-  # Check if the opcode is defined in the instruction set
-  if instr.nil?
-    handle_illegal_opcode(opc)  # Handle illegal opcode gracefully
-  else
-    @cycles += instr[:cycles]
+      if instr.nil?
+        handle_illegal_opcode(opc)  # Handle illegal opcode gracefully
+      else
+        @cycles += instr[:cycles]
 
-    # Additional cycle checks for page boundary and branch taken
-    if page_boundary_crossed?(instr)
-      @cycles += 1
+        # Additional cycle checks for page boundary and branch taken
+        @cycles += 1 if page_boundary_crossed?(instr)
+        @cycles += 1 if branch_taken?(instr)
+
+        instr[:operation].call  # Execute the instruction
+      end
+
+      @state.update # Update the state (CIA timers, SID, etc.) in each CPU step
+      handle_timer_interrupts # Handle interrupts triggered by CIA timers
     end
 
-    if branch_taken?(instr)
-      @cycles += 1
-      @cycles += 1 if page_boundary_crossed?(instr)  # Additional cycle for crossing page boundary
+ # Handle timer interrupts from the CIA timers
+    def handle_timer_interrupts
+      @state.cia_timers.each do |timer|
+        if timer.underflow && (timer.control_register & Sidtool::CIATimer::INTERRUPT_FLAG) != 0
+          irq # Trigger the IRQ interrupt if conditions are met
+        end
+      end
     end
-
-    instr[:operation].call  # Execute the instruction
-  end
-end
 
 # Define a method to handle illegal opcodes
 def handle_illegal_opcode(opcode)
@@ -436,7 +446,7 @@ end
     end
 
     def start
-      @cpu = Cpu.new(@memory)  # Create an instance of Mos6510::Cpu
+      @cpu = Cpu.new(@memory)  # Create an instance of ::Cpu
     end
 
     def jsr(address, accumulator_value=0)
@@ -460,15 +470,6 @@ end
     end
   end
 end
-
-  class Mos6510
-  attr_accessor :memory, :registers
- def initialize
-      @memory = Array.new(0x10000, 0x00)
-      @registers = {
-        A: 0x00, X: 0x00, Y: 0x00, P: 0x34, SP: 0xFF, PC: 0x0000
-      }
-    end
 
    def set_mem(addr, value)
   if (0..65535).cover?(addr) && (0..255).cover?(value)
