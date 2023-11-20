@@ -263,62 +263,84 @@ def step
     end
 
 def adc(value)
-  if @p & Flags::DECIMAL != 0  # Check if Decimal mode is active
-    low_nibble = (@a & 0x0F) + (value & 0x0F) + (@p & Flags::CARRY)
-    high_nibble = (@a >> 4) + (value >> 4)
+  if @registers[:P] & Flags::DECIMAL != 0
+    # Decimal mode
+    a_low = @registers[:A] & 0x0F
+    a_high = @registers[:A] >> 4
+    value_low = value & 0x0F
+    value_high = value >> 4
 
-    if low_nibble > 9
-      low_nibble = (low_nibble + 6) & 0x0F
-      high_nibble += 1
+    sum_low = a_low + value_low + (@registers[:P] & Flags::CARRY)
+    sum_high = a_high + value_high + (sum_low > 0x09 ? 1 : 0)
+
+    if sum_low > 0x09
+      sum_low -= 0x0A
     end
 
-    if high_nibble > 9
-      high_nibble = (high_nibble + 6) & 0x0F
-      @p |= Flags::CARRY
+    if sum_high > 0x09
+      sum_high -= 0x0A
+      @registers[:P] |= Flags::CARRY
     else
-      @p &= ~Flags::CARRY
+      @registers[:P] &= ~Flags::CARRY
     end
 
-    @a = (high_nibble << 4) | low_nibble
+    @registers[:A] = (sum_high << 4) | sum_low
   else
-    result = @a + value + (@p & Flags::CARRY)
-    @p &= ~Flags::CARRY  # Clear carry flag
-    @p |= Flags::CARRY if result > 0xFF # Set carry flag if overflow
-    @a = result & 0xFF
+    # Binary mode
+    sum = @registers[:A] + value + (@registers[:P] & Flags::CARRY)
+    if sum > 0xFF
+      @registers[:P] |= Flags::CARRY
+    else
+      @registers[:P] &= ~Flags::CARRY
+    end
+
+    @registers[:A] = sum & 0xFF
   end
 
-  update_flags(@a)  # Update Zero and Negative flags
+  # Update Zero and Negative flags
+  update_flags(@registers[:A])
 end
 
 def sbc(value)
-  if @p & Flags::DECIMAL != 0  # Check if Decimal mode is active
-    low_nibble = (@a & 0x0F) - (value & 0x0F) - (@p & Flags::CARRY == 0 ? 1 : 0)
-    high_nibble = (@a >> 4) - (value >> 4)
+  if @registers[:P] & Flags::DECIMAL != 0
+    # Decimal mode
+    a_low = @registers[:A] & 0x0F
+    a_high = @registers[:A] >> 4
+    value_low = value & 0x0F
+    value_high = value >> 4
 
-    if low_nibble < 0
-      low_nibble = (low_nibble - 6) & 0x0F
-      high_nibble -= 1
+    borrow = (@registers[:P] & Flags::CARRY == 0) ? 1 : 0
+    sum_low = a_low - value_low - borrow
+    sum_high = a_high - value_high - (sum_low < 0 ? 1 : 0)
+
+    if sum_low < 0
+      sum_low += 0x0A
     end
 
-    if high_nibble < 0
-      high_nibble = (high_nibble - 6) & 0x0F
-      @p &= ~Flags::CARRY  # Clear Carry flag if there is a borrow
+    if sum_high < 0
+      sum_high += 0x0A
+      @registers[:P] &= ~Flags::CARRY
     else
-      @p |= Flags::CARRY   # Set Carry flag if no borrow
+      @registers[:P] |= Flags::CARRY
     end
 
-    @a = (high_nibble << 4) | (low_nibble & 0x0F)
+    @registers[:A] = (sum_high << 4) | sum_low
   else
+    # Binary mode
     value = ~value & 0xFF  # Invert value for subtraction
-    result = @a + value + (@p & Flags::CARRY)
-    @p &= ~Flags::CARRY  # Clear carry flag
-    @p |= Flags::CARRY if result > 0xFF # Set carry flag if no borrow occurred
-    @a = result & 0xFF
+    sum = @registers[:A] - value - ((@registers[:P] & Flags::CARRY == 0) ? 1 : 0)
+    if sum < 0
+      @registers[:P] &= ~Flags::CARRY
+    else
+      @registers[:P] |= Flags::CARRY
+    end
+
+    @registers[:A] = sum & 0xFF
   end
 
-  update_flags(@a)  # Update Zero and Negative flags
+  # Update Zero and Negative flags
+  update_flags(@registers[:A])
 end
-
 
     # Set and Clear Flag Methods
     def set_flag(flag)
