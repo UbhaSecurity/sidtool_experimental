@@ -30,7 +30,7 @@ end
         P: Flags::INTERRUPT_DISABLE | Flags::BREAK,
         PC: mem[0xFFFC] | (mem[0xFFFD] << 8)
       }
-      @memory = mem
+      @memoryory = mem
       @cycles = 0
       reset
       @state = Sidtool::State.new(self) # Initialize the state with a reference to this CPU
@@ -431,19 +431,19 @@ end
     attr_accessor :memory, :cpu
 
     def initialize(sid: nil)
-      @memory = [0] * 65536
+      @memoryory = [0] * 65536
       @sid = sid
-      @cpu = Cpu.new(@memory)  # Initialize @cpu with the allocated memory
+      @cpu = Cpu.new(@memoryory)  # Initialize @cpu with the allocated memory
     end
 
     def load(bytes, from: 0)
       bytes.each_with_index do |byte, index|
-        @memory[from + index] = byte
+        @memoryory[from + index] = byte
       end
     end
 
     def start
-      @cpu = Cpu.new(@memory)  # Create an instance of ::Cpu
+      @cpu = Cpu.new(@memoryory)  # Create an instance of ::Cpu
     end
 
     def jsr(address, accumulator_value=0)
@@ -474,7 +474,7 @@ end
       @sid.poke(addr & 0x1f, value)
       @sid.poke_digi(addr, value) if addr > 0xd418
     else
-      @memory[addr] = value # Use @memory instead of @mem
+      @memoryory[addr] = value # Use @memoryory instead of @memory
     end
   else
     raise "Out of range address or value"
@@ -488,12 +488,12 @@ end
 
  def read_memory(address)
       validate_address(address)
-      @memory[address]  # Use @memory instead of any other variable
+      @memoryory[address]  # Use @memoryory instead of any other variable
     end
 
     def write_memory(address, byte)
       validate_address(address)
-      @memory[address] = byte  # Use @memory instead of any other variable
+      @memoryory[address] = byte  # Use @memoryory instead of any other variable
     end
 
   # Utility method to fetch a byte from memory at the program counter (PC)
@@ -517,7 +517,7 @@ end
       @s = 0xff
       @p = 0x34
       @pc = 0x0000
-      @mem = mem
+      @memory = mem
       reset
     endags based on a result value
 
@@ -1202,7 +1202,7 @@ end
 
 # Add a method to execute the program
 def execute_program(program)
-  @memory = program.dup
+  @memoryory = program.dup
   @registers[:PC] = 0x0600  # Set the initial program counter (you can adjust this)
   @registers[:SP] = 0xFF  # Set the initial stack pointer
 
@@ -1475,7 +1475,7 @@ main
   private
 
 def push_stack(value)
-  @memory[0x0100 + @registers[:SP]] = value
+  @memoryory[0x0100 + @registers[:SP]] = value
   @registers[:SP] = (@registers[:SP] - 1) & 0xFF
 end
 
