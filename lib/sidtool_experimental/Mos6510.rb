@@ -308,6 +308,7 @@ def adc(value)
   update_flags(@registers[:A])
 end
 
+
 def sbc(value)
   if @registers[:P] & Flags::DECIMAL != 0
     # Decimal mode
@@ -349,6 +350,10 @@ def sbc(value)
   update_flags(@registers[:A])
 end
 
+  # Update Zero and Negative flags
+  update_flags(@registers[:A])
+end
+
     def set_flag(flag)
       @registers[:P] |= flag
     end
@@ -357,7 +362,7 @@ end
       @registers[:P] &= ~flag
     end
 
-  def clc
+def clc
   @registers[:P] &= ~Flags::CARRY
 end
 
@@ -411,6 +416,7 @@ def irq
   # Set the interrupt disable flag
   @registers[:P] |= Flags::INTERRUPT_DISABLE
 end
+
   end
 
 
