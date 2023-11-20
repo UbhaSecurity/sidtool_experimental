@@ -332,18 +332,15 @@ end
       set_flag(Flags::INTERRUPT_DISABLE)
     end
 
-   def update_flags(result)
-  @p = if result == 0
-         @p | Flags::ZERO
-       else
-         @p & ~Flags::ZERO
-       end
+def update_flags(value)
+  # Clear existing Zero and Negative flags
+  @registers[:P] &= ~(Flags::ZERO | Flags::NEGATIVE)
 
-  @p = if result & 0x80 != 0
-         @p | Flags::NEGATIVE
-       else
-         @p & ~Flags::NEGATIVE
-       end
+  # Set the Zero flag if the value is 0
+  @registers[:P] |= Flags::ZERO if value == 0
+
+  # Set the Negative flag if bit 7 of the value is set
+  @registers[:P] |= Flags::NEGATIVE if value & 0x80 != 0
 end
 
     def nmi
