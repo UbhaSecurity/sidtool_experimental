@@ -343,23 +343,39 @@ def update_flags(value)
   @registers[:P] |= Flags::NEGATIVE if value & 0x80 != 0
 end
 
-    def nmi
-      push_stack((@pc >> 8) & 0xFF) # Push PC high byte
-      push_stack(@pc & 0xFF)        # Push PC low byte
-      push_stack(@p & ~Flags::BREAK) # Push processor status, Break flag cleared
+  def nmi
+  # Push the program counter to the stack. Note that this is done in two parts: high byte and low byte.
+  push_stack((@registers[:PC] >> 8) & 0xFF) # Push PC high byte
+  push_stack(@registers[:PC] & 0xFF)        # Push PC low byte
 
-      @pc = read_memory(0xFFFA) | (read_memory(0xFFFB) << 8) # Set PC to NMI vector
-    end
+  # Push the processor status register to the stack. Ensure the Break flag is cleared.
+  push_stack(@registers[:P] & ~Flags::BREAK) 
 
-    def irq
-      return if (@p & Flags::INTERRUPT_DISABLE) != 0 # Ignore IRQ if interrupt disable flag is set
+  # Set the program counter to the NMI vector. The NMI vector is typically located at 0xFFFA (low byte) and 0xFFFB (high byte).
+  @registers[:PC] = read_memory(0xFFFA) | (read_memory(0xFFFB) << 8)
 
-      push_stack((@pc >> 8) & 0xFF) # Push PC high byte
-      push_stack(@pc & 0xFF)        # Push PC low byte
-      push_stack(@p | Flags::BREAK) # Push processor status, Break flag set
+  # Set the interrupt disable flag to prevent further IRQs.
+  @registers[:P] |= Flags::INTERRUPT_DISABLE
+end
 
-      @pc = read_memory(0xFFFE) | (read_memory(0xFFFF) << 8) # Set PC to IRQ vector
-    end
+def irq
+  # Check if the interrupt disable flag is set. If it is, return immediately without handling the IRQ.
+  return if (@registers[:P] & Flags::INTERRUPT_DISABLE) != 0 
+
+  # Push the program counter to the stack in two parts: high byte and low byte.
+  push_stack((@registers[:PC] >> 8) & 0xFF) # Push PC high byte
+  push_stack(@registers[:PC] & 0xFF)        # Push PC low byte
+
+  # Push the processor status register to the stack. Ensure the Break flag is set.
+  push_stack(@registers[:P] | Flags::BREAK)
+
+  # Set the program counter to the IRQ vector. The IRQ vector is typically located at 0xFFFE (low byte) and 0xFFFF (high byte).
+  @registers[:PC] = read_memory(0xFFFE) | (read_memory(0xFFFF) << 8)
+
+  # Set the interrupt disable flag to prevent further IRQs.
+  @registers[:P] |= Flags::INTERRUPT_DISABLE
+end
+
 
     # Other methods...
   end
