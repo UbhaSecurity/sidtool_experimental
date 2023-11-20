@@ -1,0 +1,94 @@
+---------------------------------------
+Commodore 64 (C64) Memory Map Overview
+---------------------------------------
+
+This document provides an overview of the memory map for the Commodore 64 (C64) computer. Understanding the memory layout is essential for software development and SID music creation using SIDTool.
+
+-----------------------
+1. Configurations
+-----------------------
+
+The C64's memory configuration depends on the state of latch bits set in the Programmable Logic Unit (PLA). The default configuration includes the following memory areas visible to the CPU:
+
+- KERNAL ROM
+- I/O
+- BASIC ROM
+- RAM banks
+
+-------------------
+2. ROM vs RAM
+-------------------
+
+When ROM is visible to the CPU during a write procedure, the ROM will be read, but any data is written to the underlying RAM. This principle is particularly significant when addressing I/O registers.
+
+------------------------
+3. Cartridge ROM
+------------------------
+
+Cartridge ROM can be present in up to three addressable locations. However, only two 8 kByte banks can be seen by the CPU at any given time.
+
+---------------------------------
+4. BASIC RAM
+---------------------------------
+
+The BASIC program storage space spans memory addresses $0800-$9FFF, containing 38,911 BASIC bytes.
+
+-------------------
+5. Memory Details
+-------------------
+
+For detailed information on each memory area, please refer to the specific tables below.
+
+-------------------------------
+6. RAM Table
+-------------------------------
+
+| Hex Address | Dec Address | Page | Contents                      |
+|-------------|-------------|------|-------------------------------|
+| $0000-$00FF | 0-255       | 0    | Zeropage addressing           |
+| $0100-$01FF | 256-511     | 1    | Enhanced Zeropage (stack)     |
+| $0200-$02FF | 512-767     | 2    | OS and BASIC pointers         |
+| $0300-$03FF | 768-1023    | 3    | OS and BASIC pointers         |
+| $0400-$07FF | 1024-2047   | 4-7  | Screen Memory                 |
+| $0800-$9FFF | 2048-40959  | 8-159| Free BASIC program storage    |
+| $A000-$BFFF | 40960-49151 | 160-191| Free machine language program area |
+| $C000-$CFFF | 49152-53247 | 192-207| Free machine language program area |
+| $D000-$D3FF | 53248-54271 | 208-211| Various purposes              |
+| $D400-$D7FF | 54272-54527 | 212-215| Various purposes              |
+| $D800-$DBFF | 55296-56319 | 216-219| Various purposes              |
+| $DC00-$DCFF | 56320-56575 | 220  | CIA 1                         |
+| $DD00-$DDFF | 56576-56831 | 221  | CIA 2                         |
+| $DE00-$DFFF | 56832-57343 | 222-223| Reserved for interface extensions |
+| $E000-$FFFF | 57344-65535 | 224-255| Free machine language program area |
+
+-------------------
+7. ROM Table
+-------------------
+
+The ROM table outlines the addresses occupied by Cartridge ROM:
+
+| Hex Address | Dec Address | Page | Contents                      |
+|-------------|-------------|------|-------------------------------|
+| $8000-$9FFF | 32768-40959 | 128-159| Cartridge ROM (low)         |
+| $A000-$BFFF | 40960-49151 | 160-191| BASIC interpreter ROM or cartridge ROM (high) |
+| $D000-$DFFF | 53248-57343 | 208-223| Character generator ROM      |
+| $E000-$FFFF | 57344-65535 | 224-255| KERNAL ROM or cartridge ROM (high) |
+
+-------------------
+8. I/O Table
+-------------------
+
+The I/O table specifies the addresses and contents of various I/O memory areas:
+
+| Hex Address | Dec Address | Page | Contents                      |
+|-------------|-------------|------|-------------------------------|
+| $0000-$0001 | 0-1         | -    | CPU I/O port (see Zeropage)  |
+| $D000-$D3FF | 53248-54271 | 208-211| VIC-II registers            |
+| $D400-$D7FF | 54272-55295 | 212-215| SID registers                |
+| $D800-$DBFF | 55296-56319 | 216-219| Color Memory                 |
+| $DC00-$DCFF | 56320-56575 | 220  | CIA 1                         |
+| $DD00-$DDFF | 56576-56831 | 221  | CIA 2                         |
+| $DE00-$DEFF | 56832-57087 | 222  | I/O 1                         |
+| $DF00-$DFFF | 57088-57343 | 223  | I/O 2                         |
+
+This memory map is essential for software development, hardware interaction, and SID music composition on the Commodore 64 using SIDTool.
