@@ -19,9 +19,6 @@ end
     def y; @registers[:Y]; end
     def p; @registers[:P]; end
     def pc; @registers[:PC]; end
-    # Constants for flag bits
-    CARRY_FLAG = 0x01
-    INTERRUPT_DISABLE_FLAG = 0x04
 
  # Initialize the CPU with memory and set up the state
     def initialize(mem)
@@ -859,18 +856,6 @@ end
     @registers[:PC] = (high_byte << 8) | low_byte
   end
 
-# Method to push a value onto the stack
-def push_stack(value)
-  @memory[0x0100 + @registers[:SP]] = value
-  @registers[:SP] = (@registers[:SP] - 1) & 0xFF
-end
-
-# Method to pop a value from the stack
-def pop_stack
-  @registers[:SP] = (@registers[:SP] + 1) & 0xFF
-  read_memory(0x0100 + @registers[:SP])
-end
-
   # Helper method to perform a branch instruction
   def branch(condition)
     offset = fetch_byte
@@ -1499,7 +1484,6 @@ end
 # Run the main method to start the CPU
 main
 
-
     def step
       opc = fetch_byte
       instr = INSTRUCTIONS[opc]
@@ -1557,6 +1541,17 @@ main
 
   private
 
+def push_stack(value)
+  @memory[0x0100 + @registers[:SP]] = value
+  @registers[:SP] = (@registers[:SP] - 1) & 0xFF
+end
+
+# Method to pop a value from the stack
+def pop_stack
+  @registers[:SP] = (@registers[:SP] + 1) & 0xFF
+  read_memory(0x0100 + @registers[:SP])
+end
+
   def validate_address(address)
     unless address >= 0x0000 && address <= 0xFFFF
       raise "Invalid memory address: 0x#{address.to_s(16)}"
@@ -1586,36 +1581,32 @@ def page_boundary_crossed?(instruction)
   crossed
 end
 
-def branch_taken?(instruction)
-  offset = fetch_byte if instruction[:addr_mode] == Mode::REL
 
+def branch_taken?(instruction)
+  return false unless instruction[:addr_mode] == Mode::REL
+
+  offset = fetch_byte
   case instruction[:operation].name
   when :bpl
-    taken = @registers[:P] & Flags::NEGATIVE == 0
+    @registers[:P] & Flags::NEGATIVE == 0
   when :bmi
-    taken = @registers[:P] & Flags::NEGATIVE != 0
+    @registers[:P] & Flags::NEGATIVE != 0
   when :bvc
-    taken = @registers[:P] & Flags::OVERFLOW == 0
+    @registers[:P] & Flags::OVERFLOW == 0
   when :bvs
-    taken = @registers[:P] & Flags::OVERFLOW != 0
+    @registers[:P] & Flags::OVERFLOW != 0
   when :bcc
-    taken = @registers[:P] & Flags::CARRY == 0
+    @registers[:P] & Flags::CARRY == 0
   when :bcs
-    taken = @registers[:P] & Flags::CARRY != 0
+    @registers[:P] & Flags::CARRY != 0
   when :bne
-    taken = @registers[:P] & Flags::ZERO == 0
+    @registers[:P] & Flags::ZERO == 0
   when :beq
-    taken = @registers[:P] & Flags::ZERO != 0
+    @registers[:P] & Flags::ZERO != 0
   else
-    taken = false
+    false
   end
-
-  if taken
-    new_pc = @registers[:PC] + offset
-    taken &&= (new_pc & 0xFF00) != (@registers[:PC] & 0xFF00)
-  end
-
-  taken
 end
+
 
 end
