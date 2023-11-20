@@ -50,12 +50,34 @@ class Memory
 
   # Initialize I/O registers
   def initialize_io_registers
-    # Initialize VIC-II, SID, CIA registers here
+    io_registers = {}
+
+    # Initialize VIC-II registers
+    io_registers[:vic_registers] = Array.new(64, 0)
+
+    # Initialize SID registers
+    io_registers[:sid_registers] = Array.new(29, 0)
+
+    # Initialize CIA registers (e.g., CIA1 and CIA2)
+    io_registers[:cia1_registers] = Array.new(16, 0)
+    io_registers[:cia2_registers] = Array.new(16, 0)
+
+    # You may have more I/O registers for other components
+
+    return io_registers
   end
 
   # Check if the ROM is mapped at the address
   def rom_is_mapped(address)
-    # Add logic based on PLA state
+    # Example simplified logic:
+    # If the PLA's AEC (Address Enable for CPU) signal is active,
+    # then the ROM is not mapped, otherwise, it is mapped.
+
+    # Assuming you have an instance variable @pla_state that represents
+    # the current state of the PLA, and AEC is one of its signals.
+    # Adjust this based on your actual emulation logic.
+
+    !@pla_state[:aec]
   end
 
   # Check if address is in I/O area
