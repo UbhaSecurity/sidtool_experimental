@@ -85,13 +85,137 @@ class Memory
     (0xD000..0xDFFF).include?(address)
   end
 
-  # Read from I/O registers
-  def read_io(address)
-    # Add logic to handle I/O reads
-  end
+   # Read from I/O registers
+    def read_io(address)
+      case address
+      when 0xD400
+        @sid6581.read_register(Sid6581::FRELO1)
+      when 0xD401
+        @sid6581.read_register(Sid6581::FREHI1)
+      when 0xD402
+        @sid6581.read_register(Sid6581::PWLO1)
+      when 0xD403
+        @sid6581.read_register(Sid6581::PWHI1)
+      when 0xD404
+        @sid6581.read_register(Sid6581::VCREG1)
+      when 0xD405
+        @sid6581.read_register(Sid6581::ATDCY1)
+      when 0xD406
+        @sid6581.read_register(Sid6581::SUREL1)
+      when 0xD407
+        @sid6581.read_register(Sid6581::FRELO2)
+      when 0xD408
+        @sid6581.read_register(Sid6581::FREHI2)
+      when 0xD409
+        @sid6581.read_register(Sid6581::PWLO2)
+      when 0xD40A
+        @sid6581.read_register(Sid6581::PWHI2)
+      when 0xD40B
+        @sid6581.read_register(Sid6581::VCREG2)
+      when 0xD40C
+        @sid6581.read_register(Sid6581::ATDCY2)
+      when 0xD40D
+        @sid6581.read_register(Sid6581::SUREL2)
+      when 0xD40E
+        @sid6581.read_register(Sid6581::FRELO3)
+      when 0xD40F
+        @sid6581.read_register(Sid6581::FREHI3)
+      when 0xD410
+        @sid6581.read_register(Sid6581::PWLO3)
+      when 0xD411
+        @sid6581.read_register(Sid6581::PWHI3)
+      when 0xD412
+        @sid6581.read_register(Sid6581::VCREG3)
+      when 0xD413
+        @sid6581.read_register(Sid6581::ATDCY3)
+      when 0xD414
+        @sid6581.read_register(Sid6581::SUREL3)
+      when 0xD415
+        @sid6581.read_register(Sid6581::CUTLO)
+      when 0xD416
+        @sid6581.read_register(Sid6581::CUTHI)
+      when 0xD417
+        @sid6581.read_register(Sid6581::RESON)
+      when 0xD418
+        @sid6581.read_register(Sid6581::SIGVOL)
+      when 0xD419
+        @sid6581.read_register(Sid6581::POTX)
+      when 0xD41A
+        @sid6581.read_register(Sid6581::POTY)
+      when 0xD41B
+        @sid6581.read_register(Sid6581::RANDOM)
+      when 0xD41C
+        @sid6581.read_register(Sid6581::ENV3)
+      else
+        # Handle other I/O reads here
+        raise "Unsupported I/O read at address #{address.to_s(16)}"
+      end
+    end
 
-  # Write to I/O registers
-  def write_io(address, value)
-    # Add logic to handle I/O writes
-  end
+    # Write to I/O registers
+    def write_io(address, value)
+      case address
+      when 0xD400
+        @sid6581.write_register(Sid6581::FRELO1, value)
+      when 0xD401
+        @sid6581.write_register(Sid6581::FREHI1, value)
+      when 0xD402
+        @sid6581.write_register(Sid6581::PWLO1, value)
+      when 0xD403
+        @sid6581.write_register(Sid6581::PWHI1, value)
+      when 0xD404
+        @sid6581.write_register(Sid6581::VCREG1, value)
+      when 0xD405
+        @sid6581.write_register(Sid6581::ATDCY1, value)
+      when 0xD406
+        @sid6581.write_register(Sid6581::SUREL1, value)
+      when 0xD407
+        @sid6581.write_register(Sid6581::FRELO2, value)
+      when 0xD408
+        @sid6581.write_register(Sid6581::FREHI2, value)
+      when 0xD409
+        @sid6581.write_register(Sid6581::PWLO2, value)
+      when 0xD40A
+        @sid6581.write_register(Sid6581::PWHI2, value)
+      when 0xD40B
+        @sid6581.write_register(Sid6581::VCREG2, value)
+      when 0xD40C
+        @sid6581.write_register(Sid6581::ATDCY2, value)
+      when 0xD40D
+        @sid6581.write_register(Sid6581::SUREL2, value)
+      when 0xD40E
+        @sid6581.write_register(Sid6581::FRELO3, value)
+      when 0xD40F
+        @sid6581.write_register(Sid6581::FREHI3, value)
+      when 0xD410
+        @sid6581.write_register(Sid6581::PWLO3, value)
+      when 0xD411
+        @sid6581.write_register(Sid6581::PWHI3, value)
+      when 0xD412
+        @sid6581.write_register(Sid6581::VCREG3, value)
+      when 0xD413
+        @sid6581.write_register(Sid6581::ATDCY3, value)
+      when 0xD414
+        @sid6581.write_register(Sid6581::SUREL3, value)
+      when 0xD415
+        @sid6581.write_register(Sid6581::CUTLO, value)
+      when 0xD416
+        @sid6581.write_register(Sid6581::CUTHI, value)
+      when 0xD417
+        @sid6581.write_register(Sid6581::RESON, value)
+      when 0xD418
+        @sid6581.write_register(Sid6581::SIGVOL, value)
+      when 0xD419
+        @sid6581.write_register(Sid6581::POTX, value)
+      when 0xD41A
+        @sid6581.write_register(Sid6581::POTY, value)
+      when 0xD41B
+        @sid6581.write_register(Sid6581::RANDOM, value)
+      when 0xD41C
+        @sid6581.write_register(Sid6581::ENV3, value)
+      else
+        # Handle other I/O writes here
+        raise "Unsupported I/O write at address #{address.to_s(16)}"
+      end
+    end
 end
