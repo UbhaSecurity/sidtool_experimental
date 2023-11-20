@@ -92,7 +92,6 @@ module SidtoolExperimental
       # Additional logic for the emulation loop, if required.
     end
   end
-
   # Initialize the SID emulation setup and run the emulation loop for a given number of frames.
   def self.run_emulation(options)
     initialize_sid_emulation
