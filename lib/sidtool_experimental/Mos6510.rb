@@ -30,7 +30,7 @@ end
         P: Flags::INTERRUPT_DISABLE | Flags::BREAK,
         PC: mem[0xFFFC] | (mem[0xFFFD] << 8)
       }
-      @memoryory = mem
+      @memory = mem
       @cycles = 0
       reset
       @state = Sidtool::State.new(self) # Initialize the state with a reference to this CPU
@@ -60,7 +60,7 @@ end
   0x11 => { operation: method(:ora), addr_mode: Mode::IZY, cycles: 5 },
   0x15 => { operation: method(:ora), addr_mode: Mode::ZPX, cycles: 4 },
   0x16 => { operation: method(:asl), addr_mode: Mode::ZPX, cycles: 6 },
-  0x18 => { operation: method(:), addr_mode: Mode::IMP, cycles: 2 },
+ 0x18 => { operation: method(:clc), addr_mode: Mode::IMP, cycles: 2 },
   0x19 => { operation: method(:ora), addr_mode: Mode::ABY, cycles: 4 },
   0x1D => { operation: method(:ora), addr_mode: Mode::ABX, cycles: 4 },
   0x1E => { operation: method(:asl), addr_mode: Mode::ABX, cycles: 7 },
@@ -431,19 +431,19 @@ end
     attr_accessor :memory, :cpu
 
     def initialize(sid: nil)
-      @memoryory = [0] * 65536
+      @memory = [0] * 65536
       @sid = sid
-      @cpu = Cpu.new(@memoryory)  # Initialize @cpu with the allocated memory
+      @cpu = Cpu.new(@memory)  # Initialize @cpu with the allocated memory
     end
 
     def load(bytes, from: 0)
       bytes.each_with_index do |byte, index|
-        @memoryory[from + index] = byte
+        @memory[from + index] = byte
       end
     end
 
     def start
-      @cpu = Cpu.new(@memoryory)  # Create an instance of ::Cpu
+      @cpu = Cpu.new(@memory)  # Create an instance of ::Cpu
     end
 
     def jsr(address, accumulator_value=0)
@@ -474,7 +474,7 @@ end
       @sid.poke(addr & 0x1f, value)
       @sid.poke_digi(addr, value) if addr > 0xd418
     else
-      @memoryory[addr] = value # Use @memoryory instead of @memory
+      @memory[addr] = value # Use @memory instead of @memory
     end
   else
     raise "Out of range address or value"
@@ -488,12 +488,12 @@ end
 
  def read_memory(address)
       validate_address(address)
-      @memoryory[address]  # Use @memoryory instead of any other variable
+      @memory[address]  # Use @memory instead of any other variable
     end
 
     def write_memory(address, byte)
       validate_address(address)
-      @memoryory[address] = byte  # Use @memoryory instead of any other variable
+      @memory[address] = byte  # Use @memory instead of any other variable
     end
 
   # Utility method to fetch a byte from memory at the program counter (PC)
@@ -1190,19 +1190,9 @@ def fetch_byte
   value
 end
 
-def push_stack(value)
-  write_memory(0x0100 + @registers[:SP], value)
-  @registers[:SP] = (@registers[:SP] - 1) & 0xFF
-end
-
-def pop_stack
-  @registers[:SP] = (@registers[:SP] + 1) & 0xFF
-  read_memory(0x0100 + @registers[:SP])
-end
-
 # Add a method to execute the program
 def execute_program(program)
-  @memoryory = program.dup
+  @memory = program.dup
   @registers[:PC] = 0x0600  # Set the initial program counter (you can adjust this)
   @registers[:SP] = 0xFF  # Set the initial stack pointer
 
@@ -1474,16 +1464,6 @@ main
 
   private
 
-def push_stack(value)
-  @memoryory[0x0100 + @registers[:SP]] = value
-  @registers[:SP] = (@registers[:SP] - 1) & 0xFF
-end
-
-# Method to pop a value from the stack
-def pop_stack
-  @registers[:SP] = (@registers[:SP] + 1) & 0xFF
-  read_memory(0x0100 + @registers[:SP])
-end
 
   def validate_address(address)
     unless address >= 0x0000 && address <= 0xFFFF
@@ -1491,10 +1471,18 @@ end
     end
   end
 
-  # Method to push a value to the stack
-  def push_stack(value)
-    # Assumes a method to write to memory and handle stack pointer
-  end
+# Push a value to the stack
+def push_stack(value)
+  @memory[@registers[:SP] + 0x0100] = value
+  @registers[:SP] = (@registers[:SP] - 1) & 0xFF
+end
+
+# Pop a value from the stack
+def pop_stack
+  @registers[:SP] = (@registers[:SP] + 1) & 0xFF
+  @memory[@registers[:SP] + 0x0100]
+end
+
 
 def page_boundary_crossed?(instruction)
   case instruction[:addr_mode]
