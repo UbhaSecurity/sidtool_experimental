@@ -368,22 +368,21 @@ end
       @registers[:P] &= ~flag
     end
 
-    # Modify existing flag methods
-    def clc
-      clear_flag(Flags::CARRY)
-    end
+  def clc
+  @registers[:P] &= ~Flags::CARRY
+end
 
-    def sec
-      set_flag(Flags::CARRY)
-    end
+def sec
+  @registers[:P] |= Flags::CARRY
+end
 
-    def cli
-      clear_flag(Flags::INTERRUPT_DISABLE)
-    end
+def cli
+  @registers[:P] &= ~Flags::INTERRUPT_DISABLE
+end
 
-    def sei
-      set_flag(Flags::INTERRUPT_DISABLE)
-    end
+def sei
+  @registers[:P] |= Flags::INTERRUPT_DISABLE
+end
 
 def update_flags(value)
   # Clear existing Zero and Negative flags
@@ -396,41 +395,33 @@ def update_flags(value)
   @registers[:P] |= Flags::NEGATIVE if value & 0x80 != 0
 end
 
-  def nmi
-  # Push the program counter to the stack. Note that this is done in two parts: high byte and low byte.
-  push_stack((@registers[:PC] >> 8) & 0xFF) # Push PC high byte
-  push_stack(@registers[:PC] & 0xFF)        # Push PC low byte
+def nmi
+  # Push the program counter and processor status to the stack
+  push_stack((@registers[:PC] >> 8) & 0xFF)
+  push_stack(@registers[:PC] & 0xFF)
+  push_stack(@registers[:P] & ~Flags::BREAK)
 
-  # Push the processor status register to the stack. Ensure the Break flag is cleared.
-  push_stack(@registers[:P] & ~Flags::BREAK) 
-
-  # Set the program counter to the NMI vector. The NMI vector is typically located at 0xFFFA (low byte) and 0xFFFB (high byte).
+  # Set the program counter to the NMI vector
   @registers[:PC] = read_memory(0xFFFA) | (read_memory(0xFFFB) << 8)
 
-  # Set the interrupt disable flag to prevent further IRQs.
+  # Set the interrupt disable flag
   @registers[:P] |= Flags::INTERRUPT_DISABLE
 end
 
 def irq
-  # Check if the interrupt disable flag is set. If it is, return immediately without handling the IRQ.
-  return if (@registers[:P] & Flags::INTERRUPT_DISABLE) != 0 
+  return if (@registers[:P] & Flags::INTERRUPT_DISABLE) != 0
 
-  # Push the program counter to the stack in two parts: high byte and low byte.
-  push_stack((@registers[:PC] >> 8) & 0xFF) # Push PC high byte
-  push_stack(@registers[:PC] & 0xFF)        # Push PC low byte
-
-  # Push the processor status register to the stack. Ensure the Break flag is set.
+  # Push the program counter and processor status to the stack
+  push_stack((@registers[:PC] >> 8) & 0xFF)
+  push_stack(@registers[:PC] & 0xFF)
   push_stack(@registers[:P] | Flags::BREAK)
 
-  # Set the program counter to the IRQ vector. The IRQ vector is typically located at 0xFFFE (low byte) and 0xFFFF (high byte).
+  # Set the program counter to the IRQ vector
   @registers[:PC] = read_memory(0xFFFE) | (read_memory(0xFFFF) << 8)
 
-  # Set the interrupt disable flag to prevent further IRQs.
+  # Set the interrupt disable flag
   @registers[:P] |= Flags::INTERRUPT_DISABLE
 end
-
-
-    # Other methods...
   end
 
 
@@ -1600,7 +1591,6 @@ def page_boundary_crossed?(instruction)
 end
 
 def branch_taken?(instruction)
-  # Assuming the operand for branch instructions is the next byte
   offset = fetch_byte if instruction[:addr_mode] == Mode::REL
 
   case instruction[:operation].name
@@ -1624,7 +1614,6 @@ def branch_taken?(instruction)
     taken = false
   end
 
-  # Calculate the new PC if the branch is taken to check for page crossing
   if taken
     new_pc = @registers[:PC] + offset
     taken &&= (new_pc & 0xFF00) != (@registers[:PC] & 0xFF00)
@@ -1632,6 +1621,5 @@ def branch_taken?(instruction)
 
   taken
 end
-
 
 end
