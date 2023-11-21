@@ -208,12 +208,5 @@ module SidtoolExperimental
         # Further processing like applying global filters can be done here
       end
     end
-
-    # Update the SID chip's state including LFO modulation
-    def update_sid_state
-      apply_lfo_to_voices
-      update_registers
-      generate_sound
-    end
   end
 end
