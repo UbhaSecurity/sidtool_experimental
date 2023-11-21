@@ -1,5 +1,5 @@
 # FileReader.rb
-module Sidtool
+module SidtoolExperimental
   class FileReader
     attr_reader :format, :version, :init_address, :play_address, :songs, :start_song
     attr_reader :name, :author, :released
