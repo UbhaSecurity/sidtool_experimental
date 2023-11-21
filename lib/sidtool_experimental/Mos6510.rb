@@ -1,17 +1,18 @@
 module Mos6510
+module Mos6510
   class Cpu
- attr_accessor :memory, :registers, :state
+    attr_accessor :memory, :registers, :state
 
-module Flags
-  CARRY = 0x01
-  ZERO = 0x02
-  INTERRUPT_DISABLE = 0x04
-  DECIMAL = 0x08
-  BREAK = 0x10
-  UNUSED = 0x20
-  OVERFLOW = 0x40
-  NEGATIVE = 0x80
-end
+    module Flags
+      CARRY = 0x01
+      ZERO = 0x02
+      INTERRUPT_DISABLE = 0x04
+      DECIMAL = 0x08
+      BREAK = 0x10
+      UNUSED = 0x20
+      OVERFLOW = 0x40
+      NEGATIVE = 0x80
+    end
 
     module Mode
       IMP = 0
@@ -26,16 +27,15 @@ end
       INDY = 9
       ACC = 10
     end
-  end
 
-  # Use accessors for registers consistently
+    # Use accessor methods for registers consistently
     def a; @registers[:A]; end
     def x; @registers[:X]; end
     def y; @registers[:Y]; end
     def p; @registers[:P]; end
     def pc; @registers[:PC]; end
 
- # Initialize the CPU with memory and set up the state
+    # Initialize the CPU with memory and set up the state
     def initialize(mem)
       @registers = {
         A: 0x00, 
@@ -51,15 +51,15 @@ end
       @state = Sidtool::State.new(self) # Initialize the state with a reference to this CPU
     end
 
-def reset
-  @registers[:A] = 0
-  @registers[:X] = 0
-  @registers[:Y] = 0
-  @registers[:SP] = 0xFF
-  @registers[:P] = Flags::INTERRUPT_DISABLE | Flags::BREAK
-  @registers[:PC] = read_memory(0xFFFC) | (read_memory(0xFFFD) << 8)
-  @cycles = 0
-end
+    def reset
+      @registers[:A] = 0
+      @registers[:X] = 0
+      @registers[:Y] = 0
+      @registers[:SP] = 0xFF
+      @registers[:P] = Flags::INTERRUPT_DISABLE | Flags::BREAK
+      @registers[:PC] = read_memory(0xFFFC) | (read_memory(0xFFFD) << 8)
+      @cycles = 0
+    end
 
    INSTRUCTIONS = {
   0x00 => { operation: method(:brk), addr_mode: Mode::IMP, cycles: 7 },
