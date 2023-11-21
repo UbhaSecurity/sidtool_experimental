@@ -1,4 +1,4 @@
-module Sidtool
+module SidtoolExperimental
   class Sid6581
     # Define waveform constants for easy reference
     WAVEFORM_TRIANGLE = 0x01
