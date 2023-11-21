@@ -568,7 +568,6 @@ def get_address(mode)
   else
     raise "Unhandled addressing mode: #{mode}"
   end
-end
 
  def brk
   # Increment PC by one to simulate the CPU's behavior of reading the next byte (which is ignored)
