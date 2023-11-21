@@ -478,6 +478,7 @@ end
       @memory = mem
       reset
     endags based on a result value
+  end
 
 def get_address(mode)
   case mode
