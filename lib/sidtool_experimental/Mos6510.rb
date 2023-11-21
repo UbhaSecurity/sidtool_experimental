@@ -65,7 +65,7 @@ module SidtoolExperimental
       @cycles = 0
     end
 
-  end
+
 end
 
 
