@@ -1,15 +1,15 @@
 # sidtool_experimental.rb
 require 'optparse'
-require_relative 'lib/sidtool_experimental/filereader'
-require_relative 'lib/sidtool_experimental/midi_file_writer'
-require_relative 'lib/sidtool_experimental/Mos6510'
-require_relative 'lib/sidtool_experimental/sid6581'
-require_relative 'lib/sidtool_experimental/sid'
-require_relative 'lib/sidtool_experimental/state'
-require_relative 'lib/sidtool_experimental/synth'
-require_relative 'lib/sidtool_experimental/voice'
-require_relative 'lib/sidtool_experimental/version'
-require_relative 'lib/sidtool_experimental/C64Emulator'
+require_relative '../lib/sidtool_experimental/filereader'
+require_relative '../lib/sidtool_experimental/midi_file_writer'
+require_relative '../lib/sidtool_experimental/Mos6510'
+require_relative '../lib/sidtool_experimental/sid6581'
+require_relative '../lib/sidtool_experimental/sid'
+require_relative '../lib/sidtool_experimental/state'
+require_relative '../lib/sidtool_experimental/synth'
+require_relative '../lib/sidtool_experimental/voice'
+require_relative '../lib/sidtool_experimental/version'
+require_relative '../lib/sidtool_experimental/C64Emulator'
 
 module SidtoolExperimental
   # Define constants for PAL properties.
