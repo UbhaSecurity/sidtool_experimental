@@ -852,7 +852,6 @@ end
       end
       @registers[:PC] = new_pc & 0xFFFF
     end
-  end
 
   # Helper method to perform an interrupt
   def interrupt(vector_address)
