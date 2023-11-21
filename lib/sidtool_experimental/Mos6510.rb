@@ -442,7 +442,6 @@ end
     def load(bytes, from: 0)
       bytes.each_with_index do |byte, index|
         @memory[from + index] = byte
-      end
     end
 
     def start
@@ -453,7 +452,7 @@ end
       @cpu.jsr(address, accumulator_value)
     end
 
- def step
+     def step
       @cpu.step
     end
 
