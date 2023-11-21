@@ -1,13 +1,15 @@
 module SidtoolExperimental
   class C64Emulator
+    attr_reader :memory, :cpu, :sid, :state, :display, :keyboard
+
     def initialize
       @memory = Memory.new
-      @cpu = Mos6510::Cpu.new(@memory)
-      @sid = Sid6581.new
-      @synth = Synth.new(0)
-      @voice = Voice.new(@sid, 0)
+      @cpu = Mos6510.new(@memory)
+      @sid6581 = Sid6581.new
+      @ciaTimerA = CIATimer.new(@cpu)
+      @ciaTimerB = CIATimer.new(@cpu)
       @state = State.new
-      @display = Display.new # Placeholder for display handling (VIC-II chip)
+      @display = Display.new # Placeholder for display handling
       @keyboard = Keyboard.new # Placeholder for keyboard handling
     end
 
@@ -18,14 +20,11 @@ module SidtoolExperimental
     def run
       @cpu.reset
       until @state.emulation_finished?
-        @cpu.step # Execute a single CPU instruction
-        handle_sid_operations # Handle SID chip operations
-        
-        # Update other components
+        @cpu.step
+        emulate_cycle
         @display.refresh if @display
         @keyboard.check_input if @keyboard
-
-        @state.update # Update the emulator state
+        @state.update
       end
     end
 
@@ -34,6 +33,14 @@ module SidtoolExperimental
     end
 
     private
+
+    def emulate_cycle
+      @state.update
+      @state.handle_interrupts
+      @sid6581.generate_sound
+    end
+
+    # Other private methods (if any)
 
     def handle_sid_operations
       # Define SID address range
@@ -50,5 +57,16 @@ module SidtoolExperimental
       # Update SID state
       @sid.update_sid_state
     end
+
+    def write_register(address, value)
+      @sid6581.write_register(address, value)
+    end
+
+    def read_register(address)
+      @sid6581.read_register(address)
+    end
+
+    # Additional helper methods and any other logic needed for the emulator
+    # ...
   end
 end
