@@ -1,6 +1,6 @@
 module SidtoolExperimental
   class Mos6510
-  class Cpu
+    class Cpu
     # Accessors for interacting with the CPU's memory and registers from outside the class.
     attr_accessor :memory, :registers, :state
 
@@ -64,10 +64,7 @@ module SidtoolExperimental
       @registers[:PC] = read_memory(0xFFFC) | (read_memory(0xFFFD) << 8) # Set PC from reset vector.
       @cycles = 0
     end
-
-
-end
-
+  end
 
    INSTRUCTIONS = {
   0x00 => { operation: method(:brk), addr_mode: Mode::IMP, cycles: 7 },
@@ -1500,5 +1497,5 @@ def branch_taken?(instruction)
     false
   end
 end
-
+end
 end
