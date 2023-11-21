@@ -1199,6 +1199,15 @@ def execute_program(program)
   end
 end
 
+      # Method to perform the AND operation
+      def and_operation(value)
+        # Perform bitwise AND between the accumulator and the value
+        @registers[:A] &= value
+
+        # Update Zero and Negative flags
+        update_flags(@registers[:A])
+      end
+
 def execute_next_instruction
   opcode = fetch_byte
   case opcode
@@ -1220,23 +1229,23 @@ def execute_next_instruction
   when 0x1D then ora(get_address(Mode::ABX))
   when 0x1E then asl(get_address(Mode::ABX))
   when 0x20 then jsr(get_address(Mode::ABS))
-  when 0x21 then and(get_address(Mode::IZX))
+  when 0x21 then and_operation(get_address(Mode::IZX))
   when 0x24 then bit(get_address(Mode::ZP))
-  when 0x25 then and(get_address(Mode::ZP))
+  when 0x25 then and_operation(get_address(Mode::ZP))
   when 0x26 then rol(get_address(Mode::ZP))
   when 0x28 then plp
-  when 0x29 then and(get_address(Mode::IMM))
+  when 0x29 then and_operation(get_address(Mode::IMM))
   when 0x2A then rol_accumulator
   when 0x2C then bit(get_address(Mode::ABS))
-  when 0x2D then and(get_address(Mode::ABS))
+  when 0x2D then and_operation(get_address(Mode::ABS))
   when 0x2E then rol(get_address(Mode::ABS))
   when 0x30 then bmi
-  when 0x31 then and(get_address(Mode::IZY))
-  when 0x35 then and(get_address(Mode::ZPX))
+  when 0x31 then and_operation(get_address(Mode::IZY))
+  when 0x35 then and_operation(get_address(Mode::ZPX))
   when 0x36 then rol(get_address(Mode::ZPX))
   when 0x38 then sec
-  when 0x39 then and(get_address(Mode::ABY))
-  when 0x3D then and(get_address(Mode::ABX))
+  when 0x39 then and_operation(get_address(Mode::ABY))
+  when 0x3D then and_operation(get_address(Mode::ABX))
   when 0x3E then rol(get_address(Mode::ABX))
   when 0x40 then rti
   when 0x41 then eor(get_address(Mode::IZX))
