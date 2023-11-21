@@ -64,6 +64,7 @@ module SidtoolExperimental
         @registers[:PC] = read_memory(0xFFFC) | (read_memory(0xFFFD) << 8) # Set PC from reset vector.
         @cycles = 0
       end
+cpu_instance = SidtoolExperimental::Mos6510::Cpu.new(memory)
 
    INSTRUCTIONS = {
   0x00 => { operation: method(:brk), addr_mode: Mode::IMP, cycles: 7 },
