@@ -475,7 +475,6 @@ end
       @cpu.memory[address]  # Access memory through the @cpu instance
     end
   end
-end
 
    def set_mem(addr, value)
   if (0..65535).cover?(addr) && (0..255).cover?(value)
