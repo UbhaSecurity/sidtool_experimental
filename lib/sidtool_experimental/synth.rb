@@ -53,7 +53,7 @@
     # - This implementation provides a basic mapping which can be adjusted according to specific needs or hardware/software specifications.
     #
     # The ADSR envelope is crucial for adding expressiveness and dynamic characteristics to the synthesized sound.
-module Sidtool
+module SidtoolExperimental
   class Synth
     attr_reader :start_frame, :controls
     attr_accessor :waveform, :frequency, :pulse_width, :filter_cutoff, :filter_resonance
