@@ -429,20 +429,6 @@ def irq
   @registers[:P] |= Flags::INTERRUPT_DISABLE
 end
 
-   class CpuController
-    attr_accessor :memory, :cpu
-
-    def initialize(sid: nil)
-      @memory = [0] * 65536
-      @sid = sid
-      @cpu = Cpu.new(@memory)  # Initialize @cpu with the allocated memory
-    end
-
-    def load(bytes, from: 0)
-      bytes.each_with_index do |byte, index|
-        @memory[from + index] = byte
-    end
-
     def start
       @cpu = Cpu.new(@memory)  # Create an instance of ::Cpu
     end
@@ -468,33 +454,6 @@ end
     end
   end
 
-   def set_mem(addr, value)
-  if (0..65535).cover?(addr) && (0..255).cover?(value)
-    if (0xd400..0xd41b).cover?(addr) && @sid
-      @sid.poke(addr & 0x1f, value)
-      @sid.poke_digi(addr, value) if addr > 0xd418
-    else
-      @memory[addr] = value # Use @memory instead of @memory
-    end
-  else
-    raise "Out of range address or value"
-  end
-end
-    def pc_increment
-      old_pc = @pc
-      @pc = (@pc + 1) & 0xffff
-      old_pc
-    end
-
- def read_memory(address)
-      validate_address(address)
-      @memory[address]  # Use @memory instead of any other variable
-    end
-
-    def write_memory(address, byte)
-      validate_address(address)
-      @memory[address] = byte  # Use @memory instead of any other variable
-    end
 
   # Utility method to fetch a byte from memory at the program counter (PC)
   def fetch_byte
