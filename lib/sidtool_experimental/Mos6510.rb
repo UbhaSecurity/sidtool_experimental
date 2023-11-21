@@ -430,7 +430,6 @@ def irq
   @registers[:P] |= Flags::INTERRUPT_DISABLE
 end
 
-end
    class CpuController
     attr_accessor :memory, :cpu
 
