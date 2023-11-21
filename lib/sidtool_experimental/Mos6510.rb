@@ -324,7 +324,7 @@ def adc(value)
   # Update Zero and Negative flags
   update_flags(@registers[:A])
 end
-
+    end
 
 def sbc(value)
   if @registers[:P] & Flags::DECIMAL != 0
