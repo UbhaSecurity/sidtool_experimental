@@ -1,8 +1,4 @@
-# Include the required modules and classes
-require_relative 'sidtool/synth'
-require_relative 'sidtool/voice'
-require_relative 'sidtool/emulator'
-
+module SidtoolExperimental
   def initialize
     # Initialize the memory, CPU, SID chip, and other components
     @memory = Memory.new
