@@ -64,8 +64,7 @@ module SidtoolExperimental
         @registers[:PC] = read_memory(0xFFFC) | (read_memory(0xFFFD) << 8) # Set PC from reset vector.
         @cycles = 0
       end
-    end
-cpu_instance = SidtoolExperimental::Mos6510::Cpu.new(memory)
+
    INSTRUCTIONS = {
   0x00 => { operation: method(:brk), addr_mode: Mode::IMP, cycles: 7 },
   0x01 => { operation: method(:ora), addr_mode: Mode::IZX, cycles: 6 },
@@ -432,10 +431,8 @@ def irq
   # Set the interrupt disable flag
   @registers[:P] |= Flags::INTERRUPT_DISABLE
 end
-
-  end
-
-
+end
+end
    class CpuController
     attr_accessor :memory, :cpu
 
