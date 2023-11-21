@@ -1,4 +1,4 @@
-module Sidtool
+module SidtoolExperimental
   class Sid
     attr_reader :sid6581, :ciaTimerA, :ciaTimerB
 
