@@ -48,10 +48,10 @@ module SidtoolExperimental
           P: Flags::INTERRUPT_DISABLE | Flags::BREAK,
           PC: mem[0xFFFC] | (mem[0xFFFD] << 8) # Program Counter starts from the reset vector.
         }
-        @memory = memory
+        @memory =  mem 
         @cycles = 0
         reset
-        @state = Sidtool::State.new(self) # Initialize the state with a reference to this CPU.
+        @state = SidtoolExperimental::State.new(self) # Initialize the state with a reference to this CPU.
       end
 
       # Reset method to reinitialize registers to default values.
