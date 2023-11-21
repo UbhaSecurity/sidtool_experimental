@@ -368,7 +368,7 @@ def sbc(value)
 end
   # Update Zero and Negative flags
   update_flags(@registers[:A])
-end
+  end
 
 def set_flag(flag)
   @registers[:P] |= flag
