@@ -673,19 +673,19 @@ end
     update_flags(@registers[:X])
   end
 
-def dec(mode)
-  address = get_address(mode)
-  value = read_memory(address) - 1
-  set_address(mode, value)
-  update_flags(value)
-end
+  def dec(mode)
+    address = get_address(mode)
+    value = read_memory(address) - 1
+    set_address(mode, value)
+    update_flags(value)
+  end
 
-def inc(mode)
-  address = get_address(mode)
-  value = read_memory(address) + 1
-  set_address(mode, value)
-  update_flags(value)
-end
+  def inc(mode)
+    address = get_address(mode)
+    value = read_memory(address) + 1
+    set_address(mode, value)
+    update_flags(value)
+  end
 
   # Implement the Decrement Y (DEY) instruction
   def dey
@@ -964,7 +964,6 @@ def sty(mode)
   set_address(mode, @registers[:Y])
 end
 
-
 # Zero Page, X-Indexed Addressing Mode:
 
 # Load Accumulator from Zero-Page, X-Indexed Memory
@@ -1042,8 +1041,6 @@ def sty_absolute
   absolute_address = fetch_word
   write_memory(absolute_address, @y)
 end
-
-# Absolute, X-Indexed Addressing Mode:
 
 # Load Accumulator from Absolute, X-Indexed Memory
 def lda_absolute_x
@@ -1147,14 +1144,13 @@ def execute_program(program)
     execute_next_instruction
   end
 
-      # Method to perform the AND operation
-      def and_operation(value)
-        # Perform bitwise AND between the accumulator and the value
-        @registers[:A] &= value
-
-        # Update Zero and Negative flags
-        update_flags(@registers[:A])
-      end
+# Method to perform the AND operation
+def and_operation(value)
+  # Perform bitwise AND between the accumulator and the value
+  @registers[:A] &= value
+  # Update Zero and Negative flags
+  update_flags(@registers[:A])
+  end
 
 def execute_next_instruction
   opcode = fetch_byte
@@ -1360,7 +1356,6 @@ end
 
 # Run the main method to start the CPU
 main
-
     def step
       opc = fetch_byte
       instr = INSTRUCTIONS[opc]
@@ -1379,10 +1374,7 @@ main
         step
       end
     end
-
-
   private
-
 
   def validate_address(address)
     unless address >= 0x0000 && address <= 0xFFFF
