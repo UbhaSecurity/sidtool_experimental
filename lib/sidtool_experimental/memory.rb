@@ -1,3 +1,4 @@
+module SidtoolExperimental
 class Memory
   def initialize
     @ram = Array.new(65536, 0)  # 64KB of RAM
