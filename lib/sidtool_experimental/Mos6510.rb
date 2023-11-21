@@ -566,6 +566,7 @@ def get_address(mode)
   else
     raise "Unhandled addressing mode: #{mode}"
   end
+end
 
  def brk
   # Increment PC by one to simulate the CPU's behavior of reading the next byte (which is ignored)
@@ -852,7 +853,6 @@ end
     @registers[:P][:I] = 1
     @registers[:PC] = read_memory(vector_address) << 8 | read_memory(vector_address - 1)
   end
-end
 
 # Create an instance of the CPU
 cpu = CPU.new
@@ -1188,7 +1188,6 @@ def execute_program(program)
   until @halt
     execute_next_instruction
   end
-end
 
       # Method to perform the AND operation
       def and_operation(value)
