@@ -5,7 +5,19 @@ module SidtoolExperimental
     attr_accessor :filter_cutoff, :filter_resonance  # New filter parameters
     attr_reader :synths
 
+    # Define arrays to store the conversion values for attack and decay/release
+    ATTACK_VALUES = [0.002, 0.008, 0.016, 0.024, 0.038, 0.056, 0.068, 0.08, 0.1, 0.25, 0.5, 0.8, 1, 3, 5, 8]
+    DECAY_RELEASE_VALUES = [0.006, 0.024, 0.048, 0.072, 0.114, 0.168, 0.204, 0.24, 0.3, 0.75, 1.5, 2.4, 3, 9, 15, 24]
+
     # Method to update parameters based on data from Synth
+    #
+    # @param synth_params [Hash] A hash containing parameters received from Synth.
+    # @option synth_params [Integer] :frequency The frequency value.
+    # @option synth_params [Integer] :pulse_width The pulse width value.
+    # @option synth_params [Integer] :filter_cutoff The filter cutoff frequency.
+    # @option synth_params [Integer] :filter_resonance The filter resonance value.
+    # @option synth_params [Boolean] :osc_sync The oscillator sync flag.
+    # @option synth_params [Boolean] :ring_mod_effect The ring modulation effect flag.
     def update_from_synth(synth_params)
       # Update each parameter based on the data received from Synth
       self.frequency_low, self.frequency_high = split_frequency(synth_params[:frequency])
@@ -19,7 +31,7 @@ module SidtoolExperimental
       self.sustain_release = combine_sustain_release(synth_params[:sustain], synth_params[:release])
     end
 
- # Initialize a new Voice instance with a reference to the SID chip and its voice number.
+    # Initialize a new Voice instance with a reference to the SID chip and its voice number.
     #
     # @param sid6581 [Sid6581] Reference to the SID chip instance.
     # @param voice_number [Integer] The number of the voice on the SID chip.
@@ -38,9 +50,7 @@ module SidtoolExperimental
       @filter_resonance = 8          # Initial filter resonance
     end
 
-
-
-   # Apply LFO modulation to voice parameters and filter parameters
+    # Apply LFO modulation to voice parameters and filter parameters
     def apply_lfo_modulation
       @synth.apply_lfo  # Apply LFO modulation to synth parameters
 
@@ -54,7 +64,6 @@ module SidtoolExperimental
       modulate_filter_with_lfo
     end
 
-
     # Handle filter modulation by LFO
     def modulate_filter_with_lfo
       @synth.apply_lfo  # Apply LFO modulation
@@ -64,20 +73,20 @@ module SidtoolExperimental
       @sid6581.set_filter_resonance(@voice_number, @synth.filter_resonance & 0xFF)
     end
 
-   # Method to apply LFO modulation to voice parameters
+    # Method to apply LFO modulation to voice parameters
     def modulate_with_lfo
       @synth.apply_lfo
       update_sid_registers
     end
 
-  # Update the SID registers based on the modulated synth parameters
+    # Update the SID registers based on the modulated synth parameters
     def update_sid_registers
       update_frequency_registers
       update_pulse_width_registers
       # Update other registers as needed...
     end
 
- # Updates the state of the voice at the end of each frame.
+    # Updates the state of the voice at the end of each frame.
     def finish_frame
       update_sustain_level
       if gate
@@ -94,7 +103,6 @@ module SidtoolExperimental
     end
 
     private
-
 
     # Example helper methods to split frequency and pulse width into low and high bytes
     def split_frequency(frequency)
@@ -117,7 +125,6 @@ module SidtoolExperimental
       ((sustain & 0xF) << 4) | (release & 0xF)
     end
 
-
     # Update SID frequency registers for this voice
     def update_frequency_registers
       frequency = @synth.frequency
@@ -135,18 +142,21 @@ module SidtoolExperimental
     end
 
     # Determines if the gate flag is set in the control register.
+    #
     # @return [Boolean] True if the gate is on, false otherwise.
     def gate
       @control_register & 1 == 1
     end
 
     # Calculates the frequency from the low and high byte values.
+    #
     # @return [Float] The frequency value.
     def frequency
       (@frequency_high << 8) + @frequency_low
     end
 
     # Determines the waveform type based on the control register.
+    #
     # @return [Symbol] The waveform type (:tri, :saw, :pulse, :noise).
     def waveform
       case @control_register & 0xF0
@@ -160,18 +170,21 @@ module SidtoolExperimental
     end
 
     # Converts the attack value from SID format to a usable format.
+    #
     # @return [Float] The converted attack value.
     def attack
       convert_attack(@attack_decay >> 4)
     end
 
     # Converts the decay value from SID format to a usable format.
+    #
     # @return [Float] The converted decay value.
     def decay
       convert_decay_or_release(@attack_decay & 0xF)
     end
 
     # Converts the release value from SID format to a usable format.
+    #
     # @return [Float] The converted release value.
     def release
       convert_decay_or_release(@sustain_release & 0xF)
@@ -243,62 +256,37 @@ module SidtoolExperimental
     end
 
     # Convert a MIDI note number to a frequency.
+    #
+    # @param midi_note [Integer] The MIDI note number.
+    # @return [Float] The corresponding frequency in Hertz.
     def midi_to_frequency(midi_note)
-      440 * 2 ** ((midi_note - 69) / 12.0)
+      440.0 * 2 ** ((midi_note - 69) / 12.0)
     end
 
     # Convert a frequency to a MIDI note number.
+    #
+    # @param frequency [Float] The frequency in Hertz.
+    # @return [Integer] The MIDI note number.
     def frequency_to_midi(frequency)
-      midi_note = 69 + 12 * Math.log2(frequency / 440.0)
-      midi_note.round
+      69 + (12 * Math.log2(frequency / 440.0)).round
     end
 
     # Converts the SID's attack rate value to a corresponding time duration.
+    #
+    # @param attack [Integer] The SID attack rate value.
+    # @return [Float] The corresponding time duration in seconds.
     def convert_attack(attack)
-      case attack
-      when 0 then 0.002  # Fastest attack, 2 milliseconds
-      when 1 then 0.008
-      when 2 then 0.016
-      when 3 then 0.024
-      when 4 then 0.038
-      when 5 then 0.056
-      when 6 then 0.068
-      when 7 then 0.08
-      when 8 then 0.1   # 100 milliseconds
-      when 9 then 0.25  # Quarter of a second
-      when 10 then 0.5  # Half a second
-      when 11 then 0.8
-      when 12 then 1    # One second
-      when 13 then 3    # Three seconds
-      when 14 then 5    # Five seconds
-      when 15 then 8    # Slowest attack, eight seconds
-      else
-        raise "Unknown attack value: #{attack}"
-      end
+      raise "Unknown attack value: #{attack}" if attack < 0 || attack >= ATTACK_VALUES.length
+      ATTACK_VALUES[attack]
     end
 
     # Converts the SID's decay or release value to a duration in seconds.
+    #
+    # @param decay_or_release [Integer] The SID decay or release value.
+    # @return [Float] The duration in seconds.
     def convert_decay_or_release(decay_or_release)
-      case decay_or_release
-      when 0 then 0.006  # 6 milliseconds
-      when 1 then 0.024
-      when 2 then 0.048
-      when 3 then 0.072
-      when 4 then 0.114
-      when 5 then 0.168
-      when 6 then 0.204
-      when 7 then 0.240
-      when 8 then 0.3   # 300 milliseconds
-      when 9 then 0.75  # 750 milliseconds
-      when 10 then 1.5  # 1.5 seconds
-      when 11 then 2.4
-      when 12 then 3    # 3 seconds
-      when 13 then 9
-      when 14 then 15
-      when 15 then 24   # 24 seconds, the longest duration
-      else
-        raise "Unknown decay or release value: #{decay_or_release}"
-      end
+      raise "Unknown decay or release value: #{decay_or_release}" if decay_or_release < 0 || decay_or_release >= DECAY_RELEASE_VALUES.length
+      DECAY_RELEASE_VALUES[decay_or_release]
     end
   end
 end
