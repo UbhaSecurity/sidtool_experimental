@@ -1449,25 +1449,30 @@ def pop_stack
   @memory[@registers[:SP] + 0x0100]
 end
 
-
+# Check if a page boundary is crossed, which affects cycle count.
 def page_boundary_crossed?(instruction)
   case instruction[:addr_mode]
   when Mode::ABSX
+    # In absolute X-indexed addressing mode, the address is modified by adding the X register.
+    # If the high byte (representing the page number) of the base address changes after adding X, a page boundary is crossed.
     base_address = fetch_word
     crossed = (base_address & 0xFF00) != ((base_address + @registers[:X]) & 0xFF00)
   when Mode::ABSY
+    # Similar to ABSX, but the Y register is added to the base address.
     base_address = fetch_word
     crossed = (base_address & 0xFF00) != ((base_address + @registers[:Y]) & 0xFF00)
   when Mode::INDY
+    # In indirect Y-indexed addressing mode, the effective address is obtained by reading a zero-page address and adding Y.
+    # If adding Y changes the page of the effective address, a page boundary is crossed.
     zp_address = fetch_byte
     base_address = read_memory(zp_address) | (read_memory((zp_address + 1) & 0xFF) << 8)
     crossed = (base_address & 0xFF00) != ((base_address + @registers[:Y]) & 0xFF00)
   else
+    # For other addressing modes, page boundary crossing is not applicable or does not affect cycle count.
     crossed = false
   end
   crossed
 end
-
 
 def branch_taken?(instruction)
   return false unless instruction[:addr_mode] == Mode::REL
