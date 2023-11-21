@@ -254,49 +254,41 @@ end
  0x11F => { operation: method(:sbc), addr_mode: Mode::ABX, cycles: 7 }
 }
 
- # Step through the CPU operations
+ # Step method to execute a single CPU instruction.
     def step
-      opc = fetch_byte
-      instr = INSTRUCTIONS[opc]
+      opc = fetch_byte # Fetch the opcode from the current PC location.
+      instr = INSTRUCTIONS[opc] # Retrieve the instruction details for the opcode.
 
       if instr.nil?
-        handle_illegal_opcode(opc)  # Handle illegal opcode gracefully
+        handle_illegal_opcode(opc) # Handle illegal opcode gracefully.
       else
-        @cycles += instr[:cycles]
+        @cycles += instr[:cycles] # Add instruction cycles.
 
-        # Additional cycle checks for page boundary and branch taken
+        # Check for additional cycles needed for page boundary and branch taken.
         @cycles += 1 if page_boundary_crossed?(instr)
         @cycles += 1 if branch_taken?(instr)
 
-        instr[:operation].call  # Execute the instruction
+        instr[:operation].call # Execute the instruction.
       end
 
-      @state.update # Update the state (CIA timers, SID, etc.) in each CPU step
-      handle_timer_interrupts # Handle interrupts triggered by CIA timers
+      @state.update # Update the state (CIA timers, SID, etc.) in each CPU step.
+      handle_timer_interrupts # Handle interrupts triggered by CIA timers.
     end
 
- # Handle timer interrupts from the CIA timers
+    # Method to handle timer interrupts from the CIA timers.
     def handle_timer_interrupts
       @state.cia_timers.each do |timer|
         if timer.underflow && (timer.control_register & Sidtool::CIATimer::INTERRUPT_FLAG) != 0
-          irq # Trigger the IRQ interrupt if conditions are met
+          irq # Trigger the IRQ interrupt if conditions are met.
         end
       end
     end
 
-# Define a method to handle illegal opcodes
-def handle_illegal_opcode(opcode)
-  # Log the illegal opcode for debugging
-  puts "Warning: Illegal opcode 0x#{opcode.to_s(16)} encountered at address 0x#{pc.to_s(16)}"
-
-  # You can define further actions here, such as:
-  # - Ignoring the illegal opcode and continuing execution
-  # - Triggering a specific interrupt or exception handling routine
-  # - Stopping the execution with a specific error code
-
-  # For this example, let's just continue execution
-  # You can modify this behavior based on your specific needs
-end
+    # Define a method to handle illegal opcodes.
+    def handle_illegal_opcode(opcode)
+      puts "Warning: Illegal opcode 0x#{opcode.to_s(16)} encountered at address 0x#{pc.to_s(16)}"
+      # Actions for illegal opcode can be customized here.
+    end
 
 def adc(value)
   if @registers[:P] & Flags::DECIMAL != 0
