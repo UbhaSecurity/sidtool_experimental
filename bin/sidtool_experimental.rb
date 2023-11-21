@@ -1,3 +1,4 @@
+# sidtool_experimental.rb
 require 'optparse'
 require_relative 'lib/sidtool_experimental/filereader'
 require_relative 'lib/sidtool_experimental/midi_file_writer'
@@ -8,6 +9,7 @@ require_relative 'lib/sidtool_experimental/state'
 require_relative 'lib/sidtool_experimental/synth'
 require_relative 'lib/sidtool_experimental/voice'
 require_relative 'lib/sidtool_experimental/version'
+require_relative 'lib/sidtool_experimental/C64Emulator'
 
 module SidtoolExperimental
   # Define constants for PAL properties.
@@ -92,6 +94,7 @@ module SidtoolExperimental
       # Additional logic for the emulation loop, if required.
     end
   end
+
   # Initialize the SID emulation setup and run the emulation loop for a given number of frames.
   def self.run_emulation(options)
     initialize_sid_emulation
