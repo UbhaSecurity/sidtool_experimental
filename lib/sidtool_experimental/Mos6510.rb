@@ -65,7 +65,7 @@ module SidtoolExperimental
         @cycles = 0
       end
     end
-
+cpu_instance = SidtoolExperimental::Mos6510::Cpu.new(memory)
    INSTRUCTIONS = {
   0x00 => { operation: method(:brk), addr_mode: Mode::IMP, cycles: 7 },
   0x01 => { operation: method(:ora), addr_mode: Mode::IZX, cycles: 6 },
