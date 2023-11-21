@@ -1,5 +1,4 @@
 module Mos6510
-module Mos6510
   class Cpu
     # Accessors for interacting with the CPU's memory and registers from outside the class.
     attr_accessor :memory, :registers, :state
