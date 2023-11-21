@@ -1,4 +1,4 @@
-module Sidtool
+module SidtoolExperimental
   class Voice
     attr_accessor :frequency_low, :frequency_high, :pulse_low, :pulse_high
     attr_accessor :control_register, :attack_decay, :sustain_release
