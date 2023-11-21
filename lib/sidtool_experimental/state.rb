@@ -1,4 +1,4 @@
-module Sidtool
+module SidtoolExperimental
   # Class representing a CIA timer, typically used in emulations
   class CIATimer
     # Constants for control register flags
