@@ -1,5 +1,4 @@
 module Mos6510
-module Mos6510
   class Cpu
     attr_accessor :memory, :registers, :state
 
