@@ -13,6 +13,21 @@ module Flags
   NEGATIVE = 0x80
 end
 
+    module Mode
+      IMP = 0
+      IMM = 1
+      ABS = 2
+      ABSX = 3
+      ABSY = 4
+      ZP = 5
+      ZPX = 6
+      ZPY = 7
+      INDX = 8
+      INDY = 9
+      ACC = 10
+    end
+  end
+
   # Use accessors for registers consistently
     def a; @registers[:A]; end
     def x; @registers[:X]; end
@@ -349,25 +364,22 @@ def sbc(value)
     else
       @registers[:P] |= Flags::CARRY
     end
-
     @registers[:A] = sum & 0xFF
   end
-
+  # Update Zero and Negative flags
+  update_flags(@registers[:A])
+end
   # Update Zero and Negative flags
   update_flags(@registers[:A])
 end
 
-  # Update Zero and Negative flags
-  update_flags(@registers[:A])
+def set_flag(flag)
+  @registers[:P] |= flag
 end
 
-    def set_flag(flag)
-      @registers[:P] |= flag
-    end
-
-    def clear_flag(flag)
-      @registers[:P] &= ~flag
-    end
+def clear_flag(flag)
+  @registers[:P] &= ~flag
+end
 
 def clc
   @registers[:P] &= ~Flags::CARRY
@@ -593,15 +605,6 @@ end
   def ora(value)
     @registers[:A] |= value                  # OR the value with the accumulator
     update_flags(@registers[:A])             # Update the flags based on the result
-  end
-
-  # ADC (Add with Carry)
-  def adc(value)
-    temp = @registers[:A] + value + (@registers[:P] & Flags::CARRY)
-    @registers[:P] &= ~Flags::CARRY          # Clear carry flag for now
-    @registers[:P] |= Flags::CARRY if temp > 0xFF # Set carry flag if result > 255
-    @registers[:A] = temp & 0xFF             # Only keep the lower 8 bits
-    update_flags(@registers[:A])             # Update flags
   end
 
   # Implement the Load Accumulator (LDA) instruction with immediate addressing mode
@@ -993,7 +996,6 @@ def stx(mode)
   address = get_address(mode)
   set_address(mode, @registers[:X])
 end
-
 
 # Store Accumulator to Zero-Page Memory
 def sta_zero_page
@@ -1420,47 +1422,12 @@ main
       end
     end
 
-    def reset
-      @a = 0
-      @x = 0
-      @y = 0
-      @s = 0xff
-      @p = Flags::IRQ_DISABLE | Flags::BREAK
-      @pc =  read_memory(0xfffc) | ( read_memory(0xfffd) << 8)
-      @cycles = 0
-    end
-
     def run_cycles(cyc)
       while @cycles < cyc
         step
       end
     end
 
-    module Flags
-      CARRY = 0x01
-      ZERO = 0x02
-      IRQ_DISABLE = 0x04
-      DECIMAL = 0x08
-      BREAK = 0x10
-      UNUSED = 0x20
-      OVERFLOW = 0x40
-      NEGATIVE = 0x80
-    end
-
-    module Mode
-      IMP = 0
-      IMM = 1
-      ABS = 2
-      ABSX = 3
-      ABSY = 4
-      ZP = 5
-      ZPX = 6
-      ZPY = 7
-      INDX = 8
-      INDY = 9
-      ACC = 10
-    end
-  end
 
   private
 
