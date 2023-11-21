@@ -24,8 +24,7 @@
 # - Experiment with different settings and listen to the output to closely match the iconic SID sound.
 
 # Note: The effectiveness of the MIDI file in replicating the SID sound will greatly depend on the accuracy and capabilities of the chosen VST plugin.
-
-module Sidtool
+module SidtoolExperimental
   class MidiFileWriter
  # Constants for MIDI Controller Numbers
     FILTER_CUTOFF_CONTROLLER = 74
