@@ -280,7 +280,6 @@ cpu_instance = SidtoolExperimental::Mos6510::Cpu.new(memory)
           irq # Trigger the IRQ interrupt if conditions are met.
         end
       end
-    end
 
     # Define a method to handle illegal opcodes.
     def handle_illegal_opcode(opcode)
