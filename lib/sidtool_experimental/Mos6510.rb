@@ -729,6 +729,9 @@ cpu.execute
 # Print the final state of the CPU
 puts cpu
 
+end
+
+
 def set_address(mode, value)
   case mode
   when Mode::ABS
