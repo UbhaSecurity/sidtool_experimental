@@ -15,33 +15,39 @@ class Memory
     @processor_port = 0x37       # Default value for the processor port
   end
 
-  # Read from memory
+   # Read from memory: Determines the behavior when an address is read based on its range and configuration.
   def read(address)
-    config = current_memory_config
+    config = current_memory_config # Get the current memory configuration (e.g., which ROMs are active)
 
     case address
     when 0xA000..0xBFFF
+      # In the address range of BASIC ROM, return either BASIC ROM or RAM depending on the configuration.
       return rom_area_basic(address, config)
     when 0xD000..0xDFFF
+      # In the I/O and character ROM address range, return either I/O, character ROM, or RAM.
       return io_or_char_rom(address, config)
     when 0xE000..0xFFFF
+      # In the KERNAL ROM address range, return either KERNAL ROM or RAM.
       return rom_area_kernal(address, config)
     else
+      # For other addresses, return RAM, but check for Ultimax mode which may leave open address space.
       return @ram[address] unless config[:ultimax_mode] && address.between?(0x1000, 0xCFFF)
     end
-    nil # Open address space in Ultimax mode
+    nil # This is the default return for Ultimax mode open address space.
   end
 
-  # Write to memory
+  # Write to memory: Determines the behavior when a value is written to an address.
   def write(address, value)
-    config = current_memory_config
+    config = current_memory_config # Get the current memory configuration
 
     case address
     when 0xD000..0xDFFF
+      # If the I/O is enabled and the address is within the I/O range, write to I/O.
       write_io_or_char_rom(address, value, config) if config[:io_enabled]
     when 0xA000..0xBFFF, 0xE000..0xFFFF
-      # Ignore writes to ROM areas
+      # Writes to ROM areas are ignored; they are read-only.
     else
+      # For other addresses, write to RAM unless in Ultimax mode with specific address constraints.
       @ram[address] = value unless config[:ultimax_mode] && address.between?(0x1000, 0xCFFF)
     end
   end
@@ -189,20 +195,14 @@ def rom_is_mapped?(address)
   false
 end
 
-  # Setup I/O devices
+   # Setup I/O devices: Initializes the I/O device registers.
   def setup_io_devices
     {
-      # Initialize VIC-II registers (for video interface)
       vic: initialize_vic_registers,
-
-      # Initialize SID registers (for sound interface)
       sid: initialize_sid_registers,
-
-      # Initialize CIA #1 and CIA #2 registers (for various interface tasks)
       cia1: initialize_cia_registers,
       cia2: initialize_cia_registers,
-
-      # Add other devices as needed
+      # Other devices as needed.
     }
   end
 end
