@@ -170,6 +170,32 @@ def address_to_vic_ii_register_index(address)
     @io_devices[:cia2][register_index] = value
   end
 
+def read_io(address)
+  if @io_devices.key?(address)
+    return @io_devices[address].read_register
+  else
+    # Handle unsupported I/O read operations here
+    raise "Unsupported I/O read at address #{address.to_s(16)}"
+  end
+end
+
+def write_io(address, value)
+  if @io_devices.key?(address)
+    @io_devices[address].write_register(value)
+  else
+    # Handle unsupported I/O write operations here
+    raise "Unsupported I/O write at address #{address.to_s(16)}"
+  end
+end
+
+def rom_is_mapped?(address)
+  config = current_memory_config
+  return true if config[:basic_rom_enabled] && address.between?(0xA000, 0xBFFF)
+  return true if config[:io_enabled] && address.between?(0xD000, 0xDFFF)
+  return true if config[:kernal_rom_enabled] && address.between?(0xE000, 0xFFFF)
+  false
+end
+
   # Setup I/O devices
   def setup_io_devices
     {
