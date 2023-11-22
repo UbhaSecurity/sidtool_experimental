@@ -1229,10 +1229,14 @@ def execute_next_instruction
   end
 end
 
-# Implement the CPU's main execution loop
-def execute
-  while !@halt
-    execute_next_instruction
+    # Implement the CPU's main execution loop
+      def execute
+        while !@halt
+          execute_next_instruction
+        end
+      end
+
+    end
   end
 end
 
