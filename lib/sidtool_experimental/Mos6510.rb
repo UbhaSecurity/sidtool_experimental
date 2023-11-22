@@ -84,6 +84,7 @@ module SidtoolExperimental
 
       # Set the interrupt disable flag to prevent further IRQs
       set_flag(Flags::INTERRUPT_DISABLE)
+      end
 
       # Implement the step method to execute a single CPU instruction.
       def step
