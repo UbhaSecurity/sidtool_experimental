@@ -128,15 +128,15 @@ end
     @registers[register] = value
     update_zero_and_negative_flags(registers[register])
 
-def lda_immediate:
+def lda_immediate
     """Load the accumulator with a value using immediate addressing mode."""
     load_register_immediate('A')
 
-def ldx_immediate:
+def ldx_immediate
     """Load the X register with a value using immediate addressing mode."""
     load_register_immediate('X')
 
-def ldy_immediate:
+def ldy_immediate
     """Load the Y register with a value using immediate addressing mode."""
     load_register_immediate('Y')
 
