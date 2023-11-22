@@ -730,9 +730,6 @@ def get_address(mode)
   else
     raise "Unhandled addressing mode: #{mode}"
   end
-end
-
- 
 
   # Implement the Interrupt Request (IRQ) instruction
   def irq
