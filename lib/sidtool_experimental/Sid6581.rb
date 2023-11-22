@@ -25,9 +25,8 @@ module SidtoolExperimental
     OSC3       = 0xD41B
     ENV3       = 0xD41C
 
-    # Initialize the SID6581 with voices and default settings
-    def initialize
-      # Create three voices for the SID chip
+    def initialize(memory:)
+      @memory = memory  # Store reference to Memory
       @voices = Array.new(3) { |voice_number| Voice.new(self, voice_number) }
       @global_filter_cutoff = 0
       @global_filter_resonance = 0
