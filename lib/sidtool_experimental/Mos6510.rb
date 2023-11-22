@@ -724,28 +724,29 @@ def get_address(mode)
     @registers[:PC] = (high_byte << 8) | low_byte
   end
 
-  # Helper method to perform a branch instruction
-  def branch(condition)
-    offset = fetch_byte
-    if condition
-      new_pc = (@registers[:PC] + offset).to_i
-      # Check if the branch crosses a page boundary
-      if new_pc & 0xFF00 != @registers[:PC] & 0xFF00
-        @cycles += 2
-      else
-        @cycles += 1
-      end
-      @registers[:PC] = new_pc & 0xFFFF
+# Helper method to perform a branch instruction
+def branch(condition)
+  offset = fetch_byte
+  if condition
+    new_pc = (@registers[:PC] + offset).to_i
+    # Check if the branch crosses a page boundary
+    if new_pc & 0xFF00 != @registers[:PC] & 0xFF00
+      @cycles += 2
+    else
+      @cycles += 1
     end
-
-  # Helper method to perform an interrupt
-  def interrupt(vector_address)
-    push_stack(@registers[:PC] >> 8)
-    push_stack(@registers[:PC] & 0xFF)
-    push_stack(@registers[:P][:value] | 0x10)
-    @registers[:P][:I] = 1
-    @registers[:PC] = read_memory(vector_address) << 8 | read_memory(vector_address - 1)
+    @registers[:PC] = new_pc & 0xFFFF
   end
+end
+
+# Helper method to perform an interrupt
+def interrupt(vector_address)
+  push_stack(@registers[:PC] >> 8)
+  push_stack(@registers[:PC] & 0xFF)
+  push_stack(@registers[:P][:value] | 0x10)
+  @registers[:P][:I] = 1
+  @registers[:PC] = read_memory(vector_address) << 8 | read_memory(vector_address - 1)
+end
 
 # Create an instance of the CPU
 cpu = CPU.new
