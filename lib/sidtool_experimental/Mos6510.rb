@@ -3,8 +3,68 @@ module SidtoolExperimental
     class Cpu
       # Accessors for interacting with the CPU's memory and registers from outside the class.
       attr_accessor :memory, :registers, :state
+      # Define constant flags used in the status register (P).
+      module Flags
+        CARRY = 0x01
+        ZERO = 0x02
+        INTERRUPT_DISABLE = 0x04
+        DECIMAL = 0x08
+        BREAK = 0x10
+        UNUSED = 0x20
+        OVERFLOW = 0x40
+        NEGATIVE = 0x80
+      end
 
-   INSTRUCTIONS = {
+      # Define addressing modes for instructions.
+      module Mode
+        IMP = 0   # Implied
+        IMM = 1   # Immediate
+        ABS = 2   # Absolute
+        ABSX = 3  # Absolute, X-indexed
+        ABSY = 4  # Absolute, Y-indexed
+        ZP = 5    # Zero Page
+        ZPX = 6   # Zero Page, X-indexed
+        ZPY = 7   # Zero Page, Y-indexed
+        INDX = 8  # Indexed Indirect
+        INDY = 9  # Indirect Indexed
+        ACC = 10  # Accumulator
+      end
+
+      # Accessor methods for registers, providing a clean way to access CPU registers.
+      def a; @registers[:A]; end
+      def x; @registers[:X]; end
+      def y; @registers[:Y]; end
+      def p; @registers[:P]; end
+      def pc; @registers[:PC]; end
+
+      # Initialize the CPU with provided memory and set up initial state.
+      def initialize(mem)
+        @registers = {
+          A: 0x00, 
+          X: 0x00, 
+          Y: 0x00, 
+          SP: 0xFF, 
+          P: Flags::INTERRUPT_DISABLE | Flags::BREAK,
+          PC: mem[0xFFFC] | (mem[0xFFFD] << 8) # Program Counter starts from the reset vector.
+        }
+        @memory =  mem 
+        @cycles = 0
+        reset
+        @state = SidtoolExperimental::State.new(self) # Initialize the state with a reference to this CPU.
+      end
+
+      # Reset method to reinitialize registers to default values.
+      def reset
+        @registers[:A] = 0
+        @registers[:X] = 0
+        @registers[:Y] = 0
+        @registers[:SP] = 0xFF
+        @registers[:P] = Flags::INTERRUPT_DISABLE | Flags::BREAK
+        @registers[:PC] = read_memory(0xFFFC) | (read_memory(0xFFFD) << 8) # Set PC from reset vector.
+        @cycles = 0
+      end
+
+ INSTRUCTIONS = {
   0x00 => { operation: method(:brk), addr_mode: Mode::IMP, cycles: 7 },
   0x01 => { operation: method(:ora), addr_mode: Mode::IZX, cycles: 6 },
   0x05 => { operation: method(:ora), addr_mode: Mode::ZP, cycles: 3 },
@@ -189,67 +249,6 @@ module SidtoolExperimental
  0x11E => { operation: method(:inc), addr_mode: Mode::ABX, cycles: 7 },
  0x11F => { operation: method(:sbc), addr_mode: Mode::ABX, cycles: 7 }
 }
-
-      # Define constant flags used in the status register (P).
-      module Flags
-        CARRY = 0x01
-        ZERO = 0x02
-        INTERRUPT_DISABLE = 0x04
-        DECIMAL = 0x08
-        BREAK = 0x10
-        UNUSED = 0x20
-        OVERFLOW = 0x40
-        NEGATIVE = 0x80
-      end
-
-      # Define addressing modes for instructions.
-      module Mode
-        IMP = 0   # Implied
-        IMM = 1   # Immediate
-        ABS = 2   # Absolute
-        ABSX = 3  # Absolute, X-indexed
-        ABSY = 4  # Absolute, Y-indexed
-        ZP = 5    # Zero Page
-        ZPX = 6   # Zero Page, X-indexed
-        ZPY = 7   # Zero Page, Y-indexed
-        INDX = 8  # Indexed Indirect
-        INDY = 9  # Indirect Indexed
-        ACC = 10  # Accumulator
-      end
-
-      # Accessor methods for registers, providing a clean way to access CPU registers.
-      def a; @registers[:A]; end
-      def x; @registers[:X]; end
-      def y; @registers[:Y]; end
-      def p; @registers[:P]; end
-      def pc; @registers[:PC]; end
-
-      # Initialize the CPU with provided memory and set up initial state.
-      def initialize(mem)
-        @registers = {
-          A: 0x00, 
-          X: 0x00, 
-          Y: 0x00, 
-          SP: 0xFF, 
-          P: Flags::INTERRUPT_DISABLE | Flags::BREAK,
-          PC: mem[0xFFFC] | (mem[0xFFFD] << 8) # Program Counter starts from the reset vector.
-        }
-        @memory =  mem 
-        @cycles = 0
-        reset
-        @state = SidtoolExperimental::State.new(self) # Initialize the state with a reference to this CPU.
-      end
-
-      # Reset method to reinitialize registers to default values.
-      def reset
-        @registers[:A] = 0
-        @registers[:X] = 0
-        @registers[:Y] = 0
-        @registers[:SP] = 0xFF
-        @registers[:P] = Flags::INTERRUPT_DISABLE | Flags::BREAK
-        @registers[:PC] = read_memory(0xFFFC) | (read_memory(0xFFFD) << 8) # Set PC from reset vector.
-        @cycles = 0
-      end
 
       def brk
       # Increment PC by one to simulate the CPU's behavior of reading the next byte (which is ignored)
@@ -1334,6 +1333,7 @@ def page_boundary_crossed?(instruction)
     crossed = false
   end
   crossed
+end
 end
 
 def branch_taken?(instruction)
