@@ -504,7 +504,6 @@ def ldy_immediate
   def bvs
     branch(@registers[:P][:V])
   end
-end
     
 def adc(value)
   if @registers[:P] & Flags::DECIMAL != 0
