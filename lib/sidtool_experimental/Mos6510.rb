@@ -655,7 +655,7 @@ end
  0x11E => { operation: method(:inc), addr_mode: Mode::ABX, cycles: 7 },
  0x11F => { operation: method(:sbc), addr_mode: Mode::ABX, cycles: 7 }
 }
-
+end
     end
 
 def get_address(mode)
