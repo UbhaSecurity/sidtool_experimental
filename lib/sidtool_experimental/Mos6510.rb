@@ -450,34 +450,6 @@ end
     def peek(address)
       @cpu.memory[address]  # Access memory through the @cpu instance
     end
-  end
-
-
-  # Utility method to fetch a byte from memory at the program counter (PC)
-  def fetch_byte
-    byte = read_memory(@registers[:PC])
-    @registers[:PC] += 1
-    byte
-  end
-
-  # Utility method to fetch a 16-bit word from memory at the program counter (PC)
-  def fetch_word
-    low_byte = fetch_byte
-    high_byte = fetch_byte
-    (high_byte << 8) | low_byte
-  end
-
-  # Utility method to update CPU fl def initialize(mem)
-      @a = 0x00
-      @x = 0x00
-      @y = 0x00
-      @s = 0xff
-      @p = 0x34
-      @pc = 0x0000
-      @memory = mem
-      reset
-    endags based on a result value
-  end
 
 def get_address(mode)
   case mode
@@ -1374,7 +1346,22 @@ main
         step
       end
     end
+
   private
+
+  # Utility method to fetch a byte from memory at the program counter (PC)
+  def fetch_byte
+    byte = read_memory(@registers[:PC])
+    @registers[:PC] += 1
+    byte
+  end
+
+  # Utility method to fetch a 16-bit word from memory at the program counter (PC)
+  def fetch_word
+    low_byte = fetch_byte
+    high_byte = fetch_byte
+    (high_byte << 8) | low_byte
+  end
 
   def validate_address(address)
     unless address >= 0x0000 && address <= 0xFFFF
