@@ -54,23 +54,36 @@ module SidtoolExperimental
       @break_vector = 0xFE66
     end
 
-    def handle_irq
-      # Logic to handle IRQs
-      # Save CPU state, execute IRQ routine, and restore CPU state
-      # Jump to the IRQ vector address
-    end
+def handle_irq
+  if irq_pending?
+    # Save CPU state (registers, program counter, etc.)
+    @cpu.save_state
 
-    def handle_nmi
-      # Logic to handle NMIs
-      # Similar to IRQ but cannot be ignored
-      # Jump to the NMI vector address
-    end
+    # Jump to the IRQ vector address and execute the IRQ routine
+    @cpu.jump_to_address(@irq_vector)
 
-    def irq_pending?
-      # Logic to determine if an IRQ is pending
-    end
+    # The IRQ routine is responsible for acknowledging the IRQ
+    # and performing necessary actions
 
-    def nmi_pending?
-      # Logic to determine if an NMI is pending
-    end
+    # Restore the CPU state after IRQ handling
+    @cpu.restore_state
+  end
+end
+
+def handle_nmi
+  if nmi_pending?
+    # Save CPU state (registers, program counter, etc.)
+    @cpu.save_state
+
+    # Jump to the NMI vector address and execute the NMI routine
+    @cpu.jump_to_address(@nmi_vector)
+
+    # The NMI routine typically checks the cause of the NMI and handles it
+    # For example, it might handle the RUN/STOP + RESTORE keypress
+
+    # Restore the CPU state after NMI handling
+    @cpu.restore_state
+  end
+end
+
 end
