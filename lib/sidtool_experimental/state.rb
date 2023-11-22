@@ -1,20 +1,16 @@
 module SidtoolExperimental
   class State
-    attr_accessor :current_frame, :emulation_finished
+    attr_accessor :current_frame, :emulation_finished, :memory
     attr_reader :sid6581, :cia_timers
-
-     class State
-    attr_accessor :current_frame, :emulation_finished
-    attr_reader :sid6581, :cia_timers, :irq_vector, :nmi_vector, :break_vector
 
     def initialize
       @current_frame = 0
-      @sid6581 = Sid6581.new
+      @memory = Memory.new  # Initialize memory
+      @sid6581 = Sid6581.new(memory: @memory)  # Pass memory to SID
       @cia_timers = [CIATimer.new(self), CIATimer.new(self)]
       @emulation_finished = false
       @interrupt_flag = false # Flag to ignore or respond to IRQs
       initialize_vectors
-    end
 
     def update
       update_timers
