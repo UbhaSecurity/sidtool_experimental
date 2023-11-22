@@ -122,23 +122,23 @@ end
     update_flags(@registers[:A])             # Update the flags based on the result
   end
 
- def load_register_immediate(register):
+ def load_register_immediate(register)
     """Load a value into the specified register using immediate addressing mode."""
-    value = self.fetch_byte()
-    self.registers[register] = value
-    self.update_zero_and_negative_flags(self.registers[register])
+    value = fetch_byte
+    @registers[register] = value
+    update_zero_and_negative_flags(registers[register])
 
 def lda_immediate:
     """Load the accumulator with a value using immediate addressing mode."""
-    self.load_register_immediate('A')
+    load_register_immediate('A')
 
 def ldx_immediate:
     """Load the X register with a value using immediate addressing mode."""
-    self.load_register_immediate('X')
+    load_register_immediate('X')
 
 def ldy_immediate:
     """Load the Y register with a value using immediate addressing mode."""
-    self.load_register_immediate('Y')
+    load_register_immediate('Y')
 
   # Implement the Store Accumulator (STA) instruction with zero page addressing mode
   def sta_zero_page
@@ -1284,7 +1284,7 @@ def fetch_byte
   raise "Program counter (PC) out of range" if pc < 0x0000 || pc > 0xFFFF
 
   byte = memory[pc]
-  self.pc += 1
+  pc += 1
   byte
 rescue IndexError
   raise "Memory access out of bounds"
