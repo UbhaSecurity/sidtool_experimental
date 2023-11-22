@@ -13,7 +13,7 @@ module SidtoolExperimental
       @keyboard = Keyboard.new # Placeholder for keyboard handling
     end
 
-    def load_program(program_data, start_address)
+   def load_program(program_data, start_address)
       @cpu.load_program(program_data, start_address)
     end
 
@@ -24,7 +24,6 @@ module SidtoolExperimental
         emulate_cycle
         @display.refresh if @display
         @keyboard.check_input if @keyboard
-        @state.update
       end
     end
 
@@ -39,8 +38,6 @@ module SidtoolExperimental
       @state.handle_interrupts
       @sid6581.generate_sound
     end
-
-    # Other private methods (if any)
 
     def handle_sid_operations
       # Define SID address range
@@ -65,8 +62,5 @@ module SidtoolExperimental
     def read_register(address)
       @sid6581.read_register(address)
     end
-
-    # Additional helper methods and any other logic needed for the emulator
-    # ...
   end
 end
