@@ -291,14 +291,13 @@ module SidtoolExperimental
         handle_timer_interrupts # Handle interrupts triggered by CIA timers.
       end
     
-# Method to handle timer interrupts from the CIA timers.
 def handle_timer_interrupts
-  @state.cia_timers.each do |timer|
-    if timer.underflow && (timer.control_register & Sidtool::CIATimer::INTERRUPT_FLAG) != 0
+  @state.cia_timers.each do
+    if @state.cia_timers.last.underflow && (@state.cia_timers.last.control_register & Sidtool::CIATimer::INTERRUPT_FLAG) != 0
       irq # Trigger the IRQ interrupt if conditions are met.
-    end # This "end" statement closes the if condition.
-  end # This "end" statement closes the loop.
-end # This "end" statement closes the method.
+    end
+  end
+end
 
     # ORA (OR with Accumulator)
     def ora(value)
