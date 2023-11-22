@@ -1280,12 +1280,17 @@ end
 
   private
 
-  # Utility method to fetch a byte from memory at the program counter (PC)
-  def fetch_byte
-    byte = read_memory(@registers[:PC])
-    @registers[:PC] += 1
-    byte
-  end
+ def fetch_byte(self):
+    """Fetch a byte from memory at the program counter (PC)."""
+    if self.pc < 0x0000 or self.pc > 0xFFFF:
+        raise ValueError("Program counter (PC) out of range")
+
+    try:
+        byte = self.memory[self.pc]
+        self.pc += 1
+        return byte
+    except IndexError:
+        raise IndexError("Memory access out of bounds")
 
   # Utility method to fetch a 16-bit word from memory at the program counter (PC)
   def fetch_word
