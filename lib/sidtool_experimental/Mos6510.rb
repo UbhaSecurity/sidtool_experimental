@@ -31,7 +31,7 @@ module SidtoolExperimental
         ACC = 10  # Accumulator
       end
 
-      # Accessor methods for registers, providing a clean way to access CPU registers.
+  # Accessor methods for registers, providing a clean way to access CPU registers.
       def a; @registers[:A]; end
       def x; @registers[:X]; end
       def y; @registers[:Y]; end
@@ -251,26 +251,26 @@ module SidtoolExperimental
  0x11F => { operation: method(:sbc), addr_mode: Mode::ABX, cycles: 7 }
 }
 
- # Step method to execute a single CPU instruction.
-    def step
-      opc = fetch_byte # Fetch the opcode from the current PC location.
-      instr = INSTRUCTIONS[opc] # Retrieve the instruction details for the opcode.
+  # Implement the step method to execute a single CPU instruction.
+      def step
+        opc = fetch_byte # Fetch the opcode from the current PC location.
+        instr = INSTRUCTIONS[opc] # Retrieve the instruction details for the opcode.
 
-      if instr.nil?
-        handle_illegal_opcode(opc) # Handle illegal opcode gracefully.
-      else
-        @cycles += instr[:cycles] # Add instruction cycles.
+        if instr.nil?
+          handle_illegal_opcode(opc) # Handle illegal opcode gracefully.
+        else
+          @cycles += instr[:cycles] # Add instruction cycles.
 
-        # Check for additional cycles needed for page boundary and branch taken.
-        @cycles += 1 if page_boundary_crossed?(instr)
-        @cycles += 1 if branch_taken?(instr)
+          # Check for additional cycles needed for page boundary and branch taken.
+          @cycles += 1 if page_boundary_crossed?(instr)
+          @cycles += 1 if branch_taken?(instr)
 
-        instr[:operation].call # Execute the instruction.
+          instr[:operation].call # Execute the instruction.
+        end
+
+        @state.update # Update the state (CIA timers, SID, etc.) in each CPU step.
+        handle_timer_interrupts # Handle interrupts triggered by CIA timers.
       end
-
-      @state.update # Update the state (CIA timers, SID, etc.) in each CPU step.
-      handle_timer_interrupts # Handle interrupts triggered by CIA timers.
-    end
 
     # Method to handle timer interrupts from the CIA timers.
     def handle_timer_interrupts
@@ -280,11 +280,7 @@ module SidtoolExperimental
         end
       end
 
-    # Define a method to handle illegal opcodes.
-    def handle_illegal_opcode(opcode)
-      puts "Warning: Illegal opcode 0x#{opcode.to_s(16)} encountered at address 0x#{pc.to_s(16)}"
-      # Actions for illegal opcode can be customized here.
-    end
+
 
 def adc(value)
   if @registers[:P] & Flags::DECIMAL != 0
@@ -1382,6 +1378,12 @@ main
       raise "Invalid memory address: 0x#{address.to_s(16)}"
     end
   end
+
+    # Define a method to handle illegal opcodes.
+    def handle_illegal_opcode(opcode)
+      puts "Warning: Illegal opcode 0x#{opcode.to_s(16)} encountered at address 0x#{pc.to_s(16)}"
+      # Actions for illegal opcode can be customized here.
+    end
 
 # Push a value to the stack
 def push_stack(value)
