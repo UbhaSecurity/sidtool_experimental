@@ -1341,7 +1341,5 @@ def branch_taken?(instruction)
   end
 end
 end
-
-end
 end
 end
