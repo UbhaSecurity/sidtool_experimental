@@ -1258,7 +1258,6 @@ rescue IndexError
   raise "Memory access out of bounds"
 end
 
-
   # Utility method to fetch a 16-bit word from memory at the program counter (PC)
   def fetch_word
     low_byte = fetch_byte
@@ -1315,30 +1314,29 @@ def page_boundary_crossed?(instruction)
   crossed
 end
 
-def branch_taken?(instruction)
-  return false unless instruction[:addr_mode] == Mode::REL
+  def branch_taken?(instruction)
+    return false unless instruction[:addr_mode] == Mode::REL
 
-  offset = fetch_byte
-  case instruction[:operation].name
-  when :bpl
-    @registers[:P] & Flags::NEGATIVE == 0
-  when :bmi
-    @registers[:P] & Flags::NEGATIVE != 0
-  when :bvc
-    @registers[:P] & Flags::OVERFLOW == 0
-  when :bvs
-    @registers[:P] & Flags::OVERFLOW != 0
-  when :bcc
-    @registers[:P] & Flags::CARRY == 0
-  when :bcs
-    @registers[:P] & Flags::CARRY != 0
-  when :bne
-    @registers[:P] & Flags::ZERO == 0
-  when :beq
-    @registers[:P] & Flags::ZERO != 0
-  else
-    false
-  end
+    offset = fetch_byte
+    case instruction[:operation].name
+    when :bpl
+      @registers[:P] & Flags::NEGATIVE == 0
+    when :bmi
+      @registers[:P] & Flags::NEGATIVE != 0
+    when :bvc
+      @registers[:P] & Flags::OVERFLOW == 0
+    when :bvs
+      @registers[:P] & Flags::OVERFLOW != 0
+    when :bcc
+      @registers[:P] & Flags::CARRY == 0
+    when :bcs
+      @registers[:P] & Flags::CARRY != 0
+    when :bne
+      @registers[:P] & Flags::ZERO == 0
+    when :beq
+      @registers[:P] & Flags::ZERO != 0
+    else
+      false
     end
   end
 end
