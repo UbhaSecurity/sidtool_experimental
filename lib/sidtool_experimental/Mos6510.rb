@@ -273,7 +273,6 @@ module SidtoolExperimental
         @state.update # Update the state (CIA timers, SID, etc.) in each CPU step.
         handle_timer_interrupts # Handle interrupts triggered by CIA timers.
       end
-  end
 
     # Method to handle timer interrupts from the CIA timers.
     def handle_timer_interrupts
@@ -283,222 +282,7 @@ module SidtoolExperimental
         end
       end
 
-
-
-def adc(value)
-  if @registers[:P] & Flags::DECIMAL != 0
-    # Decimal mode
-    a_low = @registers[:A] & 0x0F
-    a_high = @registers[:A] >> 4
-    value_low = value & 0x0F
-    value_high = value >> 4
-
-    sum_low = a_low + value_low + (@registers[:P] & Flags::CARRY)
-    sum_high = a_high + value_high + (sum_low > 0x09 ? 1 : 0)
-
-    if sum_low > 0x09
-      sum_low -= 0x0A
-    end
-
-    if sum_high > 0x09
-      sum_high -= 0x0A
-      @registers[:P] |= Flags::CARRY
-    else
-      @registers[:P] &= ~Flags::CARRY
-    end
-
-    @registers[:A] = (sum_high << 4) | sum_low
-  else
-    # Binary mode
-    sum = @registers[:A] + value + (@registers[:P] & Flags::CARRY)
-    if sum > 0xFF
-      @registers[:P] |= Flags::CARRY
-    else
-      @registers[:P] &= ~Flags::CARRY
-    end
-
-    @registers[:A] = sum & 0xFF
-  end
-
-  # Update Zero and Negative flags
-  update_flags(@registers[:A])
-end
-    end
-
-def sbc(value)
-  if @registers[:P] & Flags::DECIMAL != 0
-    # Decimal mode
-    a_low = @registers[:A] & 0x0F
-    a_high = @registers[:A] >> 4
-    value_low = value & 0x0F
-    value_high = value >> 4
-
-    borrow = (@registers[:P] & Flags::CARRY == 0) ? 1 : 0
-    sum_low = a_low - value_low - borrow
-    sum_high = a_high - value_high - (sum_low < 0 ? 1 : 0)
-
-    if sum_low < 0
-      sum_low += 0x0A
-    end
-
-    if sum_high < 0
-      sum_high += 0x0A
-      @registers[:P] &= ~Flags::CARRY
-    else
-      @registers[:P] |= Flags::CARRY
-    end
-
-    @registers[:A] = (sum_high << 4) | sum_low
-  else
-    # Binary mode
-    value = ~value & 0xFF  # Invert value for subtraction
-    sum = @registers[:A] - value - ((@registers[:P] & Flags::CARRY == 0) ? 1 : 0)
-    if sum < 0
-      @registers[:P] &= ~Flags::CARRY
-    else
-      @registers[:P] |= Flags::CARRY
-    end
-    @registers[:A] = sum & 0xFF
-  end
-  # Update Zero and Negative flags
-  update_flags(@registers[:A])
-end
-
-def set_flag(flag)
-  @registers[:P] |= flag
-end
-
-def clear_flag(flag)
-  @registers[:P] &= ~flag
-end
-
-def clc
-  @registers[:P] &= ~Flags::CARRY
-end
-
-def sec
-  @registers[:P] |= Flags::CARRY
-end
-
-def cli
-  @registers[:P] &= ~Flags::INTERRUPT_DISABLE
-end
-
-def sei
-  @registers[:P] |= Flags::INTERRUPT_DISABLE
-end
-
-def update_flags(value)
-  # Clear existing Zero and Negative flags
-  @registers[:P] &= ~(Flags::ZERO | Flags::NEGATIVE)
-
-  # Set the Zero flag if the value is 0
-  @registers[:P] |= Flags::ZERO if value == 0
-
-  # Set the Negative flag if bit 7 of the value is set
-  @registers[:P] |= Flags::NEGATIVE if value & 0x80 != 0
-end
-
-def nmi
-  # Push the program counter and processor status to the stack
-  push_stack((@registers[:PC] >> 8) & 0xFF)
-  push_stack(@registers[:PC] & 0xFF)
-  push_stack(@registers[:P] & ~Flags::BREAK)
-
-  # Set the program counter to the NMI vector
-  @registers[:PC] = read_memory(0xFFFA) | (read_memory(0xFFFB) << 8)
-
-  # Set the interrupt disable flag
-  @registers[:P] |= Flags::INTERRUPT_DISABLE
-end
-
-def irq
-  return if (@registers[:P] & Flags::INTERRUPT_DISABLE) != 0
-
-  # Push the program counter and processor status to the stack
-  push_stack((@registers[:PC] >> 8) & 0xFF)
-  push_stack(@registers[:PC] & 0xFF)
-  push_stack(@registers[:P] | Flags::BREAK)
-
-  # Set the program counter to the IRQ vector
-  @registers[:PC] = read_memory(0xFFFE) | (read_memory(0xFFFF) << 8)
-
-  # Set the interrupt disable flag
-  @registers[:P] |= Flags::INTERRUPT_DISABLE
-end
-
-    def start
-      @cpu = Cpu.new(@memory)  # Create an instance of ::Cpu
-    end
-
-    def jsr(address, accumulator_value=0)
-      @cpu.jsr(address, accumulator_value)
-    end
-
-     def step
-      @cpu.step
-    end
-
-    def pc
-      @cpu.pc
-    end
-
-    def pc=(new_pc)
-      @cpu.pc = new_pc
-    end
-
-    def peek(address)
-      @cpu.memory[address]  # Access memory through the @cpu instance
-    end
-
-def get_address(mode)
-  case mode
-  when Mode::IMP
-    nil # Implied mode does not use an address
-  when Mode::IMM
-    pc_increment # Immediate mode uses the next byte as a value
-  when Mode::ABS
-    low_byte = read_memory(pc_increment)
-    high_byte = read_memory(pc_increment)
-    (high_byte << 8) | low_byte
-  when Mode::ABSX
-    base_address = get_address(Mode::ABS)
-    (base_address + @registers[:X]) & 0xFFFF
-  when Mode::ABSY
-    base_address = get_address(Mode::ABS)
-    (base_address + @registers[:Y]) & 0xFFFF
-  when Mode::ZP
-    read_memory(pc_increment)
-  when Mode::ZPX
-    (read_memory(pc_increment) + @registers[:X]) & 0xFF
-  when Mode::ZPY
-    (read_memory(pc_increment) + @registers[:Y]) & 0xFF
-  when Mode::INDX
-    zero_page_addr = (read_memory(pc_increment) + @registers[:X]) & 0xFF
-    low_byte = read_memory(zero_page_addr)
-    high_byte = read_memory((zero_page_addr + 1) & 0xFF)
-    (high_byte << 8) | low_byte
-  when Mode::INDY
-    base_address = read_memory(pc_increment)
-    low_byte = read_memory(base_address)
-    high_byte = read_memory((base_address + 1) & 0xFF)
-    ((high_byte << 8) | low_byte) + @registers[:Y]
-  when Mode::IND
-    base_address = get_address(Mode::ABS)
-    low_byte = read_memory(base_address)
-    high_byte = read_memory((base_address & 0xFF00) | ((base_address + 1) & 0xFF))
-    (high_byte << 8) | low_byte
-  when Mode::ACC
-    nil # Accumulator mode does not use a memory address
-  when Mode::REL
-    offset = read_memory(pc_increment)
-    (offset < 0x80 ? offset : offset - 0x100) + @registers[:PC]
-  else
-    raise "Unhandled addressing mode: #{mode}"
-  end
-end
-
- def brk
+def brk
   # Increment PC by one to simulate the CPU's behavior of reading the next byte (which is ignored)
   @registers[:PC] = (@registers[:PC] + 1) & 0xFFFF
 
@@ -732,6 +516,222 @@ end
   def bvs
     branch(@registers[:P][:V])
   end
+    end
+    
+def adc(value)
+  if @registers[:P] & Flags::DECIMAL != 0
+    # Decimal mode
+    a_low = @registers[:A] & 0x0F
+    a_high = @registers[:A] >> 4
+    value_low = value & 0x0F
+    value_high = value >> 4
+
+    sum_low = a_low + value_low + (@registers[:P] & Flags::CARRY)
+    sum_high = a_high + value_high + (sum_low > 0x09 ? 1 : 0)
+
+    if sum_low > 0x09
+      sum_low -= 0x0A
+    end
+
+    if sum_high > 0x09
+      sum_high -= 0x0A
+      @registers[:P] |= Flags::CARRY
+    else
+      @registers[:P] &= ~Flags::CARRY
+    end
+
+    @registers[:A] = (sum_high << 4) | sum_low
+  else
+    # Binary mode
+    sum = @registers[:A] + value + (@registers[:P] & Flags::CARRY)
+    if sum > 0xFF
+      @registers[:P] |= Flags::CARRY
+    else
+      @registers[:P] &= ~Flags::CARRY
+    end
+
+    @registers[:A] = sum & 0xFF
+  end
+
+  # Update Zero and Negative flags
+  update_flags(@registers[:A])
+end
+    end
+
+def sbc(value)
+  if @registers[:P] & Flags::DECIMAL != 0
+    # Decimal mode
+    a_low = @registers[:A] & 0x0F
+    a_high = @registers[:A] >> 4
+    value_low = value & 0x0F
+    value_high = value >> 4
+
+    borrow = (@registers[:P] & Flags::CARRY == 0) ? 1 : 0
+    sum_low = a_low - value_low - borrow
+    sum_high = a_high - value_high - (sum_low < 0 ? 1 : 0)
+
+    if sum_low < 0
+      sum_low += 0x0A
+    end
+
+    if sum_high < 0
+      sum_high += 0x0A
+      @registers[:P] &= ~Flags::CARRY
+    else
+      @registers[:P] |= Flags::CARRY
+    end
+
+    @registers[:A] = (sum_high << 4) | sum_low
+  else
+    # Binary mode
+    value = ~value & 0xFF  # Invert value for subtraction
+    sum = @registers[:A] - value - ((@registers[:P] & Flags::CARRY == 0) ? 1 : 0)
+    if sum < 0
+      @registers[:P] &= ~Flags::CARRY
+    else
+      @registers[:P] |= Flags::CARRY
+    end
+    @registers[:A] = sum & 0xFF
+  end
+  # Update Zero and Negative flags
+  update_flags(@registers[:A])
+end
+
+def set_flag(flag)
+  @registers[:P] |= flag
+end
+
+def clear_flag(flag)
+  @registers[:P] &= ~flag
+end
+
+def clc
+  @registers[:P] &= ~Flags::CARRY
+end
+
+def sec
+  @registers[:P] |= Flags::CARRY
+end
+
+def cli
+  @registers[:P] &= ~Flags::INTERRUPT_DISABLE
+end
+
+def sei
+  @registers[:P] |= Flags::INTERRUPT_DISABLE
+end
+
+def update_flags(value)
+  # Clear existing Zero and Negative flags
+  @registers[:P] &= ~(Flags::ZERO | Flags::NEGATIVE)
+
+  # Set the Zero flag if the value is 0
+  @registers[:P] |= Flags::ZERO if value == 0
+
+  # Set the Negative flag if bit 7 of the value is set
+  @registers[:P] |= Flags::NEGATIVE if value & 0x80 != 0
+end
+
+def nmi
+  # Push the program counter and processor status to the stack
+  push_stack((@registers[:PC] >> 8) & 0xFF)
+  push_stack(@registers[:PC] & 0xFF)
+  push_stack(@registers[:P] & ~Flags::BREAK)
+
+  # Set the program counter to the NMI vector
+  @registers[:PC] = read_memory(0xFFFA) | (read_memory(0xFFFB) << 8)
+
+  # Set the interrupt disable flag
+  @registers[:P] |= Flags::INTERRUPT_DISABLE
+end
+
+def irq
+  return if (@registers[:P] & Flags::INTERRUPT_DISABLE) != 0
+
+  # Push the program counter and processor status to the stack
+  push_stack((@registers[:PC] >> 8) & 0xFF)
+  push_stack(@registers[:PC] & 0xFF)
+  push_stack(@registers[:P] | Flags::BREAK)
+
+  # Set the program counter to the IRQ vector
+  @registers[:PC] = read_memory(0xFFFE) | (read_memory(0xFFFF) << 8)
+
+  # Set the interrupt disable flag
+  @registers[:P] |= Flags::INTERRUPT_DISABLE
+end
+
+    def start
+      @cpu = Cpu.new(@memory)  # Create an instance of ::Cpu
+    end
+
+    def jsr(address, accumulator_value=0)
+      @cpu.jsr(address, accumulator_value)
+    end
+
+     def step
+      @cpu.step
+    end
+
+    def pc
+      @cpu.pc
+    end
+
+    def pc=(new_pc)
+      @cpu.pc = new_pc
+    end
+
+    def peek(address)
+      @cpu.memory[address]  # Access memory through the @cpu instance
+    end
+
+def get_address(mode)
+  case mode
+  when Mode::IMP
+    nil # Implied mode does not use an address
+  when Mode::IMM
+    pc_increment # Immediate mode uses the next byte as a value
+  when Mode::ABS
+    low_byte = read_memory(pc_increment)
+    high_byte = read_memory(pc_increment)
+    (high_byte << 8) | low_byte
+  when Mode::ABSX
+    base_address = get_address(Mode::ABS)
+    (base_address + @registers[:X]) & 0xFFFF
+  when Mode::ABSY
+    base_address = get_address(Mode::ABS)
+    (base_address + @registers[:Y]) & 0xFFFF
+  when Mode::ZP
+    read_memory(pc_increment)
+  when Mode::ZPX
+    (read_memory(pc_increment) + @registers[:X]) & 0xFF
+  when Mode::ZPY
+    (read_memory(pc_increment) + @registers[:Y]) & 0xFF
+  when Mode::INDX
+    zero_page_addr = (read_memory(pc_increment) + @registers[:X]) & 0xFF
+    low_byte = read_memory(zero_page_addr)
+    high_byte = read_memory((zero_page_addr + 1) & 0xFF)
+    (high_byte << 8) | low_byte
+  when Mode::INDY
+    base_address = read_memory(pc_increment)
+    low_byte = read_memory(base_address)
+    high_byte = read_memory((base_address + 1) & 0xFF)
+    ((high_byte << 8) | low_byte) + @registers[:Y]
+  when Mode::IND
+    base_address = get_address(Mode::ABS)
+    low_byte = read_memory(base_address)
+    high_byte = read_memory((base_address & 0xFF00) | ((base_address + 1) & 0xFF))
+    (high_byte << 8) | low_byte
+  when Mode::ACC
+    nil # Accumulator mode does not use a memory address
+  when Mode::REL
+    offset = read_memory(pc_increment)
+    (offset < 0x80 ? offset : offset - 0x100) + @registers[:PC]
+  else
+    raise "Unhandled addressing mode: #{mode}"
+  end
+end
+
+ 
 
   # Implement the Interrupt Request (IRQ) instruction
   def irq
