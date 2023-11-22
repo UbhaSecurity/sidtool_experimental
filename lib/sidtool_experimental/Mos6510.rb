@@ -251,6 +251,9 @@ module SidtoolExperimental
  0x11F => { operation: method(:sbc), addr_mode: Mode::ABX, cycles: 7 }
 }
 
+    end
+  end
+
   # Implement the step method to execute a single CPU instruction.
       def step
         opc = fetch_byte # Fetch the opcode from the current PC location.
