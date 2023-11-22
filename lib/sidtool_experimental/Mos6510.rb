@@ -31,7 +31,7 @@ module SidtoolExperimental
         ACC = 10  # Accumulator
       end
 
-  # Accessor methods for registers, providing a clean way to access CPU registers.
+      # Accessor methods for registers, providing a clean way to access CPU registers.
       def a; @registers[:A]; end
       def x; @registers[:X]; end
       def y; @registers[:Y]; end
@@ -65,28 +65,27 @@ module SidtoolExperimental
         @cycles = 0
       end
 
-def brk
-  # Increment PC by one to simulate the CPU's behavior of reading the next byte (which is ignored)
-  @registers[:PC] = (@registers[:PC] + 1) & 0xFFFF
+      def brk
+      # Increment PC by one to simulate the CPU's behavior of reading the next byte (which is ignored)
+      @registers[:PC] = (@registers[:PC] + 1) & 0xFFFF
 
-  # Push PC to stack
-  push_stack((@registers[:PC] >> 8) & 0xFF) # Push high byte of PC to stack
-  push_stack(@registers[:PC] & 0xFF)        # Push low byte of PC to stack
+      # Push PC to stack
+      push_stack((@registers[:PC] >> 8) & 0xFF) # Push high byte of PC to stack
+      push_stack(@registers[:PC] & 0xFF)        # Push low byte of PC to stack
 
-  # Set Break flag before pushing
-  set_flag(Flags::BREAK)
+      # Set Break flag before pushing
+      set_flag(Flags::BREAK)
 
-  # Push processor status to stack with Break and Unused flags set
-  push_stack(@registers[:P] | Flags::BREAK | Flags::UNUSED)
+      # Push processor status to stack with Break and Unused flags set
+      push_stack(@registers[:P] | Flags::BREAK | Flags::UNUSED)
 
-  # Load the IRQ interrupt vector into the PC
-  @registers[:PC] = read_memory(0xFFFE) | (read_memory(0xFFFF) << 8)
+      # Load the IRQ interrupt vector into the PC
+      @registers[:PC] = read_memory(0xFFFE) | (read_memory(0xFFFF) << 8)
 
-  # Set the interrupt disable flag to prevent further IRQs
-  set_flag(Flags::INTERRUPT_DISABLE)
-end
+      # Set the interrupt disable flag to prevent further IRQs
+      set_flag(Flags::INTERRUPT_DISABLE)
 
-  # Implement the step method to execute a single CPU instruction.
+      # Implement the step method to execute a single CPU instruction.
       def step
         opc = fetch_byte # Fetch the opcode from the current PC location.
         instr = INSTRUCTIONS[opc] # Retrieve the instruction details for the opcode.
@@ -102,19 +101,17 @@ end
 
           instr[:operation].call # Execute the instruction.
         end
-
         @state.update # Update the state (CIA timers, SID, etc.) in each CPU step.
         handle_timer_interrupts # Handle interrupts triggered by CIA timers.
       end
 
-    # Method to handle timer interrupts from the CIA timers.
-    def handle_timer_interrupts
-      @state.cia_timers.each do |timer|
-        if timer.underflow && (timer.control_register & Sidtool::CIATimer::INTERRUPT_FLAG) != 0
-          irq # Trigger the IRQ interrupt if conditions are met.
+      # Method to handle timer interrupts from the CIA timers.
+      def handle_timer_interrupts
+        @state.cia_timers.each do |timer|
+          if timer.underflow && (timer.control_register & Sidtool::CIATimer::INTERRUPT_FLAG) != 0
+            irq # Trigger the IRQ interrupt if conditions are met.
+          end
         end
-      end
-
 
   # ORA (OR with Accumulator)
   def ora(value)
@@ -326,7 +323,7 @@ def ldy_immediate
   def bvs
     branch(@registers[:P][:V])
   end
-    end
+end
     
 def adc(value)
   if @registers[:P] & Flags::DECIMAL != 0
