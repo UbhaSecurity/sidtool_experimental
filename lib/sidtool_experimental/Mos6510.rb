@@ -251,7 +251,7 @@ module SidtoolExperimental
  0x11F => { operation: method(:sbc), addr_mode: Mode::ABX, cycles: 7 }
 }
 
-  end
+
 
   # Implement the step method to execute a single CPU instruction.
       def step
@@ -660,6 +660,7 @@ def irq
   @registers[:P] |= Flags::INTERRUPT_DISABLE
 end
 
+    end
     def start
       @cpu = Cpu.new(@memory)  # Create an instance of ::Cpu
     end
