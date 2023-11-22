@@ -1295,21 +1295,6 @@ def execute
   end
 end
 
-# Run the main method to start the CPU
-main
-    def step
-      opc = fetch_byte
-      instr = INSTRUCTIONS[opc]
-      if instr.nil?
-        raise "Illegal opcode #{opc.to_s(16)}"
-      else
-        @cycles += instr[:cycles]
-        @cycles += 1 if (instr[:addr_mode] == Mode::INDX) && ((@x + fetch_byte) & 0xff00 != (@x & 0xff00))
-        @cycles += 1 if (instr[:addr_mode] == Mode::INDY) && ((@y + fetch_byte) & 0xff00 != (@y & 0xff00))
-        instr[:operation].call
-      end
-    end
-
     def run_cycles(cyc)
       while @cycles < cyc
         step
