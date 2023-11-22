@@ -4,16 +4,17 @@ class Memory
     @ram = Array.new(65536, 0)  # 64KB of RAM
     @rom = load_roms             # Load ROM data
     @io_registers = initialize_io_registers # Initialize I/O registers
+    @processor_port = 0x37      # Default value for processor port
   end
 
   def read(address)
     case address
     when 0xA000..0xBFFF
-      rom_is_mapped(address) ? @rom['BASIC'][address - 0xA000] : @ram[address]
+      rom_is_mapped?(address) ? @rom['BASIC'][address - 0xA000] : @ram[address]
     when 0xD000..0xDFFF
-      io_area?(address) ? read_io(address) : @rom['CHAR'][address - 0xD000]
+      io_area?(address) ? read_io(address) : (char_rom_mapped?(address) ? @rom['CHAR'][address - 0xD000] : @ram[address])
     when 0xE000..0xFFFF
-      @rom['KERNAL'][address - 0xE000]
+      rom_is_mapped?(address) ? @rom['KERNAL'][address - 0xE000] : @ram[address]
     else
       @ram[address]
     end
@@ -21,14 +22,17 @@ class Memory
 
   def write(address, value)
     case address
+    when 0x0000
+      @processor_port_direction = value
+    when 0x0001
+      @processor_port = value
     when 0xA000..0xBFFF, 0xE000..0xFFFF
-      @ram[address] = value unless rom_is_mapped(address)
+      @ram[address] = value unless rom_is_mapped?(address)
     when 0xD000..0xDFFF
       write_io(address, value) if io_area?(address)
     else
       @ram[address] = value
     end
-  end
 
   # Load ROM data from binary files
   def load_roms
@@ -218,5 +222,26 @@ class Memory
       # Handle other I/O writes here
       raise "Unsupported I/O write at address #{address.to_s(16)}"
     end
+  end
+private
+
+def rom_is_mapped?(address)
+    case @processor_port & 0x07
+    when 0x00, 0x01, 0x10
+      false  # RAM visible
+    when 0x11
+      true   # BASIC ROM at 0xA000-0xBFFF, KERNAL ROM at 0xE000-0xFFFF
+    else
+      # Default or other cases
+      false
+    end
+  end
+
+  def char_rom_mapped?(address)
+    (@processor_port & 0x04).zero? && (0xD000..0xDFFF).include?(address)
+  end
+
+  def io_area?(address)
+    (@processor_port & 0x04) != 0 && (0xD000..0xDFFF).include?(address)
   end
 end
