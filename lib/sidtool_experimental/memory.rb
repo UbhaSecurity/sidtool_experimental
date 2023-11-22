@@ -36,25 +36,6 @@ module SidtoolExperimental
       end
     end
 
-    # Load ROM data from binary files
-    def load_roms
-      rom_data = {}
-
-      # Load BASIC ROM from a binary file
-      basic_rom_filename = 'basic.rom'  # Replace with the actual filename
-      rom_data['BASIC'] = File.binread(basic_rom_filename)
-
-      # Load KERNAL ROM from a binary file
-      kernal_rom_filename = 'kernal.rom'  # Replace with the actual filename
-      rom_data['KERNAL'] = File.binread(kernal_rom_filename)
-
-      # Load Character ROM from a binary file
-      character_rom_filename = 'character.rom'  # Replace with the actual filename
-      rom_data['CHAR'] = File.binread(character_rom_filename)
-
-      rom_data
-    end
-
   # Load ROM data from binary files
   def load_roms
     rom_data = {}
