@@ -12,10 +12,8 @@ class Memory
     # Memory management attributes
     @loram = @hiram = @charen = 1 # Defaults to 1 on reset
     @exrom = @game = 0            # Defaults to 0 (no cartridge)
-    @processor_port = 0x37       # Default value for processor port
+    @processor_port = 0x37       # Default value for the processor port
   end
-
-end
 
   # Read from memory
   def read(address)
@@ -50,7 +48,7 @@ end
 
   private
 
-  def initialize_vic_registers
+def initialize_vic_registers
     Array.new(64, 0) # VIC-II has 64 registers, initialized to 0
   end
 
@@ -62,35 +60,34 @@ end
     Array.new(16, 0) # Each CIA has 16 registers, initialized to 0
   end
 
-
-# Load ROM data from binary files
+ # Load ROM data from binary files
   def load_rom(filename)
     # Load ROM data from file
     # Replace this with your specific implementation
     File.binread(filename).bytes
   end
 
-  def rom_area_basic(address)
-    return @basic_rom[address - 0xA000] if @loram == 1 && @hiram == 1 && @exrom == 0
+  def rom_area_basic(address, config)
+    return @basic_rom[address - 0xA000] if config[:basic_rom_enabled]
     @ram[address]
   end
 
-  def io_or_char_rom(address)
-    if @charen == 1 && @hiram == 1 && @exrom == 0
+  def io_or_char_rom(address, config)
+    if config[:charen] == 1 && config[:hiram] == 1 && config[:exrom] == 0
       return @io_devices.read_io(address)
-    elsif @charen == 0
+    elsif config[:charen] == 0
       return @char_rom[address - 0xD000]
     end
     @ram[address]
   end
 
-  def rom_area_kernal(address)
-    return @kernal_rom[address - 0xE000] if @hiram == 1
+  def rom_area_kernal(address, config)
+    return @kernal_rom[address - 0xE000] if config[:hiram]
     @ram[address]
   end
 
-  def write_io_or_char_rom(address, value)
-    if @charen == 1 && @hiram == 1 && @exrom == 0
+  def write_io_or_char_rom(address, value, config)
+    if config[:charen] == 1 && config[:hiram] == 1 && config[:exrom] == 0
       @io_devices.write_io(address, value)
     end
     # Ignore writes to ROM areas and char ROM
