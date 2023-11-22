@@ -96,11 +96,6 @@ end
     # Ignore writes to ROM areas and char ROM
   end
 
-  def load_rom(filename)
-    # Implement ROM loading logic here
-    File.binread(filename).bytes
-  end
-
 def address_to_vic_ii_register_index(address)
     # Map addresses to VIC-II register indices
     case address
