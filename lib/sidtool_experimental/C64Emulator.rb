@@ -5,7 +5,7 @@ module SidtoolExperimental
     def initialize
       @memory = Memory.new
       @cpu = Mos6510::Cpu.new(@memory)  # Correctly reference the @memory instance variable
-      @sid6581 = Sid6581.new
+      @sid = Sid6581.new
       @ciaTimerA = CIATimer.new(@cpu)
       @ciaTimerB = CIATimer.new(@cpu)
       @state = State.new
@@ -13,7 +13,7 @@ module SidtoolExperimental
       @keyboard = Keyboard.new # Placeholder for keyboard handling
     end
 
-   def load_program(program_data, start_address)
+    def load_program(program_data, start_address)
       @cpu.load_program(program_data, start_address)
     end
 
@@ -36,7 +36,7 @@ module SidtoolExperimental
     def emulate_cycle
       @state.update
       @state.handle_interrupts
-      @sid6581.generate_sound
+      @sid.generate_sound
     end
 
     def handle_sid_operations
@@ -56,11 +56,11 @@ module SidtoolExperimental
     end
 
     def write_register(address, value)
-      @sid6581.write_register(address, value)
+      @sid.write_register(address, value)
     end
 
     def read_register(address)
-      @sid6581.read_register(address)
+      @sid.read_register(address)
     end
   end
 end
