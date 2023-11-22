@@ -64,7 +64,7 @@ module SidtoolExperimental
         @cycles = 0
       end
 
- INSTRUCTIONS = {
+INSTRUCTIONS = {
   0x00 => { operation: method(:brk), addr_mode: Mode::IMP, cycles: 7 },
   0x01 => { operation: method(:ora), addr_mode: Mode::IZX, cycles: 6 },
   0x05 => { operation: method(:ora), addr_mode: Mode::ZP, cycles: 3 },
@@ -93,17 +93,7 @@ module SidtoolExperimental
   0x2C => { operation: method(:bit), addr_mode: Mode::ABS, cycles: 4 },
   0x2D => { operation: method(:and), addr_mode: Mode::ABS, cycles: 4 },
   0x2E => { operation: method(:rol), addr_mode: Mode::ABS, cycles: 6 },
-  0x2A => { operation: method(:rol), addr_mode: Mode::ACC, cycles: 2 },
-  0x2C => { operation: method(:bit), addr_mode: Mode::ABS, cycles: 4 },
-  0x2D => { operation: method(:and), addr_mode: Mode::ABS, cycles: 4 },
-  0x2E => { operation: method(:rol), addr_mode: Mode::ABS, cycles: 6 },
   0x30 => { operation: method(:bmi), addr_mode: Mode::REL, cycles: 2 },
-  0x31 => { operation: method(:and), addr_mode: Mode::IZY, cycles: 5 },
-  0x35 => { operation: method(:and), addr_mode: Mode::ZPX, cycles: 4 },
-  0x36 => { operation: method(:rol), addr_mode: Mode::ZPX, cycles: 6 },
-  0x38 => { operation: method(:sec), addr_mode: Mode::IMP, cycles: 2 },
-  0x39 => { operation: method(:and), addr_mode: Mode::ABY, cycles: 4 },
-  0x3D => { operation: method(:and), addr_mode: Mode::ABX, cycles: 4 },
   0x31 => { operation: method(:and), addr_mode: Mode::IZY, cycles: 5 },
   0x35 => { operation: method(:and), addr_mode: Mode::ZPX, cycles: 4 },
   0x36 => { operation: method(:rol), addr_mode: Mode::ZPX, cycles: 6 },
@@ -225,39 +215,7 @@ module SidtoolExperimental
   0xF8 => { operation: method(:sed), addr_mode: Mode::IMP, cycles: 2 },
   0xF9 => { operation: method(:sbc), addr_mode: Mode::ABY, cycles: 4 },
   0xFD => { operation: method(:sbc), addr_mode: Mode::ABX, cycles: 4 },
-  0xFE => { operation: method(:inc), addr_mode: Mode::ABX, cycles: 7 },
- 0x100 => { operation: method(:nop), addr_mode: Mode::ZPX, cycles: 4 },
- 0x101 => { operation: method(:sbc), addr_mode: Mode::IZX, cycles: 6 },
- 0x102 => { operation: method(:nop), addr_mode: Mode::IMM, cycles: 2 },
- 0x103 => { operation: method(:nop), addr_mode: Mode::IZX, cycles: 8 },
- 0x104 => { operation: method(:nop), addr_mode: Mode::ZP, cycles: 3 },
- 0x105 => { operation: method(:sbc), addr_mode: Mode::ZP, cycles: 3 },
- 0x106 => { operation: method(:inc), addr_mode: Mode::ZP, cycles: 5 },
- 0x107 => { operation: method(:sbc), addr_mode: Mode::ZP, cycles: 5 },
- 0x108 => { operation: method(:nop), addr_mode: Mode::IMM, cycles: 2 },
- 0x109 => { operation: method(:sbc), addr_mode: Mode::IMM, cycles: 2 },
- 0x10A => { operation: method(:nop), addr_mode: Mode::IMM, cycles: 2 },
- 0x10B => { operation: method(:sbc), addr_mode: Mode::IMM, cycles: 2 },
- 0x10C => { operation: method(:nop), addr_mode: Mode::ABS, cycles: 4 },
- 0x10D => { operation: method(:sbc), addr_mode: Mode::ABS, cycles: 4 },
- 0x10E => { operation: method(:inc), addr_mode: Mode::ABS, cycles: 6 },
- 0x10F => { operation: method(:sbc), addr_mode: Mode::ABS, cycles: 6 },
- 0x110 => { operation: method(:nop), addr_mode: Mode::REL, cycles: 2 },
- 0x111 => { operation: method(:sbc), addr_mode: Mode::IZY, cycles: 5 },
- 0x112 => { operation: method(:sbc), addr_mode: Mode::IZX, cycles: 5 },
- 0x113 => { operation: method(:sbc), addr_mode: Mode::IZY, cycles: 5 },
- 0x114 => { operation: method(:nop), addr_mode: Mode::ZPX, cycles: 4 },
- 0x115 => { operation: method(:sbc), addr_mode: Mode::ZPX, cycles: 4 },
- 0x116 => { operation: method(:inc), addr_mode: Mode::ZPX, cycles: 6 },
- 0x117 => { operation: method(:sbc), addr_mode: Mode::ZPX, cycles: 6 },
- 0x118 => { operation: method(:sed), addr_mode: Mode::IMP, cycles: 2 },
- 0x119 => { operation: method(:sbc), addr_mode: Mode::ABY, cycles: 4 },
- 0x11A => { operation: method(:nop), addr_mode: Mode::IMP, cycles: 2 },
- 0x11B => { operation: method(:sbc), addr_mode: Mode::ABY, cycles: 4 },
- 0x11C => { operation: method(:nop), addr_mode: Mode::ABX, cycles: 4 },
- 0x11D => { operation: method(:sbc), addr_mode: Mode::ABX, cycles: 4 },
- 0x11E => { operation: method(:inc), addr_mode: Mode::ABX, cycles: 7 },
- 0x11F => { operation: method(:sbc), addr_mode: Mode::ABX, cycles: 7 }
+  0xFE => { operation: method(:inc), addr_mode: Mode::ABX, cycles: 7 }
 }
 
       def brk
