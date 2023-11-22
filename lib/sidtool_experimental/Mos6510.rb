@@ -660,29 +660,6 @@ end
 }
 
     end
-    def start
-      @cpu = Cpu.new(@memory)  # Create an instance of ::Cpu
-    end
-
-    def jsr(address, accumulator_value=0)
-      @cpu.jsr(address, accumulator_value)
-    end
-
-     def step
-      @cpu.step
-    end
-
-    def pc
-      @cpu.pc
-    end
-
-    def pc=(new_pc)
-      @cpu.pc = new_pc
-    end
-
-    def peek(address)
-      @cpu.memory[address]  # Access memory through the @cpu instance
-    end
 
 def get_address(mode)
   case mode
@@ -1096,11 +1073,6 @@ def sta_indirect_indexed_y
   write_memory(indirect_address, @a)
 end
 
-def fetch_byte
-  value = read_memory(@pc)
-  @pc += 1
-  value
-end
 
 # Add a method to execute the program
 def execute_program(program)
