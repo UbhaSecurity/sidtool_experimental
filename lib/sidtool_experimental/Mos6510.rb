@@ -65,9 +65,26 @@ module SidtoolExperimental
         @cycles = 0
       end
 
+def brk
+  # Increment PC by one to simulate the CPU's behavior of reading the next byte (which is ignored)
+  @registers[:PC] = (@registers[:PC] + 1) & 0xFFFF
 
+  # Push PC to stack
+  push_stack((@registers[:PC] >> 8) & 0xFF) # Push high byte of PC to stack
+  push_stack(@registers[:PC] & 0xFF)        # Push low byte of PC to stack
 
+  # Set Break flag before pushing
+  set_flag(Flags::BREAK)
 
+  # Push processor status to stack with Break and Unused flags set
+  push_stack(@registers[:P] | Flags::BREAK | Flags::UNUSED)
+
+  # Load the IRQ interrupt vector into the PC
+  @registers[:PC] = read_memory(0xFFFE) | (read_memory(0xFFFF) << 8)
+
+  # Set the interrupt disable flag to prevent further IRQs
+  set_flag(Flags::INTERRUPT_DISABLE)
+end
 
   # Implement the step method to execute a single CPU instruction.
       def step
@@ -98,26 +115,6 @@ module SidtoolExperimental
         end
       end
 
-def brk
-  # Increment PC by one to simulate the CPU's behavior of reading the next byte (which is ignored)
-  @registers[:PC] = (@registers[:PC] + 1) & 0xFFFF
-
-  # Push PC to stack
-  push_stack((@registers[:PC] >> 8) & 0xFF) # Push high byte of PC to stack
-  push_stack(@registers[:PC] & 0xFF)        # Push low byte of PC to stack
-
-  # Set Break flag before pushing
-  set_flag(Flags::BREAK)
-
-  # Push processor status to stack with Break and Unused flags set
-  push_stack(@registers[:P] | Flags::BREAK | Flags::UNUSED)
-
-  # Load the IRQ interrupt vector into the PC
-  @registers[:PC] = read_memory(0xFFFE) | (read_memory(0xFFFF) << 8)
-
-  # Set the interrupt disable flag to prevent further IRQs
-  set_flag(Flags::INTERRUPT_DISABLE)
-end
 
   # ORA (OR with Accumulator)
   def ora(value)
