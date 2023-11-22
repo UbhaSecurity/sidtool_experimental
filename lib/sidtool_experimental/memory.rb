@@ -15,10 +15,12 @@ class Memory
     @processor_port = 0x37       # Default value for processor port
     @pla_state = {}              # Placeholder for PLA state, use actual data
   end
+
 end
 
 
- def read(address)
+  # Read memory
+  def read(address)
     config = current_memory_config
 
     case address
@@ -34,6 +36,7 @@ end
     nil # Open address space in Ultimax mode
   end
 
+  # Write memory
   def write(address, value)
     config = current_memory_config
 
