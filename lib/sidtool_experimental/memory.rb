@@ -18,37 +18,34 @@ class Memory
 
 end
 
+def read(address)
+  config = current_memory_config
 
-  # Read memory
-  def read(address)
-    config = current_memory_config
-
-    case address
-    when 0xA000..0xBFFF
-      return @basic_rom[address - 0xA000] if config[:basic_rom_enabled]
-    when 0xD000..0xDFFF
-      return read_io_or_char_rom(address, config) if config[:io_enabled] || config[:char_rom_enabled]
-    when 0xE000..0xFFFF
-      return @kernal_rom[address - 0xE000] if config[:kernal_rom_enabled]
-    end
-
+  case address
+  when 0xA000..0xBFFF
+    return rom_area_basic(address, config)
+  when 0xD000..0xDFFF
+    return io_or_char_rom(address, config)
+  when 0xE000..0xFFFF
+    return rom_area_kernal(address, config)
+  else
     return @ram[address] unless config[:ultimax_mode] && address.between?(0x1000, 0xCFFF)
-    nil # Open address space in Ultimax mode
   end
+  nil # Open address space in Ultimax mode
+end
 
-  # Write memory
-  def write(address, value)
-    config = current_memory_config
+def write(address, value)
+  config = current_memory_config
 
-    case address
-    when 0xD000..0xDFFF
-      write_io_devices(address, value) if config[:io_enabled]
-    when 0xA000..0xBFFF, 0xE000..0xFFFF
-      # Ignore writes to ROM areas
-    else
-      @ram[address] = value unless config[:ultimax_mode] && address.between?(0x1000, 0xCFFF)
-    end
+  case address
+  when 0xD000..0xDFFF
+    write_io_or_char_rom(address, value, config) if config[:io_enabled]
+  when 0xA000..0xBFFF, 0xE000..0xFFFF
+    # Ignore writes to ROM areas
+  else
+    @ram[address] = value unless config[:ultimax_mode] && address.between?(0x1000, 0xCFFF)
   end
+end
 
   private
 
