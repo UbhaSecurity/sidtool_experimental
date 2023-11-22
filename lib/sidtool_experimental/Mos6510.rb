@@ -274,7 +274,6 @@ module SidtoolExperimental
         @state.update # Update the state (CIA timers, SID, etc.) in each CPU step.
         handle_timer_interrupts # Handle interrupts triggered by CIA timers.
       end
-    end
   end
 
     # Method to handle timer interrupts from the CIA timers.
