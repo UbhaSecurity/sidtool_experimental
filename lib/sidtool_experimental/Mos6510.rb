@@ -297,8 +297,7 @@ module SidtoolExperimental
         @state.cia_timers.each do |timer|
           if timer.underflow && (timer.control_register & Sidtool::CIATimer::INTERRUPT_FLAG) != 0
             irq # Trigger the IRQ interrupt if conditions are met.
-          end
-        end
+      end
 
   # ORA (OR with Accumulator)
   def ora(value)
@@ -464,11 +463,6 @@ def ldy_immediate
   def plp
     status = pop_stack
     @registers[:P] = FlagsRegister.new(status)
-  end
-
-  # Implement the No Operation (NOP) instruction
-  def nop
-    # No operation
   end
 
   # Implement the Branch if Carry Clear (BCC) instruction
@@ -652,8 +646,6 @@ def irq
 
   # Set the interrupt disable flag
   @registers[:P] |= Flags::INTERRUPT_DISABLE
-end
-
 end
 
 def get_address(mode)
@@ -963,7 +955,7 @@ def sty_absolute
   write_memory(absolute_address, @y)
 end
 
-# Load Accumulator from Absolute, X-Indexed Memory
+# Load Accumulator from Ab Ensure that all methods, modules, and classesolute, X-Indexed Memory
 def lda_absolute_x
   absolute_address = fetch_word
   absolute_address += @x
