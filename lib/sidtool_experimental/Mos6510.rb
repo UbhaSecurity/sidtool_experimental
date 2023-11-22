@@ -290,7 +290,6 @@ module SidtoolExperimental
         @state.update # Update the state (CIA timers, SID, etc.) in each CPU step.
         handle_timer_interrupts # Handle interrupts triggered by CIA timers.
       end
-
     
 # Method to handle timer interrupts from the CIA timers.
 def handle_timer_interrupts
@@ -301,30 +300,33 @@ def handle_timer_interrupts
   end # This "end" statement closes the loop.
 end # This "end" statement closes the method.
 
+    # ORA (OR with Accumulator)
+    def ora(value)
+      @registers[:A] |= value                  # OR the value with the accumulator
+      update_flags(@registers[:A])             # Update the flags based on the result
+    end
 
-  # ORA (OR with Accumulator)
-  def ora(value)
-    @registers[:A] |= value                  # OR the value with the accumulator
-    update_flags(@registers[:A])             # Update the flags based on the result
-  end
-
- def load_register_immediate(register)
+   def load_register_immediate(register)
     """Load a value into the specified register using immediate addressing mode."""
     value = fetch_byte
     @registers[register] = value
     update_zero_and_negative_flags(registers[register])
+   end
 
-def lda_immediate
+  def lda_immediate
     """Load the accumulator with a value using immediate addressing mode."""
     load_register_immediate('A')
+  end
 
-def ldx_immediate
+  def ldx_immediate
     """Load the X register with a value using immediate addressing mode."""
     load_register_immediate('X')
+  end
 
-def ldy_immediate
+  def ldy_immediate
     """Load the Y register with a value using immediate addressing mode."""
-    load_register_immediate('Y')
+      oad_register_immediate('Y')
+  end
 
   # Implement the Store Accumulator (STA) instruction with zero page addressing mode
   def sta_zero_page
