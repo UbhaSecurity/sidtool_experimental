@@ -122,26 +122,23 @@ end
     update_flags(@registers[:A])             # Update the flags based on the result
   end
 
-  # Implement the Load Accumulator (LDA) instruction with immediate addressing mode
-  def lda_immediate
-    operand = fetch_byte
-    @registers[:A] = operand
-    update_flags(@registers[:A])
-  end
+ def load_register_immediate(self, register):
+    """Load a value into the specified register using immediate addressing mode."""
+    value = self.fetch_byte()
+    self.registers[register] = value
+    self.update_zero_and_negative_flags(self.registers[register])
 
-  # Implement the Load X Register (LDX) instruction with immediate addressing mode
-  def ldx_immediate
-    operand = fetch_byte
-    @registers[:X] = operand
-    update_flags(@registers[:X])
-  end
+def lda_immediate(self):
+    """Load the accumulator with a value using immediate addressing mode."""
+    self.load_register_immediate('A')
 
-  # Implement the Load Y Register (LDY) instruction with immediate addressing mode
-  def ldy_immediate
-    operand = fetch_byte
-    @registers[:Y] = operand
-    update_flags(@registers[:Y])
-  end
+def ldx_immediate(self):
+    """Load the X register with a value using immediate addressing mode."""
+    self.load_register_immediate('X')
+
+def ldy_immediate(self):
+    """Load the Y register with a value using immediate addressing mode."""
+    self.load_register_immediate('Y')
 
   # Implement the Store Accumulator (STA) instruction with zero page addressing mode
   def sta_zero_page
@@ -837,26 +834,6 @@ end
 # No Operation
 def nop
   # Do nothing
-end
-
-# Immediate Addressing Mode:
-
-# Load Accumulator with Immediate Value
-def lda_immediate
-  @a = fetch_byte
-  update_flags(@a)
-end
-
-# Load X Register with Immediate Value
-def ldx_immediate
-  @x = fetch_byte
-  update_flags(@x)
-end
-
-# Load Y Register with Immediate Value
-def ldy_immediate
-  @y = fetch_byte
-  update_flags(@y)
 end
 
 # Zero Page Addressing Mode:
