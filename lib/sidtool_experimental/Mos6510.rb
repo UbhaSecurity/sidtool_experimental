@@ -1281,17 +1281,15 @@ end
   private
 
 def fetch_byte
-  # Check for memory access bounds
-  raise IndexError, "Memory access out of bounds: #{@registers[:PC]}" unless @registers[:PC].between?(0x0000, 0xFFFF)
+  raise "Program counter (PC) out of range" if pc < 0x0000 || pc > 0xFFFF
 
-  # Fetch the byte from memory
-  value = read_memory(@registers[:PC])
-
-  # Increment the program counter
-  @registers[:PC] += 1
-
-  value
+  byte = memory[pc]
+  self.pc += 1
+  byte
+rescue IndexError
+  raise "Memory access out of bounds"
 end
+
 
   # Utility method to fetch a 16-bit word from memory at the program counter (PC)
   def fetch_word
