@@ -1,0 +1,132 @@
+Product Data Sheet
+-------------------
+
+Product Name: 6510 Microprocessor with I/O
+Manufacturer: MOS Technology (a division of Commodore Semiconductor Group)
+
+Product Description:
+-------------------
+The 6510 is a low-cost microcomputer system capable of solving a broad range of small-systems and peripheral-control problems at a minimum cost to the user.
+
+Key Features:
+--------------
+- 8-bit Bi-Directional I/O Port on-chip
+- Three-State sixteen-bit Address Bus for Direct Memory Accessing (DMA)
+- Internal processor architecture identical to the MOS Technology 6502
+- 8-bit parallel processing
+- 56 instructions
+- Decimal and binary arithmetic
+- Thirteen addressing modes
+- True indexing capability
+- Programmable stack pointer
+- Variable length stack
+- Interrupt capability
+- 8-bit Bi-Directional Data Bus
+- Addressable memory range of up to 65K bytes
+- Direct memory access capability
+- Bus compatible with M6800
+- Pipeline architecture
+- 1 MHz and 2 MHz operation
+- Compatible with any type or speed of memory
+
+Pin Configuration:
+------------------
+- RES
+- IN
+- IRQ
+- AEC
+- VCC
+- A0
+- A1
+- A2
+- A3
+- A4
+- A5
+- A6
+- A7
+- A8
+- A9
+- A10
+- A11
+- A12
+- A13
+- A14
+- A15
+- P0
+- P1
+- P2
+- P3
+- P4
+- P5
+- P6
+- P7
+- VSS
+
+Electrical Characteristics (Vcc = 5.0V ± 5%, Vss = 0, Ta = 0° - 70°C):
+-------------------------------------------------------------------
+- Supply Voltage: Vcc -0.3 to +7.0 Vdc
+- Input High Voltage (Vin): Vcc - 0.2 - Vcc + 1.0 Vdc
+- Input Low Voltage (Vin): Vss - 0.3 - Vss + 0.2 Vdc
+- Input Leakage Current: 2.5 µA (max)
+- Three State (Off State) Input Current: 10 µA (max)
+- Output High Voltage (VOH): Vss + 2.4 Vdc (Iqh = -100 µA)
+- Output Low Voltage (VOL): Vss + 0.4 Vdc (Iql = 1.6 mA)
+- Power Supply Current (ICC): 125 mA
+
+Clock Timing (1 MHz and 2 MHz):
+-------------------------------
+- Cycle Time (TCYC): 500 ns (1 MHz), 250 ns (2 MHz)
+- Clock Pulse Width (PWH01): 215 ns (1 MHz), 108 ns (2 MHz)
+- Clock Pulse Width (PWH02): 235 ns (1 MHz), 118 ns (2 MHz)
+- Fall Time, Rise Time (Tf, Tr): 25 ns
+- Delay Time between Clocks (Td): 15 ns
+
+Addressing Modes:
+-----------------
+The 6510 microprocessor supports various addressing modes, including:
+- Accumulator Addressing
+- Immediate Addressing
+- Absolute Addressing
+- Zero Page Addressing
+- Indexed Zero Page Addressing (X, Y indexing)
+- Indexed Absolute Addressing (X, Y indexing)
+- Implied Addressing
+- Relative Addressing
+- Indexed Indirect Addressing ([Indirect, X])
+- Indirect Indexed Addressing ([Indirect, Y])
+- Absolute Indirect
+
+Instruction Set (Alphabetic Sequence):
+---------------------------------------
+The 6510 microprocessor features an instruction set with various operations, including:
+- ADC, AND, ASL
+- BCC, BCS, BEQ, BIT, BMI, BNE, BPL, BRK, BVC, BVS
+- CLC, CLD, CLI, CLV, CMP, CPX, CPY
+- DEC, DEX, DEY
+- EOR
+- INC, INX, INY
+- JMP, JSR
+- LDA, LDX, LDY, LSR
+- NOP
+- ORA
+- PHA, PHP, PLA, PLP
+- ROL, ROR, RTI, RTS
+- SBC, SEC, SED, SEI, STA, STX, STY
+- TAX, TAY, TSX, TXA, TXS, TYA
+
+Memory Map:
+-----------
+- Addressable External Memory: 0000 - FFFF
+- Stack: 0100 - 01FF
+- Page 0: 0000 - 00FF
+- Page 1: 0100 - 01FF
+- Output Register: 0001
+- Data Direction Register: 0000
+
+Applications Notes:
+-------------------
+Locating the Output Register at the internal I/O Port in Page Zero enhances the powerful Zero Page Addressing instructions of the 6510. By assigning the I/O Pins as inputs (using the Data Direction Register), the user has the ability to change the contents of address 0001 (the Output Register) using peripheral devices. The ability to change these contents using peripheral inputs, together with Zero Page Indirect Addressing instructions, allows novel and versatile programming techniques not possible earlier.
+
+For more detailed information, please refer to the complete product documentation.
+
+Note: This is a simplified and restructured version of the provided data sheet. The original data sheet may contain additional details and specifications.
