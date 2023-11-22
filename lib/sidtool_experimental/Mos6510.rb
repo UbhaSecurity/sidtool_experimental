@@ -1012,7 +1012,6 @@ def sta_indirect_indexed_y
   write_memory(indirect_address, @a)
 end
 
-
 # Add a method to execute the program
 def execute_program(program)
   @memory = program.dup
@@ -1030,7 +1029,7 @@ def and_operation(value)
   @registers[:A] &= value
   # Update Zero and Negative flags
   update_flags(@registers[:A])
-  end
+end
 
 def execute_next_instruction
   opcode = fetch_byte
@@ -1307,7 +1306,6 @@ def page_boundary_crossed?(instruction)
     crossed = false
   end
   crossed
-end
 end
 
 def branch_taken?(instruction)
