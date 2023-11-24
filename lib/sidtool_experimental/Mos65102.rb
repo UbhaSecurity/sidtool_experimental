@@ -407,7 +407,7 @@ module SidtoolExperimental
   0xF9 => { operation: method(:sbc), addr_mode: Mode::ABY, cycles: 4 },
   0xFD => { operation: method(:sbc), addr_mode: Mode::ABX, cycles: 4 },
   0xFE => { operation: method(:inc), addr_mode: Mode::ABX, cycles: 7 }
-}
+}.freeze
 
     # Implement the Decrement Y (DEY) instruction
     def dey
