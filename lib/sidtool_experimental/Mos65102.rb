@@ -478,7 +478,7 @@ def bvs
   branch(@registers[:P][:V])
 end
 
-end # End of Cpu class
+  end # End of Cpu class
 
 def run_cycles(cyc)
   while @cycles < cyc
@@ -832,5 +832,5 @@ def branch_taken?(instruction)
 end
 
 
-end # End of Mos6510 class
+  end # End of Mos6510 class
 end # End of SidtoolExperimental module
