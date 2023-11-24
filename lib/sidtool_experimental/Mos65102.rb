@@ -90,7 +90,7 @@ module SidtoolExperimental
       # Implement the step method to execute a single CPU instruction.
       def step
         opc = fetch_byte # Fetch the opcode from the current PC location.
-        instr = INSTRUCTIONS[opc] # Retrieve the instruction details for the opcode.
+        instr = @instructions[opc] # Retrieve the instruction details for the opcode.
 
         if instr.nil?
           handle_illegal_opcode(opc) # Handle illegal opcode gracefully.
