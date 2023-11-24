@@ -478,7 +478,7 @@ def bvs
   branch(@registers[:P][:V])
 end
 
-  end # End of Cpu class
+    end # End of Cpu class
 
 def run_cycles(cyc)
   while @cycles < cyc
