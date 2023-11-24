@@ -254,32 +254,31 @@ module SidtoolExperimental
         set_address(mode, value)
         update_flags(value)
       end
-
-  # Mapping of CPU instructions
-INSTRUCTIONS = {
-  0x00 => { operation: method(:brk), addr_mode: Mode::IMP, cycles: 7 },
-  0x01 => { operation: method(:ora), addr_mode: Mode::IZX, cycles: 6 },
-  0x05 => { operation: method(:ora), addr_mode: Mode::ZP, cycles: 3 },
-  0x06 => { operation: method(:asl), addr_mode: Mode::ZP, cycles: 5 },
-  0x08 => { operation: method(:php), addr_mode: Mode::IMP, cycles: 3 },
-  0x09 => { operation: method(:ora), addr_mode: Mode::IMM, cycles: 2 },
-  0x0A => { operation: method(:asl), addr_mode: Mode::ACC, cycles: 2 },
-  0x0D => { operation: method(:ora), addr_mode: Mode::ABS, cycles: 4 },
-  0x0E => { operation: method(:asl), addr_mode: Mode::ABS, cycles: 6 },
-  0x10 => { operation: method(:bpl), addr_mode: Mode::REL, cycles: 2 },
-  0x11 => { operation: method(:ora), addr_mode: Mode::IZY, cycles: 5 },
-  0x15 => { operation: method(:ora), addr_mode: Mode::ZPX, cycles: 4 },
-  0x16 => { operation: method(:asl), addr_mode: Mode::ZPX, cycles: 6 },
-  0x18 => { operation: method(:clc), addr_mode: Mode::IMP, cycles: 2 },
-  0x19 => { operation: method(:ora), addr_mode: Mode::ABY, cycles: 4 },
-  0x1D => { operation: method(:ora), addr_mode: Mode::ABX, cycles: 4 },
-  0x1E => { operation: method(:asl), addr_mode: Mode::ABX, cycles: 7 },
-  0x20 => { operation: method(:jsr), addr_mode: Mode::ABS, cycles: 6 },
-  0x21 => { operation: method(:and), addr_mode: Mode::IZX, cycles: 6 },
-  0x24 => { operation: method(:bit), addr_mode: Mode::ZP, cycles: 3 },
-  0x25 => { operation: method(:and), addr_mode: Mode::ZP, cycles: 3 },
-  0x26 => { operation: method(:rol), addr_mode: Mode::ZP, cycles: 5 },
-  0x28 => { operation: method(:plp), addr_mode: Mode::IMP, cycles: 4 },
+      # Mapping of CPU instructions
+      INSTRUCTIONS = {
+        0x00 => { operation: method(:brk), addr_mode: Mode::IMP, cycles: 7 },
+        0x01 => { operation: method(:ora), addr_mode: Mode::IZX, cycles: 6 },
+        0x05 => { operation: method(:ora), addr_mode: Mode::ZP, cycles: 3 },
+        0x06 => { operation: method(:asl), addr_mode: Mode::ZP, cycles: 5 },
+        0x08 => { operation: method(:php), addr_mode: Mode::IMP, cycles: 3 },
+        0x09 => { operation: method(:ora), addr_mode: Mode::IMM, cycles: 2 },
+        0x0A => { operation: method(:asl), addr_mode: Mode::ACC, cycles: 2 },
+        0x0D => { operation: method(:ora), addr_mode: Mode::ABS, cycles: 4 },
+        0x0E => { operation: method(:asl), addr_mode: Mode::ABS, cycles: 6 },
+        0x10 => { operation: method(:bpl), addr_mode: Mode::REL, cycles: 2 },
+        0x11 => { operation: method(:ora), addr_mode: Mode::IZY, cycles: 5 },
+        0x15 => { operation: method(:ora), addr_mode: Mode::ZPX, cycles: 4 },
+        0x16 => { operation: method(:asl), addr_mode: Mode::ZPX, cycles: 6 },
+        0x18 => { operation: method(:clc), addr_mode: Mode::IMP, cycles: 2 },
+        0x19 => { operation: method(:ora), addr_mode: Mode::ABY, cycles: 4 },
+        0x1D => { operation: method(:ora), addr_mode: Mode::ABX, cycles: 4 },
+        0x1E => { operation: method(:asl), addr_mode: Mode::ABX, cycles: 7 },
+        0x20 => { operation: method(:jsr), addr_mode: Mode::ABS, cycles: 6 },
+        0x21 => { operation: method(:and), addr_mode: Mode::IZX, cycles: 6 },
+        0x24 => { operation: method(:bit), addr_mode: Mode::ZP, cycles: 3 },
+        0x25 => { operation: method(:and), addr_mode: Mode::ZP, cycles: 3 },
+        0x26 => { operation: method(:rol), addr_mode: Mode::ZP, cycles: 5 },
+        0x28 => { operation: method(:plp), addr_mode: Mode::IMP, cycles: 4 },
   0x29 => { operation: method(:and), addr_mode: Mode::IMM, cycles: 2 },
   0x2A => { operation: method(:rol), addr_mode: Mode::ACC, cycles: 2 },
   0x2C => { operation: method(:bit), addr_mode: Mode::ABS, cycles: 4 },
@@ -410,22 +409,22 @@ INSTRUCTIONS = {
   0xFE => { operation: method(:inc), addr_mode: Mode::ABX, cycles: 7 }
 }
 
-# Implement the Decrement Y (DEY) instruction
-def dey
-  @registers[:Y] = (@registers[:Y] - 1) & 0xFF
-  update_flags(@registers[:Y])
-end
+    # Implement the Decrement Y (DEY) instruction
+    def dey
+      @registers[:Y] = (@registers[:Y] - 1) & 0xFF
+      update_flags(@registers[:Y])
+    end
 
-# Implement the Push Accumulator (PHA) instruction
-def pha
-  push_stack(@registers[:A])
-end
+    # Implement the Push Accumulator (PHA) instruction
+    def pha
+      push_stack(@registers[:A])
+    end
 
-# Implement the Pop Accumulator (PLA) instruction
-def pla
-  @registers[:A] = pop_stack
-  update_flags(@registers[:A])
-end
+    # Implement the Pop Accumulator (PLA) instruction
+    def pla
+      @registers[:A] = pop_stack
+      update_flags(@registers[:A])
+    end
 
 # Implement the Push Processor Status (PHP) instruction
 def php
