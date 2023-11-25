@@ -3,6 +3,8 @@ module SidtoolExperimental
     # Constants for Timer Modes
     ONE_SHOT_MODE = 1
     CONTINUOUS_MODE = 2
+    INTERRUPT_ENABLE_FLAG = 0b00000001
+    TIMER_MODE_FLAG = 0b00000010
 
     # Initializer
     def initialize(state)
@@ -112,18 +114,22 @@ module SidtoolExperimental
       # Additional update logic
     end
 
+    def timer_mode_continuous?
+      (@timers[:control] & TIMER_MODE_FLAG) != 0
+    end
+
   private
 
-   def handle_timer_expiration(timer_index)
-      case timer_index
-      when 0
-        # Handle Timer 0 expiration event
-        @state.handle_timer_0_expiration
-      when 1
-        # Handle Timer 1 expiration event
-        @state.handle_timer_1_expiration
+     def handle_timer_expiration(timer_index)
+        case timer_index
+        when 0
+          # Handle Timer 0 expiration event
+          @state.handle_timer_0_expiration
+        when 1
+          # Handle Timer 1 expiration event
+          @state.handle_timer_1_expiration
+        end
       end
-    end
 
     # Additional methods and logic...
   end
