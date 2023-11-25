@@ -1,6 +1,6 @@
 class Memory
   attr_accessor :ram, :basic_rom, :kernal_rom, :char_rom, :io_devices
-  attr_accessor :loram, :hiram, :charen, :exrom, :game
+  attr_accessor :loram, :hiram, :charen, :exrom, :game, :processor_port
 
   def initialize
     @ram = Array.new(65536, 0) # 64KB of RAM
@@ -15,7 +15,7 @@ class Memory
     @processor_port = 0x37       # Default value for the processor port
   end
 
-   # Read from memory: Determines the behavior when an address is read based on its range and configuration.
+  # Read from memory: Determines the behavior when an address is read based on its range and configuration.
   def read(address)
     config = current_memory_config # Get the current memory configuration (e.g., which ROMs are active)
 
@@ -53,6 +53,16 @@ class Memory
   end
 
   private
+
+  def current_memory_config
+    {
+      basic_rom_enabled: @loram == 1 && @hiram == 1 && @game == 0,
+      kernal_rom_enabled: @hiram == 1,
+      io_enabled: @charen == 1 && @hiram == 1 && @exrom == 0,
+      ultimax_mode: @game == 1 && @exrom == 1,
+      # Add other configurations as needed
+    }
+  end
 
 def initialize_vic_registers
     Array.new(64, 0) # VIC-II has 64 registers, initialized to 0
