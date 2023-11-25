@@ -344,28 +344,35 @@ end
     # Convert ADSR (Attack, Decay, Sustain, Release) parameters to MIDI controller messages.
     #
     # This method simulates ADSR envelope control using MIDI controllers, as MIDI doesn't have direct ADSR control.
-    def handle_attack_decay_sustain_release
-      attack_midi = (@attack * 127).to_i  # Scale attack to MIDI range (0-127)
-      decay_midi = (@decay * 127).to_i    # Scale decay to MIDI range (0-127)
-      sustain_midi = (@sustain * 127).to_i  # Scale sustain to MIDI range (0-127)
-      release_midi = (@release * 127).to_i  # Scale release to MIDI range (0-127)
+def handle_attack_decay_sustain_release
+  # Scale ADSR parameters to fit the MIDI controller value range (0-127)
+  attack_midi = scale_to_midi(@attack)
+  decay_midi = scale_to_midi(@decay)
+  sustain_midi = scale_to_midi(@sustain)
+  release_midi = scale_to_midi(@release)
 
-      # Assign ADSR parameters to specific MIDI Control Change (CC) numbers.
-      cc_attack = 1   # CC 01 for attack
-      cc_decay = 2    # CC 02 for decay
-      cc_sustain = 3  # CC 03 for sustain
-      cc_release = 4  # CC 04 for release
+  # Assign ADSR parameters to specific MIDI Control Change (CC) numbers
+  cc_attack = 73   # Typically CC 73 for attack
+  cc_decay = 75    # Typically CC 75 for decay
+  cc_sustain = 70  # Typically CC 70 for sustain
+  cc_release = 72  # Typically CC 72 for release
 
-      # Create MIDI controller messages for ADSR parameters.
-      [
-        [0xB0, cc_attack, attack_midi],
-        [0xB0, cc_decay, decay_midi],
-        [0xB0, cc_sustain, sustain_midi],
-        [0xB0, cc_release, release_midi]
-      ]
-    # Return the MIDI controller messages.
-    midi_messages
-    end
+  # Create MIDI controller messages for ADSR parameters
+  midi_messages = [
+    [0xB0, cc_attack, attack_midi],
+    [0xB0, cc_decay, decay_midi],
+    [0xB0, cc_sustain, sustain_midi],
+    [0xB0, cc_release, release_midi]
+  ]
+
+  # Return the MIDI controller messages
+  midi_messages
+end
+
+# Helper method to scale a parameter value to the MIDI range (0-127)
+def scale_to_midi(value)
+  (value * 127).to_i.clamp(0, 127)
+end
   end
 end
 
