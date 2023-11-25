@@ -120,25 +120,24 @@ end
       update_flags(@registers[:A])             # Update the flags based on the result
     end
 
+    # Load a value into the specified register using immediate addressing mode.
    def load_register_immediate(register)
-    """Load a value into the specified register using immediate addressing mode."""
     value = fetch_byte
     @registers[register] = value
     update_zero_and_negative_flags(registers[register])
    end
 
+   # Load the accumulator with a value using immediate addressing mode.
   def lda_immediate
-    """Load the accumulator with a value using immediate addressing mode."""
     load_register_immediate('A')
   end
 
+  # Load the X register with a value using immediate addressing mode.
   def ldx_immediate
-    """Load the X register with a value using immediate addressing mode."""
     load_register_immediate('X')
   end
-
+  # Load the Y register with a value using immediate addressing mode.
   def ldy_immediate
-    """Load the Y register with a value using immediate addressing mode."""
       oad_register_immediate('Y')
   end
 
