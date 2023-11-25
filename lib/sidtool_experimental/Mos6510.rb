@@ -1206,6 +1206,16 @@ end
 
   private
 
+      # Method to read a byte from memory
+      def read_memory(address)
+        @memory.read(address)
+      end
+
+      # Method to write a byte to memory
+      def write_memory(address, value)
+        @memory.write(address, value)
+      end
+
 def pc_increment
   @registers[:PC] = (@registers[:PC] + 1) & 0xFFFF
 end
