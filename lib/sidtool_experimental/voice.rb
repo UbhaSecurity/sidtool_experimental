@@ -36,7 +36,7 @@ module SidtoolExperimental
     # @param sid6581 [Sid6581] Reference to the SID chip instance.
     # @param voice_number [Integer] The number of the voice on the SID chip.
     def initialize(sid6581, voice_number)
-      @sid6581 = sid6581  # Pass the Sid6581 instance, not creating a new one
+      @sid6581 = sid6581
       @voice_number = voice_number
       @frequency_low = @frequency_high = 0
       @pulse_low = @pulse_high = 0
@@ -47,7 +47,8 @@ module SidtoolExperimental
       @previous_midi_note = nil
       @filter_cutoff = 1024
       @filter_resonance = 8
-      # Initialize other necessary attributes here
+      @synths = [] # Ensure this is just an empty array without creating new Synth instances here
+  end
     end
 
     # Apply LFO modulation to voice parameters and filter parameters
