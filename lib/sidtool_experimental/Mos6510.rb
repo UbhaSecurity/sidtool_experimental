@@ -107,12 +107,14 @@ module SidtoolExperimental
 
     
 def handle_timer_interrupts
-  @state.cia_timers.each do
-    if @state.cia_timers.last.underflow && (@state.cia_timers.last.control_register & Sidtool::CIATimer::INTERRUPT_FLAG) != 0
-      irq # Trigger the IRQ interrupt if conditions are met.
+  @state.cia_timers.each do |timer|
+    if timer.underflow? && timer.interrupt_enabled?
+      irq
+      timer.clear_underflow # Reset underflow flag after handling interrupt
     end
   end
 end
+
 
     # ORA (OR with Accumulator)
     def ora(value)
