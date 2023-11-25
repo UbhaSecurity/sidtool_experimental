@@ -252,6 +252,25 @@ end
     update_flags(@registers[:X])
   end
 
+ # Arithmetic Shift Left (ASL)
+      def asl(mode)
+        case mode
+        when Mode::ACC
+          asl_accumulator
+        when Mode::ZP
+          asl_zero_page
+        when Mode::ZPX
+          asl_zero_page_x
+        when Mode::ABS
+          asl_absolute
+        when Mode::ABX
+          asl_absolute_x
+        else
+          raise "Unhandled addressing mode for ASL: #{mode}"
+        end
+      end
+
+
   def dec(mode)
     address = get_address(mode)
     value = read_memory(address) - 1
@@ -1276,6 +1295,40 @@ def page_boundary_crossed?(instruction)
   end
   crossed
 end
+
+ # ASL for the Accumulator
+      def asl_accumulator
+        value = @registers[:A]
+        result = value << 1
+        update_carry_flag(result)
+        @registers[:A] = result & 0xFF
+        update_zero_and_negative_flags(@registers[:A])
+      end
+
+      # ASL for Zero Page Addressing
+      def asl_zero_page
+        address = fetch_byte
+        value = read_memory(address)
+        result = value << 1
+        update_carry_flag(result)
+        write_memory(address, result & 0xFF)
+        update_zero_and_negative_flags(result)
+      end
+
+  # Helper method to update carry flag
+      def update_carry_flag(value)
+        if value > 0xFF
+          set_flag(Flags::CARRY)
+        else
+          clear_flag(Flags::CARRY)
+        end
+      end
+
+      # Helper method to update zero and negative flags
+      def update_zero_and_negative_flags(value)
+        set_flag(Flags::ZERO) if value == 0
+        set_flag(Flags::NEGATIVE) if value & 0x80 != 0
+      end
 
 def branch_taken?(instruction)
   return false unless instruction[:addr_mode] == Mode::REL
