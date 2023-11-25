@@ -121,12 +121,11 @@ end
       update_flags(@registers[:A])             # Update the flags based on the result
     end
 
-    # Load a value into the specified register using immediate addressing mode.
-   def load_register_immediate(register)
-    value = fetch_byte
-    @registers[register] = value
-    update_zero_and_negative_flags(registers[register])
-   end
+    def load_register_immediate(register)
+      value = fetch_byte
+      @registers[register.to_sym] = value  # Convert to symbol to ensure consistency
+      update_zero_and_negative_flags(@registers[register.to_sym])
+    end
 
    # Load the accumulator with a value using immediate addressing mode.
   def lda_immediate
@@ -450,44 +449,45 @@ end
   end
 
   # Implement the Branch if Carry Clear (BCC) instruction
-  def bcc
-    branch(!@registers[:P][:C])
-  end
+      def bcc
+        branch(@registers[:P] & Flags::CARRY == 0)
+      end
 
-  # Implement the Branch if Carry Set (BCS) instruction
-  def bcs
-    branch(@registers[:P][:C])
-  end
+      # Implement the Branch if Carry Set (BCS) instruction
+      def bcs
+        branch(@registers[:P] & Flags::CARRY != 0)
+      end
 
-  # Implement the Branch if Equal (BEQ) instruction
-  def beq
-    branch(@registers[:P][:Z])
-  end
+      # Implement the Branch if Equal (BEQ) instruction
+      def beq
+        branch(@registers[:P] & Flags::ZERO != 0)
+      end
 
-  # Implement the Branch if Negative (BMI) instruction
-  def bmi
-    branch(@registers[:P][:N])
-  end
+      # Implement the Branch if Negative (BMI) instruction
+      def bmi
+        branch(@registers[:P] & Flags::NEGATIVE != 0)
+      end
 
-  # Implement the Branch if Not Equal (BNE) instruction
-  def bne
-    branch(!@registers[:P][:Z])
-  end
+      # Implement the Branch if Not Equal (BNE) instruction
+      def bne
+        branch(@registers[:P] & Flags::ZERO == 0)
+      end
 
-  # Implement the Branch if Positive (BPL) instruction
-  def bpl
-    branch(!@registers[:P][:N])
-  end
+      # Implement the Branch if Positive (BPL) instruction
+      def bpl
+        branch(@registers[:P] & Flags::NEGATIVE == 0)
+      end
 
-  # Implement the Branch if Overflow Clear (BVC) instruction
-  def bvc
-    branch(!@registers[:P][:V])
-  end
+      # Implement the Branch if Overflow Clear (BVC) instruction
+      def bvc
+        branch(@registers[:P] & Flags::OVERFLOW == 0)
+      end
 
-  # Implement the Branch if Overflow Set (BVS) instruction
-  def bvs
-    branch(@registers[:P][:V])
-  end
+      # Implement the Branch if Overflow Set (BVS) instruction
+      def bvs
+        branch(@registers[:P] & Flags::OVERFLOW != 0)
+      end
+
     
 def adc(value)
   if @registers[:P] & Flags::DECIMAL != 0
@@ -568,13 +568,13 @@ def sbc(value)
   update_flags(@registers[:A])
 end
 
-def set_flag(flag)
-  @registers[:P] |= flag
-end
+    def set_flag(flag)
+      @registers[:P] |= Flags.const_get(flag)  # Use const_get for dynamic flag reference
+    end
 
-def clear_flag(flag)
-  @registers[:P] &= ~flag
-end
+    def clear_flag(flag)
+      @registers[:P] &= ~Flags.const_get(flag)  # Use const_get for dynamic flag reference
+    end
 
 def clc
   @registers[:P] &= ~Flags::CARRY
