@@ -197,6 +197,8 @@ module SidtoolExperimental
 
     # Handle logic for when the gate is on.
     def handle_gate_on
+       if frequency > 0 && @current_synth.nil?
+        @current_synth = Synth.new(STATE.current_frame)
       if @current_synth&.released?
         @current_synth.stop!
         @current_synth = nil
