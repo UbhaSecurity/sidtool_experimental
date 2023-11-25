@@ -28,7 +28,7 @@ module SidtoolExperimental
 
     private
 
- def update_timers
+    def update_timers
       @cia_timers.each(&:update)
     end
 
@@ -51,34 +51,32 @@ module SidtoolExperimental
       @break_vector = 0xFE66
     end
 
-def handle_irq
-  if irq_pending?
-    # Save CPU state (registers, program counter, etc.)
-    @cpu.save_state
+    def handle_irq
+      if irq_pending?
+        # Save CPU state (registers, program counter, etc.)
+        @cpu.save_state
+        # Jump to the IRQ vector address and execute the IRQ routine
+        @cpu.jump_to_address(@irq_vector)
 
-    # Jump to the IRQ vector address and execute the IRQ routine
-    @cpu.jump_to_address(@irq_vector)
+        # The IRQ routine is responsible for acknowledging the IRQ
+        # and performing necessary actions
 
-    # The IRQ routine is responsible for acknowledging the IRQ
-    # and performing necessary actions
+        # Restore the CPU state after IRQ handling
+        @cpu.restore_state
+    end
 
-    # Restore the CPU state after IRQ handling
-    @cpu.restore_state
+    def handle_nmi
+      if nmi_pending?
+        # Save CPU state (registers, program counter, etc.)
+        @cpu.save_state
+
+        # Jump to the NMI vector address and execute the NMI routine
+        @cpu.jump_to_address(@nmi_vector)
+
+        # The NMI routine typically checks the cause of the NMI and handles it
+        # For example, it might handle the RUN/STOP + RESTORE keypress
+
+        # Restore the CPU state after NMI handling
+        @cpu.restore_state
+      end
   end
-end
-
-def handle_nmi
-  if nmi_pending?
-    # Save CPU state (registers, program counter, etc.)
-    @cpu.save_state
-
-    # Jump to the NMI vector address and execute the NMI routine
-    @cpu.jump_to_address(@nmi_vector)
-
-    # The NMI routine typically checks the cause of the NMI and handles it
-    # For example, it might handle the RUN/STOP + RESTORE keypress
-
-    # Restore the CPU state after NMI handling
-    @cpu.restore_state
-  end
-end
