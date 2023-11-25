@@ -58,7 +58,7 @@ module SidtoolExperimental
     attr_reader :sid6581, :ciaTimerA, :ciaTimerB
 
     def initialize
-      @sid6581 = Sid6581.new
+      @sid6581 = Sid6581.new(memory: STATE.memory)
       @ciaTimerA = CIATimer.new(STATE)
       @ciaTimerB = CIATimer.new(STATE)
     end
