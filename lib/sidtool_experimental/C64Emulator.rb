@@ -2,10 +2,11 @@ module SidtoolExperimental
   class C64Emulator
     attr_reader :memory, :cpu, :sid, :state, :display, :keyboard
 
-    def initialize
+    # Constructor now takes sid6581 instance as a parameter
+    def initialize(sid6581)
       @memory = Memory.new
-      @cpu = Mos6510::Cpu.new(@memory)  # Correctly reference the @memory instance variable
-      @sid = Sid6581.new(memory: @memory)
+      @cpu = Mos6510::Cpu.new(@memory)
+      @sid = sid6581  # Use the passed Sid6581 instance
       @ciaTimerA = CIATimer.new(@cpu)
       @ciaTimerB = CIATimer.new(@cpu)
       @state = State.new
