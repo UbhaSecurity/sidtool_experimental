@@ -26,6 +26,34 @@ module SidtoolExperimental
       handle_nmi if nmi_pending?
     end
 
+def generate_interrupt(source)
+  case source
+  when :timer0
+    # Handle Timer 0 interrupt
+    # For example, set the IRQ flag in the processor status register (P)
+    @cpu.set_irq_flag
+  # Add more cases for other interrupt sources if needed
+  end
+end
+
+def perform_task_for_timer1
+  # Implement tasks specific to Timer 1 event
+  # For example, you can perform some actions here
+  # when Timer 1 reaches a certain condition
+  if timer1_condition_met?
+    # Perform the task
+    # Example: Display a message or update some state
+    puts "Timer 1 event occurred. Performing a task..."
+  end
+end
+
+def timer1_condition_met?
+  # Implement the condition that defines when Timer 1 event occurs
+  # Return true if the condition is met, false otherwise
+  # Example: Check if Timer 1 counter reaches a specific value
+  @cia_timers[1].counter == specific_value
+end
+
     private
 
     def update_timers
