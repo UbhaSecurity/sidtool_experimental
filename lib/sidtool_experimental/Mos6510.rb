@@ -51,6 +51,7 @@ module SidtoolExperimental
         @cycles = 0
         reset
         @state = SidtoolExperimental::State.new(self) # Initialize the state with a reference to this CPU.
+        initialize_instructions # Initialize the instructions set for this instance
       end
 
       # Reset method to reinitialize registers to default values.
@@ -88,7 +89,7 @@ module SidtoolExperimental
       # Implement the step method to execute a single CPU instruction.
       def step
         opc = fetch_byte # Fetch the opcode from the current PC location.
-        instr = INSTRUCTIONS[opc] # Retrieve the instruction details for the opcode.
+        instr = @instructions[opc] # Retrieve the instruction details for this instance.
 
         if instr.nil?
           handle_illegal_opcode(opc) # Handle illegal opcode gracefully.
@@ -254,8 +255,9 @@ end
     update_flags(value)
   end
 
-
-INSTRUCTIONS = {
+   # Define initialize_instructions method
+      def initialize_instructions
+        @instructions = {
   0x00 => { operation: method(:brk), addr_mode: Mode::IMP, cycles: 7 },
   0x01 => { operation: method(:ora), addr_mode: Mode::IZX, cycles: 6 },
   0x05 => { operation: method(:ora), addr_mode: Mode::ZP, cycles: 3 },
@@ -408,6 +410,7 @@ INSTRUCTIONS = {
   0xFD => { operation: method(:sbc), addr_mode: Mode::ABX, cycles: 4 },
   0xFE => { operation: method(:inc), addr_mode: Mode::ABX, cycles: 7 }
 }
+      end
 
 
   # Implement the Decrement Y (DEY) instruction
