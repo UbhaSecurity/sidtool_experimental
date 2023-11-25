@@ -39,13 +39,14 @@ module SidtoolExperimental
 
       # Initialize the CPU with provided memory and set up initial state.
       def initialize(mem)
+        raise "Memory not initialized" if memory.nil?
         @registers = {
           A: 0x00, 
           X: 0x00, 
           Y: 0x00, 
           SP: 0xFF, 
           P: Flags::INTERRUPT_DISABLE | Flags::BREAK,
-          PC: mem[0xFFFC] | (mem[0xFFFD] << 8) # Program Counter starts from the reset vector.
+          @PC = memory.read(0xFFFC) | (memory.read(0xFFFD) << 8)
         }
         @memory =  mem 
         @cycles = 0
