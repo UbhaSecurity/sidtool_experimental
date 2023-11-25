@@ -89,23 +89,22 @@ module SidtoolExperimental
 
       # Implement the step method to execute a single CPU instruction.
       def step
-        opc = fetch_byte # Fetch the opcode from the current PC location.
-        instr = @instructions[opc] # Retrieve the instruction details for this instance.
+        opc = fetch_byte
+        instr = @instructions[opc]
 
-        if instr.nil?
-          handle_illegal_opcode(opc) # Handle illegal opcode gracefully.
-        else
-          @cycles += instr[:cycles] # Add instruction cycles.
+      if instr.nil?
+        handle_illegal_opcode(opc)
+      else
+        @cycles += instr[:cycles]
+        @cycles += 1 if page_boundary_crossed?(instr)
+        @cycles += 1 if branch_taken?(instr)
 
-          # Check for additional cycles needed for page boundary and branch taken.
-          @cycles += 1 if page_boundary_crossed?(instr)
-          @cycles += 1 if branch_taken?(instr)
-
-          instr[:operation].call # Execute the instruction.
-        end
-        @state.update # Update the state (CIA timers, SID, etc.) in each CPU step.
-        handle_timer_interrupts # Handle interrupts triggered by CIA timers.
+        instr[:operation].call
       end
+        @state.update
+        handle_timer_interrupts
+      end
+
     
 def handle_timer_interrupts
   @state.cia_timers.each do
@@ -414,11 +413,10 @@ end
 }
       end
 
-  def pc_increment
-    current_pc = @registers[:PC]
-    @registers[:PC] = (@registers[:PC] + 1) & 0xFFFF
-    current_pc
-  end
+def pc_increment
+  @registers[:PC] = (@registers[:PC] + 1) & 0xFFFF
+end
+
 
   # Implement the Decrement Y (DEY) instruction
   def dey
@@ -1008,13 +1006,12 @@ end
 # Add a method to execute the program
 def execute_program(program)
   @memory = program.dup
-  @registers[:PC] = 0x0600  # Set the initial program counter (you can adjust this)
-  @registers[:SP] = 0xFF  # Set the initial stack pointer
-
-  # Run the CPU until a halt condition is reached
+  @registers[:PC] = correct_start_address # Replace with the correct start address
+  @registers[:SP] = 0xFF
   until @halt
     execute_next_instruction
   end
+end
 
 # Method to perform the AND operation
 def and_operation(value)
@@ -1238,22 +1235,21 @@ end
 
   private
 
-def fetch_byte
-  raise "Program counter (PC) out of range" if pc < 0x0000 || pc > 0xFFFF
-
-  byte = memory[pc]
-  pc += 1
-  byte
-rescue IndexError
-  raise "Memory access out of bounds"
+def pc_increment
+  @registers[:PC] = (@registers[:PC] + 1) & 0xFFFF
 end
 
-  # Utility method to fetch a 16-bit word from memory at the program counter (PC)
-  def fetch_word
-    low_byte = fetch_byte
-    high_byte = fetch_byte
-    (high_byte << 8) | low_byte
-  end
+def fetch_byte
+  byte = memory[pc]
+  pc_increment
+  byte
+end
+
+def fetch_word
+  low_byte = fetch_byte
+  high_byte = fetch_byte
+  (high_byte << 8) | low_byte
+end
 
   def validate_address(address)
     unless address >= 0x0000 && address <= 0xFFFF
