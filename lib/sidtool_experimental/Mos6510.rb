@@ -1294,29 +1294,41 @@ def page_boundary_crossed?(instruction)
   crossed
 end
 
-  def branch_taken?(instruction)
-    return false unless instruction[:addr_mode] == Mode::REL
+def branch_taken?(instruction)
+  return false unless instruction[:addr_mode] == Mode::REL
 
-    offset = fetch_byte
-    case instruction[:operation].name
-    when :bpl
-      @registers[:P] & Flags::NEGATIVE == 0
-    when :bmi
-      @registers[:P] & Flags::NEGATIVE != 0
-    when :bvc
-      @registers[:P] & Flags::OVERFLOW == 0
-    when :bvs
-      @registers[:P] & Flags::OVERFLOW != 0
-    when :bcc
-      @registers[:P] & Flags::CARRY == 0
-    when :bcs
-      @registers[:P] & Flags::CARRY != 0
-    when :bne
-      @registers[:P] & Flags::ZERO == 0
-    when :beq
-      @registers[:P] & Flags::ZERO != 0
-    else
-      false
-    end
+  offset = fetch_byte
+  case instruction[:operation]
+  when :bpl
+    condition = @registers[:P] & Flags::NEGATIVE == 0
+  when :bmi
+    condition = @registers[:P] & Flags::NEGATIVE != 0
+  when :bvc
+    condition = @registers[:P] & Flags::OVERFLOW == 0
+  when :bvs
+    condition = @registers[:P] & Flags::OVERFLOW != 0
+  when :bcc
+    condition = @registers[:P] & Flags::CARRY == 0
+  when :bcs
+    condition = @registers[:P] & Flags::CARRY != 0
+  when :bne
+    condition = @registers[:P] & Flags::ZERO == 0
+  when :beq
+    condition = @registers[:P] & Flags::ZERO != 0
+  else
+    raise "Unsupported branch operation"
+  end
+
+  # Update the program counter if the condition is true
+  if condition
+    new_pc = @registers[:PC] + offset
+    new_pc -= 0x0100 if offset >= 0x80 # Handle negative offsets
+    @registers[:PC] = new_pc & 0xFFFF
+    true # Indicates a branch was taken
+  else
+    false # Indicates no branch was taken
+  end
+end
+
   end
 end
