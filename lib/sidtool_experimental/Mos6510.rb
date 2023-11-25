@@ -252,6 +252,19 @@ end
     update_flags(@registers[:X])
   end
 
+# RTI (Return from Interrupt)
+      def rti
+        # Pop processor status from the stack
+        status = pop_stack
+        @registers[:P] = status & ~Flags::BREAK  # Clear the BREAK flag upon popping
+
+        # Pop program counter from the stack
+        low_byte = pop_stack
+        high_byte = pop_stack
+        @registers[:PC] = (high_byte << 8) | low_byte
+      end
+
+
       # AND (bitwise AND with accumulator)
       def and(value)
         # Perform bitwise AND operation
