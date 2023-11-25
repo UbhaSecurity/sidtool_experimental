@@ -252,6 +252,15 @@ end
     update_flags(@registers[:X])
   end
 
+      # AND (bitwise AND with accumulator)
+      def and(value)
+        # Perform bitwise AND operation
+        @registers[:A] &= value
+
+        # Update flags based on the result
+        update_zero_and_negative_flags(@registers[:A])
+      end
+
       # Jump to Subroutine (JSR)
       def jsr
         # Fetch the target address where the subroutine is located.
@@ -1242,6 +1251,24 @@ end
     end
 
   private
+
+     # Update zero and negative flags based on the given value
+      def update_zero_and_negative_flags(value)
+        # Update Zero flag (set if value is zero)
+        if value == 0
+          @registers[:P] |= Flags::ZERO
+        else
+          @registers[:P] &= ~Flags::ZERO
+        end
+
+        # Update Negative flag (set if bit 7 of value is set)
+        if value & 0x80 != 0
+          @registers[:P] |= Flags::NEGATIVE
+        else
+          @registers[:P] &= ~Flags::NEGATIVE
+        end
+      end
+
 
       # Method to read a byte from memory
       def read_memory(address)
