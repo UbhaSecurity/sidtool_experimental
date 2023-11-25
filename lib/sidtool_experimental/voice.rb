@@ -36,7 +36,7 @@ module SidtoolExperimental
     # @param sid6581 [Sid6581] Reference to the SID chip instance.
     # @param voice_number [Integer] The number of the voice on the SID chip.
     def initialize(sid6581, voice_number)
-      @sid6581 = sid6581
+      @sid6581 = sid6581  # Pass the Sid6581 instance, not creating a new one
       @voice_number = voice_number
       @frequency_low = @frequency_high = 0
       @pulse_low = @pulse_high = 0
@@ -45,9 +45,9 @@ module SidtoolExperimental
       @current_synth = nil
       @synths = []
       @previous_midi_note = nil
-
-      @filter_cutoff = 1024          # Initial filter cutoff frequency
-      @filter_resonance = 8          # Initial filter resonance
+      @filter_cutoff = 1024
+      @filter_resonance = 8
+      # Initialize other necessary attributes here
     end
 
     # Apply LFO modulation to voice parameters and filter parameters
@@ -195,21 +195,10 @@ module SidtoolExperimental
       @sustain_level = @sustain_release >> 4
     end
 
-    # Handle logic for when the gate is on.
     def handle_gate_on
-       if frequency > 0 && @current_synth.nil?
+      if frequency > 0 && !@current_synth
         @current_synth = Synth.new(STATE.current_frame)
-      if @current_synth&.released?
-        @current_synth.stop!
-        @current_synth = nil
-      end
-
-      if frequency > 0
-        if !@current_synth
-          @current_synth = Synth.new(STATE.current_frame)
-          @synths << @current_synth
-          @previous_midi_note = nil
-        end
+        @synths << @current_synth
         update_synth_properties
       end
     end
