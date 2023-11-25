@@ -11,6 +11,7 @@ require_relative '../lib/sidtool_experimental/version'
 require_relative '../lib/sidtool_experimental/C64Emulator'
 require_relative '../lib/sidtool_experimental/memory'
 require_relative '../lib/sidtool_experimental/CIATimer'
+require_relative '../lib/sidtool_experimental/RubyFileWriter'
 
 module SidtoolExperimental
   # Define constants for PAL properties.
