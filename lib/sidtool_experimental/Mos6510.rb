@@ -541,6 +541,33 @@ end
         branch(@registers[:P] & Flags::OVERFLOW != 0)
       end
 
+  # BIT (test bits in memory with accumulator)
+      def bit(value)
+        # Perform bitwise AND operation but do not change the accumulator
+        result = @registers[:A] & value
+
+        # Update the Zero flag (set if the AND result is zero)
+        if result == 0
+          @registers[:P] |= Flags::ZERO
+        else
+          @registers[:P] &= ~Flags::ZERO
+        end
+
+        # Update the Negative flag based on bit 7 of the memory value
+        if value & 0x80 != 0
+          @registers[:P] |= Flags::NEGATIVE
+        else
+          @registers[:P] &= ~Flags::NEGATIVE
+        end
+
+        # Update the Overflow flag based on bit 6 of the memory value
+        if value & 0x40 != 0
+          @registers[:P] |= Flags::OVERFLOW
+        else
+          @registers[:P] &= ~Flags::OVERFLOW
+        end
+      end
+
     
 def adc(value)
   if @registers[:P] & Flags::DECIMAL != 0
