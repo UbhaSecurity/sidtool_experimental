@@ -62,6 +62,7 @@ module SidtoolExperimental
     # Constants for slide detection and handling
     SLIDE_THRESHOLD = 60
     SLIDE_DURATION_FRAMES = 20
+    MAX_FREQUENCY = 20000
 
 # Converts internal parameters to a standardized format for Voice
     def to_standard_format
@@ -229,12 +230,13 @@ module SidtoolExperimental
 
     private
 
-  # Example method to scale frequency to a range suitable for Voice
-    def scale_frequency(frequency)
-      # Assuming frequency should be in the range 0 to MAX_FREQUENCY
-      MAX_FREQUENCY ||= 20000  # Example max frequency, adjust as needed
-      [[frequency, MAX_FREQUENCY].min, 0].max
-    end
+def scale_frequency(frequency)
+  # Ensure frequency is within the range 0 to MAX_FREQUENCY
+  # If frequency is nil or negative, it defaults to 0.
+  # If frequency exceeds MAX_FREQUENCY, it is set to MAX_FREQUENCY.
+  [[frequency.to_i, MAX_FREQUENCY].min, 0].max
+end
+
 
 
     # Detect if a slide is occurring between two frequencies.
