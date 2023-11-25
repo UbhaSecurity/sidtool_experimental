@@ -54,6 +54,23 @@ def timer1_condition_met?
   @cia_timers[1].counter == specific_value
 end
 
+def handle_timer_0_expiration
+      # Example implementation for Timer 0 expiration event
+      # This might involve generating an IRQ interrupt
+      if timer_0_irq_enabled?
+        @cpu.generate_interrupt(:irq)
+        # Additional logic specific to Timer 0, if any
+      end
+      # Other actions can be added here as needed
+    end
+
+    def handle_timer_1_expiration
+      # Example implementation for Timer 1 expiration event
+      # This could be handling a specific task or updating a state
+      perform_specific_action_for_timer1
+      # Any other logic that needs to be executed when Timer 1 expires
+    end
+
     private
 
     def update_timers
@@ -93,6 +110,18 @@ end
       @irq_vector = 0xEA31
       @nmi_vector = 0xFE43
       @break_vector = 0xFE66
+    end
+
+   # Helper method to check if IRQ is enabled for Timer 0
+    def timer_0_irq_enabled?
+      # Check the specific register or flag that controls IRQ for Timer 0
+      # Example: return true if IRQ enabled, else false
+    end
+
+    # Example method for a specific action for Timer 1
+    def perform_specific_action_for_timer1
+      # Implement the specific action or task for Timer 1
+      # This could be anything from updating a state, triggering an event, etc.
     end
 
     def handle_irq
