@@ -86,30 +86,17 @@ module SidtoolExperimental
     #
     # @param start_frame [Integer] The frame number where this synth instance begins.
     def initialize(start_frame)
-      # The starting frame of the synth voice, used for timing control.
       @start_frame = start_frame
-
-      # An array to store control changes for the synth parameters over time.
-      @controls = []
-
-      # Default values for various synth parameters.
-      @frequency = nil
-      @released_at = nil
-      @waveform = :triangle
+      # Set default values for synth parameters
+      @frequency = 0
       @pulse_width = 0
+      @filter_cutoff = 1024
+      @filter_resonance = 0
       @attack = 0
       @decay = 0
       @sustain = 0
       @release = 0
-      @filter_cutoff = 1024
-      @filter_resonance = 8
-      @osc_sync = 0
-      @ring_mod_effect = 0
-      @modulation = 0
-      @expression = 0
-      @pitch_bend = 0
-      initialize_defaults
-      initialize_lfo
+      # Other initializations as needed
     end
 
  def initialize_defaults
