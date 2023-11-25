@@ -81,5 +81,3 @@ def handle_nmi
     @cpu.restore_state
   end
 end
-
-end
