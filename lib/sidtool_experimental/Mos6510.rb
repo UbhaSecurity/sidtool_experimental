@@ -1329,6 +1329,4 @@ def branch_taken?(instruction)
     false # Indicates no branch was taken
   end
 end
-
-  end
 end
