@@ -9,6 +9,7 @@ require_relative '../lib/sidtool_experimental/synth'
 require_relative '../lib/sidtool_experimental/voice'
 require_relative '../lib/sidtool_experimental/version'
 require_relative '../lib/sidtool_experimental/C64Emulator'
+require_relative '../lib/sidtool_experimental/memory'
 
 module SidtoolExperimental
   # Define constants for PAL properties.
