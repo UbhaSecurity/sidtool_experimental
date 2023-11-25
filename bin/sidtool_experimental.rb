@@ -59,7 +59,7 @@ module SidtoolExperimental
 
     def initialize(sid6581_instance)
       @memory = Memory.new
-      @sid6581 = sid6581_instance
+      @sid6581 = Sid6581.new(memory: @memory)  # Pass the memory to Sid6581
       @ciaTimerA = CIATimer.new(STATE)
       @ciaTimerB = CIATimer.new(STATE)
       @cpu = Mos6510::Cpu.new(memory: @memory)
