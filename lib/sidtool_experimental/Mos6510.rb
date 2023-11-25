@@ -52,6 +52,7 @@ module SidtoolExperimental
         reset
         @state = SidtoolExperimental::State.new(self) # Initialize the state with a reference to this CPU.
         initialize_instructions # Initialize the instructions set for this instance
+        @halt = false  # Initialize the @halt variable
       end
 
       # Reset method to reinitialize registers to default values.
@@ -411,6 +412,11 @@ end
 }
       end
 
+  def pc_increment
+    current_pc = @registers[:PC]
+    @registers[:PC] = (@registers[:PC] + 1) & 0xFFFF
+    current_pc
+  end
 
   # Implement the Decrement Y (DEY) instruction
   def dey
@@ -431,14 +437,14 @@ end
 
   # Implement the Push Processor Status (PHP) instruction
   def php
-    status = @registers[:P][:value] | 0x10
+    status = @registers[:P] | Flags::BREAK
     push_stack(status)
   end
 
   # Implement the Pop Processor Status (PLP) instruction
   def plp
     status = pop_stack
-    @registers[:P] = FlagsRegister.new(status)
+    @registers[:P] = status & ~Flags::BREAK  # Clear the BREAK flag upon popping
   end
 
   # Implement the Branch if Carry Clear (BCC) instruction
