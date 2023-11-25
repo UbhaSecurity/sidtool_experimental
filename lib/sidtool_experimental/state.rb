@@ -11,6 +11,7 @@ module SidtoolExperimental
       @emulation_finished = false
       @interrupt_flag = false # Flag to ignore or respond to IRQs
       initialize_vectors
+    end
 
     def update
       update_timers
