@@ -32,13 +32,29 @@ module SidtoolExperimental
       @cia_timers.each(&:update)
     end
 
-    def handle_timer_events
-      # Logic for timer events
+def handle_timer_events
+  # Loop through CIA timers
+  @cia_timers.each_with_index do |timer, index|
+    # Check if a specific timer event condition is met
+    if timer.event_condition_met?
+      # Perform actions specific to the event
+      case index
+      when 0
+        # Timer 0 event handling
+        # Example: Generate an interrupt
+        generate_interrupt(:timer0)
+      when 1
+        # Timer 1 event handling
+        # Example: Perform a task
+        perform_task_for_timer1
+      end
     end
+  end
+end
 
-    def update_sid
-      @sid6581.update(current_frame)
-    end
+def update_sid
+  @sid6581.update(@current_frame)
+end
 
     def increment_frame
       @current_frame += 1
