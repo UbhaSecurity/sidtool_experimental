@@ -252,6 +252,22 @@ end
     update_flags(@registers[:X])
   end
 
+      # Jump to Subroutine (JSR)
+      def jsr
+        # Fetch the target address where the subroutine is located.
+        target_address = fetch_word
+
+        # Calculate the return address (current PC - 1, because PC is already pointing to the next instruction after JSR)
+        return_address = @registers[:PC] - 1
+
+        # Push the high byte and then the low byte of the return address onto the stack
+        push_stack((return_address >> 8) & 0xFF)  # High byte
+        push_stack(return_address & 0xFF)        # Low byte
+
+        # Set the program counter to the target address
+        @registers[:PC] = target_address
+      end
+
  # Arithmetic Shift Left (ASL)
       def asl(mode)
         case mode
