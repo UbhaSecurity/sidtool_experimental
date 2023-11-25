@@ -55,6 +55,7 @@ module SidtoolExperimental
       if irq_pending?
         # Save CPU state (registers, program counter, etc.)
         @cpu.save_state
+
         # Jump to the IRQ vector address and execute the IRQ routine
         @cpu.jump_to_address(@irq_vector)
 
@@ -63,6 +64,7 @@ module SidtoolExperimental
 
         # Restore the CPU state after IRQ handling
         @cpu.restore_state
+      end
     end
 
     def handle_nmi
@@ -81,3 +83,4 @@ module SidtoolExperimental
       end
     end
   end
+end
