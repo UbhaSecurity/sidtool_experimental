@@ -8,7 +8,7 @@ module SidtoolExperimental
       @sid6581 = Sid6581.new(memory: @memory)
       @ciaTimerA = CIATimer.new(self)
       @ciaTimerB = CIATimer.new(self)
-      @state = State.new
+     @state = State.new(@cpu)
     end
 
     def load_program(program_data, start_address)
