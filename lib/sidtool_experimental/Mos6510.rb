@@ -834,12 +834,6 @@ def stx(mode)
   set_address(mode, @registers[:X])
 end
 
-# Store Accumulator to Zero-Page Memory
-def sta_zero_page
-  zero_page_address = fetch_byte
-  write_memory(zero_page_address, @a)
-end
-
 # Store X Register to Zero-Page Memory
 def stx_zero_page
   zero_page_address = fetch_byte
@@ -871,12 +865,6 @@ def ldy_zero_page_x
   zero_page_address = (fetch_byte + @x) & 0xFF
   @y = read_memory(zero_page_address)
   update_flags(@y)
-end
-
-# Store Accumulator to Zero-Page, X-Indexed Memory
-def sta_zero_page_x
-  zero_page_address = (fetch_byte + @x) & 0xFF
-  write_memory(zero_page_address, @a)
 end
 
 # Zero Page, Y-Indexed Addressing Mode:
@@ -917,12 +905,6 @@ def ldy_absolute
   update_flags(@y)
 end
 
-# Store Accumulator to Absolute Memory
-def sta_absolute
-  absolute_address = fetch_word
-  write_memory(absolute_address, @a)
-end
-
 # Store X Register to Absolute Memory
 def stx_absolute
   absolute_address = fetch_word
@@ -951,13 +933,6 @@ def ldy_absolute_x
   update_flags(@y)
 end
 
-# Store Accumulator to Absolute, X-Indexed Memory
-def sta_absolute_x
-  absolute_address = fetch_word
-  absolute_address += @x
-  write_memory(absolute_address, @a)
-end
-
 # Absolute, Y-Indexed Addressing Mode:
 
 # Load Accumulator from Absolute, Y-Indexed Memory
@@ -966,13 +941,6 @@ def lda_absolute_y
   absolute_address += @y
   @a = read_memory(absolute_address)
   update_flags(@a)
-end
-
-# Store Accumulator to Absolute, Y-Indexed Memory
-def sta_absolute_y
-  absolute_address = fetch_word
-  absolute_address += @y
-  write_memory(absolute_address, @a)
 end
 
 # Indirect Addressing Mode:
