@@ -45,9 +45,17 @@ module SidtoolExperimental
       @timers[timer_number][:counter] = value
     end
 
+   # Timer Handling
     def update_timers
-      @timers.each do |timer|
-        # Logic for updating timers based on mode
+      @timers.each_with_index do |timer, index|
+        next if timer[:counter] == 0 # Skip if the timer has already expired
+
+        timer[:counter] -= 1 # Decrement the timer counter
+
+        if timer[:counter] == 0
+          handle_timer_expiration(index)
+          timer[:counter] = timer[:initial_value] if timer[:mode] == CONTINUOUS_MODE # Reload counter for continuous mode
+        end
       end
     end
 
@@ -78,6 +86,19 @@ module SidtoolExperimental
       check_alarm
       handle_serial_transfer
       # Additional update logic
+    end
+
+  private
+
+   def handle_timer_expiration(timer_index)
+      case timer_index
+      when 0
+        # Handle Timer 0 expiration event
+        @state.handle_timer_0_expiration
+      when 1
+        # Handle Timer 1 expiration event
+        @state.handle_timer_1_expiration
+      end
     end
 
     # Additional methods and logic...
