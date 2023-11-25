@@ -1,9 +1,12 @@
 module SidtoolExperimental
   class State
     attr_accessor :current_frame, :emulation_finished, :memory
-    attr_reader :sid6581, :cia_timers
+    attr_reader :sid6581, :cia_timers, :cpu
 
-    def initialize
+    def initialize(cpu)
+      raise "CPU instance is required" if cpu.nil?
+
+      @cpu = cpu
       @current_frame = 0
       @memory = Memory.new  # Initialize memory
       @sid6581 = Sid6581.new(memory: @memory)  # Pass memory to SID
