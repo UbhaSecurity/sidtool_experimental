@@ -48,7 +48,6 @@ module SidtoolExperimental
       @filter_cutoff = 1024
       @filter_resonance = 8
       @synths = [] # Ensure this is just an empty array without creating new Synth instances here
-  end
     end
 
     # Apply LFO modulation to voice parameters and filter parameters
