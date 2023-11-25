@@ -11,38 +11,49 @@ module SidtoolExperimental
       @state = state
       @parallel_ports = Array.new(2) { {data: 0, direction: 0xFF} }
       @serial_shift_register = 0
-      @timers = [{counter: 0, mode: CONTINUOUS_MODE}, {counter: 0, mode: CONTINUOUS_MODE}]
+      @timers = [
+        {counter: 0, mode: CONTINUOUS_MODE, control: 0, initial_value: 0, underflow: false},
+        {counter: 0, mode: CONTINUOUS_MODE, control: 0, initial_value: 0, underflow: false}
+      ]
       @tod_clock = {hours: 0x12, minutes: 0, seconds: 0, tenths: 0, alarm_set: false, alarm_time: {}}
     end
 
-  def enable_interrupt
-    @timers[:control] |= INTERRUPT_ENABLE_FLAG
-  end
-
-  def disable_interrupt
-    @timers[:control] &= ~INTERRUPT_ENABLE_FLAG
-  end
-
-  def set_timer_mode_continuous
-    @timers[:control] |= TIMER_MODE_FLAG
-  end
-
-  def set_timer_mode_one_shot
-    @timers[:control] &= ~TIMER_MODE_FLAG
-  end
-
-    def underflow?
-      @timers[:underflow]
+    def enable_interrupt(timer_index)
+      @timers[timer_index][:control] |= INTERRUPT_ENABLE_FLAG
     end
 
-    def interrupt_enabled?
-      (@timers[:control] & INTERRUPT_ENABLE_FLAG) != 0
+    def disable_interrupt(timer_index)
+      @timers[timer_index][:control] &= ~INTERRUPT_ENABLE_FLAG
     end
 
-    def clear_underflow
-      @timers[:underflow] = false
+    def set_timer_mode(timer_index, mode)
+      case mode
+      when CONTINUOUS_MODE
+        @timers[timer_index][:control] |= TIMER_MODE_FLAG
+      when ONE_SHOT_MODE
+        @timers[timer_index][:control] &= ~TIMER_MODE_FLAG
+      end
     end
 
+    def set_initial_value(timer_index, value)
+      @timers[timer_index][:initial_value] = value
+    end
+
+    def underflow?(timer_index)
+      @timers[timer_index][:underflow]
+    end
+
+    def interrupt_enabled?(timer_index)
+      (@timers[timer_index][:control] & INTERRUPT_ENABLE_FLAG) != 0
+    end
+
+    def timer_mode_continuous?(timer_index)
+      (@timers[timer_index][:control] & TIMER_MODE_FLAG) != 0
+    end
+
+    def clear_underflow(timer_index)
+      @timers[timer_index][:underflow] = false
+    end
     # Parallel I/O Management
     def set_data_direction(port, direction_mask)
       @parallel_ports[port][:direction] = direction_mask
@@ -69,21 +80,13 @@ module SidtoolExperimental
       # Implement logic for handling serial data transfer
     end
 
-    def underflow(timer_index)
-      @timers[timer_index][:underflow]
-    end
-
-    def control_register(timer_index)
-      @timers[timer_index][:control]
-    end
-
     # Timer Handling
     def configure_timer(timer_number, mode, value)
-      @timers[timer_number][:mode] = mode
+      set_timer_mode(timer_number, mode)
       @timers[timer_number][:counter] = value
+      set_initial_value(timer_number, value)
     end
 
-   # Timer Handling
     def update_timers
       @timers.each_with_index do |timer, index|
         next if timer[:counter] == 0 # Skip if the timer has already expired
@@ -92,7 +95,8 @@ module SidtoolExperimental
 
         if timer[:counter] == 0
           handle_timer_expiration(index)
-          timer[:counter] = timer[:initial_value] if timer[:mode] == CONTINUOUS_MODE # Reload counter for continuous mode
+          timer[:counter] = timer[:initial_value] if timer_mode_continuous?(index) # Reload counter for continuous mode
+          timer[:underflow] = true
         end
       end
     end
@@ -130,22 +134,18 @@ module SidtoolExperimental
       # Additional update logic
     end
 
-    def timer_mode_continuous?
-      (@timers[:control] & TIMER_MODE_FLAG) != 0
-    end
-
   private
 
-     def handle_timer_expiration(timer_index)
-        case timer_index
-        when 0
-          # Handle Timer 0 expiration event
-          @state.handle_timer_0_expiration
-        when 1
-          # Handle Timer 1 expiration event
-          @state.handle_timer_1_expiration
-        end
+    def handle_timer_expiration(timer_index)
+      case timer_index
+      when 0
+        # Handle Timer 0 expiration event
+        @state.handle_timer_0_expiration
+      when 1
+        # Handle Timer 1 expiration event
+        @state.handle_timer_1_expiration
       end
+    end
 
     # Additional methods and logic...
   end
