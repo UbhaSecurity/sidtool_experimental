@@ -58,9 +58,12 @@ module SidtoolExperimental
     attr_reader :sid6581, :ciaTimerA, :ciaTimerB
 
     def initialize
+      @memory = Memory.new
       @sid6581 = Sid6581.new(memory: STATE.memory)
       @ciaTimerA = CIATimer.new(STATE)
       @ciaTimerB = CIATimer.new(STATE)
+      @sid_wrapper = SidWrapper.new
+      @cpu = Mos6510::Cpu.new(memory: @memory)
     end
 
     def poke(address, value)
