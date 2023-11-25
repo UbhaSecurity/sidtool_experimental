@@ -121,11 +121,12 @@ end
       update_flags(@registers[:A])             # Update the flags based on the result
     end
 
-    def load_register_immediate(register)
-      value = fetch_byte
-      @registers[register.to_sym] = value  # Convert to symbol to ensure consistency
-      update_zero_and_negative_flags(@registers[register.to_sym])
-    end
+def load_register_immediate(register)
+  value = fetch_byte
+  @registers[register] = value
+  update_zero_and_negative_flags(@registers[register])
+end
+
 
    # Load the accumulator with a value using immediate addressing mode.
   def lda_immediate
@@ -528,7 +529,6 @@ def adc(value)
   update_flags(@registers[:A])
 end
 
-
 def sbc(value)
   if @registers[:P] & Flags::DECIMAL != 0
     # Decimal mode
@@ -568,13 +568,14 @@ def sbc(value)
   update_flags(@registers[:A])
 end
 
-    def set_flag(flag)
-      @registers[:P] |= Flags.const_get(flag)  # Use const_get for dynamic flag reference
-    end
+def set_flag(flag)
+  @registers[:P] |= flag
+end
 
-    def clear_flag(flag)
-      @registers[:P] &= ~Flags.const_get(flag)  # Use const_get for dynamic flag reference
-    end
+def clear_flag(flag)
+  @registers[:P] &= ~flag
+end
+
 
 def clc
   @registers[:P] &= ~Flags::CARRY
@@ -601,7 +602,15 @@ def update_flags(value)
 
   # Set the Negative flag if bit 7 of the value is set
   @registers[:P] |= Flags::NEGATIVE if value & 0x80 != 0
+
+  # Handle Overflow flag (this is a placeholder, actual implementation depends on your CPU's logic)
+  if some_overflow_condition
+    @registers[:P] |= Flags::OVERFLOW
+  else
+    @registers[:P] &= ~Flags::OVERFLOW
+  end
 end
+
 
 def nmi
   # Push the program counter and processor status to the stack
@@ -614,6 +623,70 @@ def nmi
 
   # Set the interrupt disable flag
   @registers[:P] |= Flags::INTERRUPT_DISABLE
+end
+
+def set_address(mode, value)
+  case mode
+  when Mode::ABS
+    @cycles += 2
+    ad = read_memory(pc - 2)
+    ad |= read_memory(pc - 1) << 8
+    set_mem(ad, value)
+  when Mode::ABSX
+    @cycles += 3
+    ad = read_memory(pc - 2)
+    ad |= read_memory(pc - 1) << 8
+    ad2 = ad + @x
+    ad2 &= 0xffff
+    @cycles -= 1 if (ad2 & 0xff00) != (ad & 0xff00)
+    set_mem(ad2, value)
+  when Mode::ABSY
+    @cycles += 3
+    ad = read_memory(pc - 2)
+    ad |= read_memory(pc - 1) << 8
+    ad2 = ad + @y
+    ad2 &= 0xffff
+    @cycles -= 1 if (ad2 & 0xff00) != (ad & 0xff00)
+    set_mem(ad2, value)
+  when Mode::ZP
+    @cycles += 2
+    ad = read_memory(pc - 1)
+    set_mem(ad, value)
+  when Mode::ZPX
+    @cycles += 2
+    ad = read_memory(pc - 1)
+    ad += @x
+    set_mem(ad & 0xff, value)
+  when Mode::ZPY
+    @cycles += 2
+    ad = read_memory(pc - 1)
+    ad += @y
+    set_mem(ad & 0xff, value)
+  when Mode::INDY
+    @cycles += 3
+    ad = read_memory(pc - 1)
+    ad2 = read_memory(ad)
+    ad2 |= read_memory((ad + 1) & 0xff) << 8
+    ad2 = ad2 + @y
+    ad2 &= 0xffff
+    set_mem(ad2, value)
+  when Mode::INDX
+    @cycles += 3
+    zero_page_addr = (read_memory(pc - 1) + @x) & 0xff
+    effective_addr = read_memory(zero_page_addr) | (read_memory((zero_page_addr + 1) & 0xff) << 8)
+    set_mem(effective_addr, value)
+  when Mode::ACC
+    @a = value
+  when Mode::IND
+    @cycles += 4
+    ad = read_memory(pc - 2)
+    ad |= read_memory(pc - 1) << 8
+    ad2 = (ad & 0xFF00) | ((ad + 1) & 0x00FF)
+    set_mem(ad, value)
+    set_mem(ad2, value >> 8)
+  else
+    raise "Unhandled addressing mode: #{mode}"
+  end
 end
 
 def irq
@@ -744,69 +817,6 @@ puts cpu
 end
 
 
-def set_address(mode, value)
-  case mode
-  when Mode::ABS
-    @cycles += 2
-    ad = read_memory(pc - 2)
-    ad |= read_memory(pc - 1) << 8
-    set_mem(ad, value)
-  when Mode::ABSX
-    @cycles += 3
-    ad = read_memory(pc - 2)
-    ad |= read_memory(pc - 1) << 8
-    ad2 = ad + @x
-    ad2 &= 0xffff
-    @cycles -= 1 if (ad2 & 0xff00) != (ad & 0xff00)
-    set_mem(ad2, value)
-  when Mode::ABSY
-    @cycles += 3
-    ad = read_memory(pc - 2)
-    ad |= read_memory(pc - 1) << 8
-    ad2 = ad + @y
-    ad2 &= 0xffff
-    @cycles -= 1 if (ad2 & 0xff00) != (ad & 0xff00)
-    set_mem(ad2, value)
-  when Mode::ZP
-    @cycles += 2
-    ad = read_memory(pc - 1)
-    set_mem(ad, value)
-  when Mode::ZPX
-    @cycles += 2
-    ad = read_memory(pc - 1)
-    ad += @x
-    set_mem(ad & 0xff, value)
-  when Mode::ZPY
-    @cycles += 2
-    ad = read_memory(pc - 1)
-    ad += @y
-    set_mem(ad & 0xff, value)
-  when Mode::INDY
-    @cycles += 3
-    ad = read_memory(pc - 1)
-    ad2 = read_memory(ad)
-    ad2 |= read_memory((ad + 1) & 0xff) << 8
-    ad2 = ad2 + @y
-    ad2 &= 0xffff
-    set_mem(ad2, value)
-  when Mode::INDX
-    @cycles += 3
-    zero_page_addr = (read_memory(pc - 1) + @x) & 0xff
-    effective_addr = read_memory(zero_page_addr) | (read_memory((zero_page_addr + 1) & 0xff) << 8)
-    set_mem(effective_addr, value)
-  when Mode::ACC
-    @a = value
-  when Mode::IND
-    @cycles += 4
-    ad = read_memory(pc - 2)
-    ad |= read_memory(pc - 1) << 8
-    ad2 = (ad & 0xFF00) | ((ad + 1) & 0x00FF)
-    set_mem(ad, value)
-    set_mem(ad2, value >> 8)
-  else
-    raise "Unhandled addressing mode: #{mode}"
-  end
-end
 
 # No Operation
 def nop
@@ -1273,22 +1283,16 @@ end
 def page_boundary_crossed?(instruction)
   case instruction[:addr_mode]
   when Mode::ABSX
-    # In absolute X-indexed addressing mode, the address is modified by adding the X register.
-    # If the high byte (representing the page number) of the base address changes after adding X, a page boundary is crossed.
     base_address = fetch_word
     crossed = (base_address & 0xFF00) != ((base_address + @registers[:X]) & 0xFF00)
   when Mode::ABSY
-    # Similar to ABSX, but the Y register is added to the base address.
     base_address = fetch_word
     crossed = (base_address & 0xFF00) != ((base_address + @registers[:Y]) & 0xFF00)
   when Mode::INDY
-    # In indirect Y-indexed addressing mode, the effective address is obtained by reading a zero-page address and adding Y.
-    # If adding Y changes the page of the effective address, a page boundary is crossed.
     zp_address = fetch_byte
     base_address = read_memory(zp_address) | (read_memory((zp_address + 1) & 0xFF) << 8)
     crossed = (base_address & 0xFF00) != ((base_address + @registers[:Y]) & 0xFF00)
   else
-    # For other addressing modes, page boundary crossing is not applicable or does not affect cycle count.
     crossed = false
   end
   crossed
