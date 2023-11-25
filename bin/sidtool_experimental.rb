@@ -57,12 +57,11 @@ module SidtoolExperimental
   class SidWrapper
     attr_reader :sid6581, :ciaTimerA, :ciaTimerB
 
-    def initialize
+    def initialize(sid6581_instance)
       @memory = Memory.new
-      @sid6581 = Sid6581.new(memory: @memory)  # Pass memory to SID
+      @sid6581 = sid6581_instance
       @ciaTimerA = CIATimer.new(STATE)
       @ciaTimerB = CIATimer.new(STATE)
-      @sid_wrapper = SidWrapper.new
       @cpu = Mos6510::Cpu.new(memory: @memory)
     end
 
@@ -82,9 +81,9 @@ module SidtoolExperimental
   end
 
   # Class method to initialize SID chip emulation.
-  def self.initialize_sid_emulation
-    @sid_wrapper = SidWrapper.new
-    @cpu = Mos6510::Cpu.new(sid: @sid_wrapper)
+  def self.initialize_sid_emulation(sid6581_instance)
+    @sid_wrapper = SidWrapper.new(sid6581_instance)
+    @c64_emulator = C64Emulator.new(sid6581_instance)
   end
 
   # Class method to run the emulation loop with a specified number of frames.
@@ -102,7 +101,7 @@ module SidtoolExperimental
 
   # Initialize the SID emulation setup and run the emulation loop for a given number of frames.
   def self.run_emulation(options)
-    initialize_sid_emulation
+    initialize_sid_emulation(STATE.sid6581)
 
     if options[:info]
       # Display file information
@@ -137,5 +136,4 @@ module SidtoolExperimental
   end
 end
 
-# Run the SID emulation with command-line arguments.
 SidtoolExperimental.run
