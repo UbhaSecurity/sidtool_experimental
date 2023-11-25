@@ -59,7 +59,7 @@ module SidtoolExperimental
 
     def initialize
       @memory = Memory.new
-      @sid6581 = Sid6581.new(memory: STATE.memory)
+      @sid6581 = Sid6581.new(memory: @memory)  # Pass memory to SID
       @ciaTimerA = CIATimer.new(STATE)
       @ciaTimerB = CIATimer.new(STATE)
       @sid_wrapper = SidWrapper.new
