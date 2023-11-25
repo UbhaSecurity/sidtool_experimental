@@ -58,11 +58,11 @@ module SidtoolExperimental
     attr_reader :sid6581, :ciaTimerA, :ciaTimerB
 
     def initialize(sid6581_instance)
-      @memory = Memory.new
-      @sid6581 = Sid6581.new(memory: @memory)  # Pass the memory to Sid6581
-      @ciaTimerA = CIATimer.new(STATE)
-      @ciaTimerB = CIATimer.new(STATE)
-      @cpu = Mos6510::Cpu.new(memory: @memory)
+      @memory = Memory.new  # First, initialize the Memory
+      @sid6581 = Sid6581.new(memory: @memory)  # Then create the Sid6581 instance with the Memory
+      @cpu = Mos6510::Cpu.new(memory: @memory)  # Now create the Mos6510 instance with the Memory
+      @ciaTimerA = CIATimer.new(self)  # Initialize CIA Timer A
+      @ciaTimerB = CIATimer.new(self)  # Initialize CIA Timer B
     end
 
     def poke(address, value)
