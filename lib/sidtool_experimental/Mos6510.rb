@@ -16,21 +16,21 @@ module SidtoolExperimental
       end
 
       # Define addressing modes for instructions.
-module Mode
-  IMP = 0   # Implied
-  ACC = 1   # Accumulator
-  IMM = 2   # Immediate
-  ZP = 3    # Zero Page
-  ZPX = 4   # Zero Page, X-indexed
-  ZPY = 5   # Zero Page, Y-indexed
-  ABS = 6   # Absolute
-  ABSX = 7  # Absolute, X-indexed
-  ABSY = 8  # Absolute, Y-indexed
-  IND = 9   # Indirect
-  INDX = 10 # Indexed Indirect (IZX)
-  INDY = 11 # Indirect Indexed
-  REL = 12  # Relative
-end
+       module Mode
+        IMP = 0   # Implied
+        ACC = 1   # Accumulator
+        IMM = 2   # Immediate
+        ZP  = 3   # Zero Page
+        ZPX = 4   # Zero Page, X-indexed
+        ZPY = 5   # Zero Page, Y-indexed
+        ABS = 6   # Absolute
+        ABX = 7   # Absolute, X-indexed
+        ABY = 8   # Absolute, Y-indexed
+        IND = 9   # Indirect
+        IZX = 10  # Indexed Indirect (X)
+        IZY = 11  # Indirect Indexed (Y)
+        REL = 12  # Relative
+      end
 
       # Accessor methods for registers, providing a clean way to access CPU registers.
       def a; @registers[:A]; end
