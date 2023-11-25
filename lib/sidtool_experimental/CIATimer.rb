@@ -39,6 +39,14 @@ module SidtoolExperimental
       # Implement logic for handling serial data transfer
     end
 
+    def underflow(timer_index)
+      @timers[timer_index][:underflow]
+    end
+
+    def control_register(timer_index)
+      @timers[timer_index][:control]
+    end
+
     # Timer Handling
     def configure_timer(timer_number, mode, value)
       @timers[timer_number][:mode] = mode
@@ -78,6 +86,10 @@ module SidtoolExperimental
 
     def check_alarm
       # Logic to check if the current time matches the alarm time
+    end
+
+    def event_condition_met?(timer_index)
+      @timers[timer_index][:counter] == 0
     end
 
     # Update method called each cycle
