@@ -44,7 +44,7 @@ module SidtoolExperimental
   end
 
 # Assuming you have a CPU instance available at this point in your code
-cpu_instance = Mos6510::Cpu.new(some_memory_instance)
+# cpu_instance = Mos6510::Cpu.new(some_memory_instance)
 STATE = State.new(cpu_instance)
 
 
