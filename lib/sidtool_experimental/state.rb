@@ -79,4 +79,5 @@ module SidtoolExperimental
         # Restore the CPU state after NMI handling
         @cpu.restore_state
       end
+    end
   end
