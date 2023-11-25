@@ -15,6 +15,22 @@ module SidtoolExperimental
       @tod_clock = {hours: 0x12, minutes: 0, seconds: 0, tenths: 0, alarm_set: false, alarm_time: {}}
     end
 
+  def enable_interrupt
+    @timers[:control] |= INTERRUPT_ENABLE_FLAG
+  end
+
+  def disable_interrupt
+    @timers[:control] &= ~INTERRUPT_ENABLE_FLAG
+  end
+
+  def set_timer_mode_continuous
+    @timers[:control] |= TIMER_MODE_FLAG
+  end
+
+  def set_timer_mode_one_shot
+    @timers[:control] &= ~TIMER_MODE_FLAG
+  end
+
     def underflow?
       @timers[:underflow]
     end
