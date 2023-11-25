@@ -471,6 +471,28 @@ def pc_increment
   @registers[:PC] = (@registers[:PC] + 1) & 0xFFFF
 end
 
+# ROL (Rotate Left)
+      def rol(mode)
+        value = get_value(mode) # Get the value based on addressing mode
+        carry = @registers[:P] & Flags::CARRY
+
+        # Shift left by one and add the old carry flag to bit 0
+        result = (value << 1) | carry
+
+        # Set the new carry flag based on the old bit 7
+        if value & 0x80 != 0
+          @registers[:P] |= Flags::CARRY
+        else
+          @registers[:P] &= ~Flags::CARRY
+        end
+
+        # Update the result in the accumulator or memory
+        set_value(mode, result & 0xFF)
+
+        # Update the Zero and Negative flags
+        update_flags(result)
+      end
+
 
   # Implement the Decrement Y (DEY) instruction
   def dey
@@ -1278,6 +1300,27 @@ end
     end
 
   private
+
+ def get_value(mode)
+        case mode
+        when Mode::ACC
+          @registers[:A] # Accumulator mode
+        else
+          address = get_address(mode)
+          read_memory(address) # For other addressing modes
+        end
+      end
+
+      def set_value(mode, value)
+        case mode
+        when Mode::ACC
+          @registers[:A] = value # Accumulator mode
+        else
+          address = get_address(mode)
+          write_memory(address, value) # For other addressing modes
+        end
+      end
+
 
      # Update zero and negative flags based on the given value
       def update_zero_and_negative_flags(value)
