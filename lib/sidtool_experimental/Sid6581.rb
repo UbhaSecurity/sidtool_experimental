@@ -32,7 +32,7 @@ module SidtoolExperimental
       @global_filter_resonance = 0
       @global_volume = 0
       # Additional initializations can be added here
-      put Test
+      put "Test"
     end
 
     # Apply LFO modulation to all voices
