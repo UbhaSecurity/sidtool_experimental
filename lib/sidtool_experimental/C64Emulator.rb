@@ -5,7 +5,7 @@ module SidtoolExperimental
     def initialize
       @memory = Memory.new
       @cpu = Mos6510::Cpu.new(@memory)  # Correctly reference the @memory instance variable
-      @sid = Sid6581.new
+      @sid = Sid6581.new(memory: @memory)
       @ciaTimerA = CIATimer.new(@cpu)
       @ciaTimerB = CIATimer.new(@cpu)
       @state = State.new
