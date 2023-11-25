@@ -137,10 +137,12 @@ end
   def ldx_immediate
     load_register_immediate('X')
   end
+
   # Load the Y register with a value using immediate addressing mode.
   def ldy_immediate
-      oad_register_immediate('Y')
+    load_register_immediate(:Y)
   end
+
 
   # Implement the Store Accumulator (STA) instruction with zero page addressing mode
   def sta_zero_page
