@@ -13,6 +13,18 @@ module SidtoolExperimental
       @tod_clock = {hours: 0x12, minutes: 0, seconds: 0, tenths: 0, alarm_set: false, alarm_time: {}}
     end
 
+    def underflow?
+      @timers[:underflow]
+    end
+
+    def interrupt_enabled?
+      (@timers[:control] & INTERRUPT_ENABLE_FLAG) != 0
+    end
+
+    def clear_underflow
+      @timers[:underflow] = false
+    end
+
     # Parallel I/O Management
     def set_data_direction(port, direction_mask)
       @parallel_ports[port][:direction] = direction_mask
