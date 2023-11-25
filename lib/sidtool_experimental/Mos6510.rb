@@ -183,6 +183,13 @@ end
     write_memory(address, @registers[:A])
   end
 
+      # EOR (Exclusive OR)
+      def eor(value)
+        @registers[:A] ^= value  # Perform XOR with the accumulator
+        update_flags(@registers[:A])  # Update the flags based on the result
+      end
+
+
   # Implement the Store Accumulator (STA) instruction with indexed indirect addressing mode
   def sta_indexed_indirect
     zp_address = fetch_byte
