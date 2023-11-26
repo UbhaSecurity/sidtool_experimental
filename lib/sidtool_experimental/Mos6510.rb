@@ -259,6 +259,22 @@ end
     update_flags(@registers[:X])
   end
 
+    # LSR (Logical Shift Right)
+      def lsr(mode)
+        address, value = get_address_and_value(mode)
+        carry_flag_set = value & 0x01 == 0x01
+        value >>= 1  # Shift right by one bit
+
+        # Update the carry flag based on the old 0th bit
+        carry_flag_set ? set_flag(Flags::CARRY) : clear_flag(Flags::CARRY)
+        
+        # Update the Zero and Negative flags
+        update_flags(value)
+
+        set_memory_or_accumulator(mode, address, value)
+      end
+
+
 # RTI (Return from Interrupt)
       def rti
         # Pop processor status from the stack
@@ -1487,6 +1503,28 @@ def branch_taken?(instruction)
   else
     raise "Unsupported branch operation"
   end
+
+     # Method to get the address and value based on the addressing mode
+      def get_address_and_value(mode)
+        case mode
+        when Mode::ACC
+          [nil, @registers[:A]]
+        else
+          address = get_address(mode)
+          [address, read_memory(address)]
+        end
+      end
+
+      # Method to set the value back to memory or accumulator based on the addressing mode
+      def set_memory_or_accumulator(mode, address, value)
+        case mode
+        when Mode::ACC
+          @registers[:A] = value
+        else
+          write_memory(address, value)
+        end
+      end
+
 
   # Update the program counter if the condition is true
   if condition
