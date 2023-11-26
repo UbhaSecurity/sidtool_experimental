@@ -1030,10 +1030,6 @@ cpu.execute
 # Print the final state of the CPU
 puts cpu
 
-end
-
-
-
 # No Operation
 def nop
   # Do nothing
@@ -1401,6 +1397,8 @@ end
           execute_next_instruction
         end
       end
+
+    end
 
     end
   end
