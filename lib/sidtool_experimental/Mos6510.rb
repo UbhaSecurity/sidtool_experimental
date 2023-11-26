@@ -42,9 +42,8 @@ module SidtoolExperimental
 
      # Initialization method for the CPU
       def initialize(mem, state = nil)
-        raise "Memory not initialized" if mem.nil?
-
-        @memory = mem # Assigning the provided memory instance
+          raise "Memory not initialized" unless mem.respond_to?(:[]=)
+        @memory = mem
         @state = state # Assigning the provided state instance, if any
 
         # Set up the initial state of the CPU registers
@@ -354,8 +353,9 @@ end
   end
 
 def push_stack(value)
+  raise "Memory object is nil" if @memory.nil?
+  raise "Memory object does not respond to []=" unless @memory.respond_to?(:[]=)
   @memory[@registers[:SP] + 0x0100] = value
-  @registers[:SP] = (@registers[:SP] - 1) & 0xFF
 end
 
 
@@ -1181,12 +1181,12 @@ def branch(condition)
   end
 end
 
-
-# Push a value to the stack
 def push_stack(value)
+  raise "Memory object is nil" if @memory.nil?
+  raise "Memory object does not respond to []=" unless @memory.respond_to?(:[]=)
   @memory[@registers[:SP] + 0x0100] = value
-  @registers[:SP] = (@registers[:SP] - 1) & 0xFF
 end
+
 
 # Pop a value from the stack
 def pop_stack
