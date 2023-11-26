@@ -353,6 +353,11 @@ end
     load_register_immediate(:Y)
   end
 
+def push_stack(value)
+  @memory[@registers[:SP] + 0x0100] = value
+  @registers[:SP] = (@registers[:SP] - 1) & 0xFF
+end
+
 
   # Implement the Store Accumulator (STA) instruction with zero page addressing mode
   def sta_zero_page
