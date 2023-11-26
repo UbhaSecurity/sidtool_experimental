@@ -320,6 +320,12 @@ end
         write_memory(address, @registers[:Y])
       end
 
+      # STX (Store X Register)
+      def stx(mode)
+        address = get_address(mode)
+        write_memory(address, @registers[:X])
+      end
+
       # ROR (Rotate Right)
       def ror(mode)
         address = get_address(mode)
@@ -1562,7 +1568,7 @@ def get_address(mode)
       address
     end
   when Mode::INDX, Mode::INDY
-    zero_page_addr = (fetch_byte + @registers[:X]) & 0xFF
+    zero_page_addr = (fetch_byte + (mode == Mode::INDX ? @registers[:X] : 0)) & 0xFF
     low_byte = read_memory(zero_page_addr)
     high_byte = read_memory((zero_page_addr + 1) & 0xFF)
     base_address = (high_byte << 8) | low_byte
@@ -1587,7 +1593,6 @@ def get_address(mode)
     raise "Unhandled addressing mode: #{mode}"
   end
 end
-
 
 
   # Update the program counter if the condition is true
