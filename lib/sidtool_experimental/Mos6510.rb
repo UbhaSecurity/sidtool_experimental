@@ -148,6 +148,23 @@ def load_register_immediate(register)
   update_zero_and_negative_flags(@registers[register])
 end
 
+      # CLV (Clear Overflow Flag)
+      def clv
+        @registers[:P] &= ~Flags::OVERFLOW
+      end
+
+      # CPY (Compare Y Register)
+      def cpy(mode)
+        value = get_value(mode)
+        compare(@registers[:Y], value)
+      end
+
+      # CMP (Compare Accumulator)
+      def cmp(mode)
+        value = get_value(mode)
+        compare(@registers[:A], value)
+      end
+
 
    # Load the accumulator with a value using immediate addressing mode.
   def lda_immediate
@@ -1537,6 +1554,14 @@ end
 
 def branch_taken?(instruction)
   return false unless instruction[:addr_mode] == Mode::REL
+
+  # Helper method to perform comparison and set flags
+      def compare(register_value, value)
+        result = register_value - value
+        set_flag(Flags::CARRY) if register_value >= value
+        clear_flag(Flags::CARRY) if register_value < value
+        update_zero_and_negative_flags(result & 0xFF)
+      end
 
   offset = fetch_byte
   case instruction[:operation]
