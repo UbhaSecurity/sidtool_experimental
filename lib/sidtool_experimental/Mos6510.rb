@@ -132,7 +132,11 @@ module SidtoolExperimental
         end
       end
 
-
+      def fetch_byte
+        byte = @memory.read(@registers[:PC])
+        @registers[:PC] = (@registers[:PC] + 1) & 0xFFFF # Increment PC and ensure it stays within bounds (16-bit address space)
+        byte
+    end
 
 def execute_next_instruction
   opcode = fetch_byte
