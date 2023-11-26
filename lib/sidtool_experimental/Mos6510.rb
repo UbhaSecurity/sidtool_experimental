@@ -1126,7 +1126,26 @@ def jmp_indirect
   @pc = jump_address
 end
 
-# Indexed Indirect Addressing Mode (Zero Page, X-Indexed):
+      # LDY (Load Y Register)
+      def ldy(mode)
+        value = get_value(mode)
+        @registers[:Y] = value
+        update_zero_and_negative_flags(@registers[:Y])
+      end
+
+      # LDA (Load Accumulator)
+      def lda(mode)
+        value = get_value(mode)
+        @registers[:A] = value
+        update_zero_and_negative_flags(@registers[:A])
+      end
+
+      # LDX (Load X Register)
+      def ldx(mode)
+        value = get_value(mode)
+        @registers[:X] = value
+        update_zero_and_negative_flags(@registers[:X])
+      end
 
 # Load Accumulator from Indexed Indirect, X-Indexed Memory
 def lda_indexed_indirect_x
@@ -1368,15 +1387,30 @@ end
 
   private
 
- def get_value(mode)
-        case mode
-        when Mode::ACC
-          @registers[:A] # Accumulator mode
-        else
-          address = get_address(mode)
-          read_memory(address) # For other addressing modes
-        end
-      end
+def get_value(mode)
+  case mode
+  when Mode::IMM, Mode::ZP, Mode::ZPX, Mode::ZPY, Mode::ABS, Mode::ABX, Mode::ABY
+    case mode
+    when Mode::IMM
+      fetch_byte
+    when Mode::ZP
+      read_memory(fetch_byte)
+    when Mode::ZPX, Mode::ZPY
+      address = (fetch_byte + (mode == Mode::ZPX ? @registers[:X] : @registers[:Y])) & 0xFF
+      read_memory(address)
+    when Mode::ABS, Mode::ABX, Mode::ABY
+      address = fetch_word + (mode == Mode::ABX ? @registers[:X] : (mode == Mode::ABY ? @registers[:Y] : 0))
+      address &= 0xFFFF
+      read_memory(address)
+    end
+  when Mode::ACC
+    @registers[:A] # Accumulator mode
+  else
+    address = get_address(mode)
+    read_memory(address) # For other addressing modes
+  end
+end
+
 
       def set_value(mode, value)
         case mode
