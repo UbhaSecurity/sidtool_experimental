@@ -1,3 +1,4 @@
+require_relative 'memory'
 module SidtoolExperimental
   class Mos6510
     class Cpu
