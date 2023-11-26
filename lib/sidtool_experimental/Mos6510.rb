@@ -131,8 +131,7 @@ module SidtoolExperimental
           execute_next_instruction
         end
       end
-    end
-  end
+
 
 
 def execute_next_instruction
@@ -1045,6 +1044,8 @@ def update_flags(value)
   end
 end
 
+    end
+  end
 
 def nmi
   # Push the program counter and processor status to the stack
@@ -1137,12 +1138,6 @@ def irq
   # Set the interrupt disable flag
   @registers[:P] |= Flags::INTERRUPT_DISABLE
 end
-
-
-  # Implement the Non-Maskable Interrupt (NMI) instruction
-  def nmi
-    interrupt(0xFFFA)
-  end
 
   # Implement the Software Interrupt (SWI/BRK) instruction
   def swi
