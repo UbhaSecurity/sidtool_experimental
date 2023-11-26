@@ -218,6 +218,16 @@ end
         update_flags(@registers[:A])  # Update the flags based on the result
       end
 
+      # CLD (Clear Decimal Mode)
+      def cld
+        @registers[:P] &= ~Flags::DECIMAL
+      end
+
+      # CPX (Compare X Register)
+      def cpx(mode)
+        value = get_value(mode)
+        compare(@registers[:X], value)
+      end
 
   # Implement the Store Accumulator (STA) instruction with indexed indirect addressing mode
   def sta_indexed_indirect
