@@ -939,8 +939,9 @@ def interrupt(vector_address)
   @registers[:PC] = read_memory(vector_address) << 8 | read_memory(vector_address - 1)
 end
 
-# Create an instance of the CPU
-cpu = CPU.new
+memory = SidtoolExperimental::Memory.new # Assuming you have a Memory class
+cpu = SidtoolExperimental::Mos6510::Cpu.new(memory)
+
 
 # Load a program into memory (you need to define this method)
 # load_program(cpu, program)
