@@ -534,6 +534,16 @@ end
         update_flags(result)
       end
 
+     # RTS (Return from Subroutine)
+      def rts
+        # Retrieve the return address from the stack
+        low_byte = pop_stack
+        high_byte = pop_stack
+        return_address = (high_byte << 8) | low_byte
+
+        # The return address is the byte after the JSR instruction, so increment by 1
+        @registers[:PC] = return_address + 1
+      end
 
   # Implement the Decrement Y (DEY) instruction
   def dey
