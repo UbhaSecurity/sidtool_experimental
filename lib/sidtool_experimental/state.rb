@@ -9,8 +9,8 @@ module SidtoolExperimental
       @cpu = cpu
       @current_frame = 0
       @memory = Memory.new  # Initialize memory
-      @sid6581 = Sid6581.new(memory: @memory)  # Pass memory to SID
-      @cia_timers = [CIATimer.new(self), CIATimer.new(self)]
+      @sid6581 = Sid6581.new(memory: @memory)  # Initialize SID 6581 with memory
+      @cia_timers = [CIATimer.new(@cpu), CIATimer.new(@cpu)]  # Initialize CIATimer instances
       @emulation_finished = false
       @interrupt_flag = false # Flag to ignore or respond to IRQs
       initialize_vectors
