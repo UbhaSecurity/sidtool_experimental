@@ -131,6 +131,8 @@ module SidtoolExperimental
           execute_next_instruction
         end
       end
+    end
+  end
 
 
 def execute_next_instruction
