@@ -1,3 +1,4 @@
+module SidtoolExperimental
 class Memory
   attr_accessor :ram, :basic_rom, :kernal_rom, :char_rom, :io_devices
   attr_accessor :loram, :hiram, :charen, :exrom, :game, :processor_port
@@ -215,4 +216,5 @@ end
       # Other devices as needed.
     }
   end
+end
 end
