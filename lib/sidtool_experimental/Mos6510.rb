@@ -287,6 +287,11 @@ end
         @registers[:PC] = (high_byte << 8) | low_byte
       end
 
+      # JMP (Jump)
+      def jmp(mode)
+        address = get_address(mode)
+        @registers[:PC] = address
+      end
 
       # AND (bitwise AND with accumulator)
       def and(value)
@@ -1525,6 +1530,20 @@ def branch_taken?(instruction)
         end
       end
 
+   # Method to get the address based on the addressing mode
+      def get_address(mode)
+        case mode
+        when Mode::ABS
+          fetch_word
+        when Mode::IND
+          address = fetch_word
+          low_byte = read_memory(address)
+          high_byte = read_memory((address & 0xFF00) | ((address + 1) & 0xFF))
+          (high_byte << 8) | low_byte
+        else
+          raise "Unsupported addressing mode for JMP: #{mode}"
+        end
+      end
 
   # Update the program counter if the condition is true
   if condition
