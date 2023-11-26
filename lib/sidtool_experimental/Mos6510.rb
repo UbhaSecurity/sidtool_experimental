@@ -1357,6 +1357,19 @@ def lda_indexed_indirect_x
   update_flags(@a)
 end
 
+
+# Push a value to the stack
+def push_stack(value)
+  @memory[@registers[:SP] + 0x0100] = value
+  @registers[:SP] = (@registers[:SP] - 1) & 0xFF
+end
+
+# Pop a value from the stack
+def pop_stack
+  @registers[:SP] = (@registers[:SP] + 1) & 0xFF
+  @memory[@registers[:SP] + 0x0100]
+end
+
 # Store Accumulator to Indexed Indirect, X-Indexed Memory
 def sta_indexed_indirect_x
   zero_page_address = (fetch_byte + @x) & 0xFF
@@ -1503,17 +1516,6 @@ end
       # Actions for illegal opcode can be customized here.
     end
 
-# Push a value to the stack
-def push_stack(value)
-  @memory[@registers[:SP] + 0x0100] = value
-  @registers[:SP] = (@registers[:SP] - 1) & 0xFF
-end
-
-# Pop a value from the stack
-def pop_stack
-  @registers[:SP] = (@registers[:SP] + 1) & 0xFF
-  @memory[@registers[:SP] + 0x0100]
-end
 
 # Check if a page boundary is crossed, which affects cycle count.
 def page_boundary_crossed?(instruction)
