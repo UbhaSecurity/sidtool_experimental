@@ -1176,6 +1176,19 @@ def branch(condition)
   end
 end
 
+
+# Push a value to the stack
+def push_stack(value)
+  @memory[@registers[:SP] + 0x0100] = value
+  @registers[:SP] = (@registers[:SP] - 1) & 0xFF
+end
+
+# Pop a value from the stack
+def pop_stack
+  @registers[:SP] = (@registers[:SP] + 1) & 0xFF
+  @memory[@registers[:SP] + 0x0100]
+end
+
 # Helper method to perform an interrupt
 def interrupt(vector_address)
   push_stack(@registers[:PC] >> 8)
@@ -1358,17 +1371,6 @@ def lda_indexed_indirect_x
 end
 
 
-# Push a value to the stack
-def push_stack(value)
-  @memory[@registers[:SP] + 0x0100] = value
-  @registers[:SP] = (@registers[:SP] - 1) & 0xFF
-end
-
-# Pop a value from the stack
-def pop_stack
-  @registers[:SP] = (@registers[:SP] + 1) & 0xFF
-  @memory[@registers[:SP] + 0x0100]
-end
 
 # Store Accumulator to Indexed Indirect, X-Indexed Memory
 def sta_indexed_indirect_x
