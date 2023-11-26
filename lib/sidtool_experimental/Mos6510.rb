@@ -326,6 +326,12 @@ end
         end
       end
 
+    # STA (Store Accumulator)
+      def sta(mode)
+        address = get_address(mode)
+        write_memory(address, @registers[:A])
+      end
+
       # Jump to Subroutine (JSR)
       def jsr
         # Fetch the target address where the subroutine is located.
@@ -880,51 +886,6 @@ def irq
   @registers[:P] |= Flags::INTERRUPT_DISABLE
 end
 
-def get_address(mode)
-  case mode
-  when Mode::IMP
-    nil # Implied mode does not use an address
-  when Mode::IMM
-    pc_increment # Immediate mode uses the next byte as a value
-  when Mode::ABS
-    low_byte = read_memory(pc_increment)
-    high_byte = read_memory(pc_increment)
-    (high_byte << 8) | low_byte
-  when Mode::ABSX
-    base_address = get_address(Mode::ABS)
-    (base_address + @registers[:X]) & 0xFFFF
-  when Mode::ABSY
-    base_address = get_address(Mode::ABS)
-    (base_address + @registers[:Y]) & 0xFFFF
-  when Mode::ZP
-    read_memory(pc_increment)
-  when Mode::ZPX
-    (read_memory(pc_increment) + @registers[:X]) & 0xFF
-  when Mode::ZPY
-    (read_memory(pc_increment) + @registers[:Y]) & 0xFF
-  when Mode::INDX
-    zero_page_addr = (read_memory(pc_increment) + @registers[:X]) & 0xFF
-    low_byte = read_memory(zero_page_addr)
-    high_byte = read_memory((zero_page_addr + 1) & 0xFF)
-    (high_byte << 8) | low_byte
-  when Mode::INDY
-    base_address = read_memory(pc_increment)
-    low_byte = read_memory(base_address)
-    high_byte = read_memory((base_address + 1) & 0xFF)
-    ((high_byte << 8) | low_byte) + @registers[:Y]
-  when Mode::IND
-    base_address = get_address(Mode::ABS)
-    low_byte = read_memory(base_address)
-    high_byte = read_memory((base_address & 0xFF00) | ((base_address + 1) & 0xFF))
-    (high_byte << 8) | low_byte
-  when Mode::ACC
-    nil # Accumulator mode does not use a memory address
-  when Mode::REL
-    offset = read_memory(pc_increment)
-    (offset < 0x80 ? offset : offset - 0x100) + @registers[:PC]
-  else
-    raise "Unhandled addressing mode: #{mode}"
-  end
 
   # Implement the Interrupt Request (IRQ) instruction
   def irq
@@ -1564,20 +1525,53 @@ def branch_taken?(instruction)
         end
       end
 
-   # Method to get the address based on the addressing mode
-      def get_address(mode)
-        case mode
-        when Mode::ABS
-          fetch_word
-        when Mode::IND
-          address = fetch_word
-          low_byte = read_memory(address)
-          high_byte = read_memory((address & 0xFF00) | ((address + 1) & 0xFF))
-          (high_byte << 8) | low_byte
-        else
-          raise "Unsupported addressing mode for JMP: #{mode}"
-        end
-      end
+def get_address(mode)
+  case mode
+  when Mode::IMP
+    nil # Implied mode does not use an address
+  when Mode::IMM, Mode::ZP, Mode::ZPX, Mode::ZPY
+    # These modes have similar logic
+    read_memory(pc_increment)
+  when Mode::ABS, Mode::ABSX, Mode::ABSY
+    low_byte = read_memory(pc_increment)
+    high_byte = read_memory(pc_increment)
+    base_address = (high_byte << 8) | low_byte
+
+    case mode
+    when Mode::ABSX
+      (base_address + @registers[:X]) & 0xFFFF
+    when Mode::ABSY
+      (base_address + @registers[:Y]) & 0xFFFF
+    else
+      base_address
+    end
+  when Mode::INDX, Mode::INDY
+    zero_page_addr = (read_memory(pc_increment) + @registers[:X]) & 0xFF
+    low_byte = read_memory(zero_page_addr)
+    high_byte = read_memory((zero_page_addr + 1) & 0xFF)
+    base_address = (high_byte << 8) | low_byte
+
+    case mode
+    when Mode::INDY
+      (base_address + @registers[:Y]) & 0xFFFF
+    else
+      base_address
+    end
+  when Mode::IND
+    address = fetch_word
+    low_byte = read_memory(address)
+    high_byte = read_memory((address & 0xFF00) | ((address + 1) & 0xFF))
+    (high_byte << 8) | low_byte
+  when Mode::ACC
+    nil # Accumulator mode does not use a memory address
+  when Mode::REL
+    offset = read_memory(pc_increment)
+    (offset < 0x80 ? offset : offset - 0x100) + @registers[:PC]
+  else
+    raise "Unhandled addressing mode: #{mode}"
+  end
+end
+
 
   # Update the program counter if the condition is true
   if condition
