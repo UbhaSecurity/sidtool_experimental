@@ -887,11 +887,6 @@ def irq
 end
 
 
-  # Implement the Interrupt Request (IRQ) instruction
-  def irq
-    interrupt(0xFFFE)
-  end
-
   # Implement the Non-Maskable Interrupt (NMI) instruction
   def nmi
     interrupt(0xFFFA)
@@ -939,7 +934,7 @@ def interrupt(vector_address)
   @registers[:PC] = read_memory(vector_address) << 8 | read_memory(vector_address - 1)
 end
 
-memory = SidtoolExperimental::Memory.new # Assuming you have a Memory class
+# memory = SidtoolExperimental::Memory.new # Assuming you have a Memory class
 cpu = SidtoolExperimental::Mos6510::Cpu.new(memory)
 
 
