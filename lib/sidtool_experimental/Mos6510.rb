@@ -200,6 +200,11 @@ end
     write_memory(address, @registers[:A])
   end
 
+    # NOP (No Operation)
+      def nop
+        # This instruction does nothing. It's often used for timing adjustments or as a placeholder.
+      end
+
   # Implement the Store Accumulator (STA) instruction with absolute X addressing mode
   def sta_absolute_x
     address = (fetch_word + @registers[:X]) & 0xFFFF
