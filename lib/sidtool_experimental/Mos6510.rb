@@ -314,6 +314,12 @@ end
         update_zero_and_negative_flags(@registers[:A])
       end
 
+      # STY (Store Y Register)
+      def sty(mode)
+        address = get_address(mode)
+        write_memory(address, @registers[:Y])
+      end
+
       # ROR (Rotate Right)
       def ror(mode)
         address = get_address(mode)
@@ -1539,24 +1545,24 @@ def get_address(mode)
   case mode
   when Mode::IMP
     nil # Implied mode does not use an address
-  when Mode::IMM, Mode::ZP, Mode::ZPX, Mode::ZPY
-    # These modes have similar logic
-    read_memory(pc_increment)
-  when Mode::ABS, Mode::ABSX, Mode::ABSY
-    low_byte = read_memory(pc_increment)
-    high_byte = read_memory(pc_increment)
-    base_address = (high_byte << 8) | low_byte
+  when Mode::IMM, Mode::ZP, Mode::ZPX, Mode::ZPY, Mode::ABS, Mode::ABSX, Mode::ABSY
+    case mode
+    when Mode::IMM, Mode::ZP, Mode::ZPX, Mode::ZPY
+      address = fetch_byte
+    when Mode::ABS, Mode::ABSX, Mode::ABSY
+      address = fetch_word
+    end
 
     case mode
     when Mode::ABSX
-      (base_address + @registers[:X]) & 0xFFFF
+      (address + @registers[:X]) & 0xFFFF
     when Mode::ABSY
-      (base_address + @registers[:Y]) & 0xFFFF
+      (address + @registers[:Y]) & 0xFFFF
     else
-      base_address
+      address
     end
   when Mode::INDX, Mode::INDY
-    zero_page_addr = (read_memory(pc_increment) + @registers[:X]) & 0xFF
+    zero_page_addr = (fetch_byte + @registers[:X]) & 0xFF
     low_byte = read_memory(zero_page_addr)
     high_byte = read_memory((zero_page_addr + 1) & 0xFF)
     base_address = (high_byte << 8) | low_byte
@@ -1581,6 +1587,7 @@ def get_address(mode)
     raise "Unhandled addressing mode: #{mode}"
   end
 end
+
 
 
   # Update the program counter if the condition is true
