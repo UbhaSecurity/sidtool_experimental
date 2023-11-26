@@ -125,6 +125,12 @@ module SidtoolExperimental
         handle_timer_interrupts
       end
 
+      # The execute method
+      def execute
+        while !@halt
+          execute_next_instruction
+        end
+      end
     
 def handle_timer_interrupts
   @state.cia_timers.each do |timer|
@@ -1392,11 +1398,6 @@ def execute_next_instruction
   end
 end
 
-      def execute
-        while !@halt
-          execute_next_instruction
-        end
-      end
 
     end
 
