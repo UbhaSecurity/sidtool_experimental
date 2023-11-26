@@ -302,6 +302,30 @@ end
         update_zero_and_negative_flags(@registers[:A])
       end
 
+      # ROR (Rotate Right)
+      def ror(mode)
+        address = get_address(mode)
+        value = address.nil? ? @registers[:A] : read_memory(address)
+
+        new_carry = value & 0x01
+        value = (value >> 1) | ((@registers[:P] & Flags::CARRY) << 7)
+
+        if address.nil?
+          @registers[:A] = value
+        else
+          write_memory(address, value)
+        end
+
+        update_flags(value)
+
+        # Update the carry flag
+        if new_carry == 1
+          set_flag(Flags::CARRY)
+        else
+          clear_flag(Flags::CARRY)
+        end
+      end
+
       # Jump to Subroutine (JSR)
       def jsr
         # Fetch the target address where the subroutine is located.
