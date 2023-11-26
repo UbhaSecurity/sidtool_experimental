@@ -242,6 +242,12 @@ end
     write_memory(address, @registers[:A])
   end
 
+      # SED (Set Decimal Flag)
+      def sed
+        # Set the decimal mode flag (D) in the processor status register (P)
+        set_flag(Flags::DECIMAL)
+      end
+
   # Implement the Store Accumulator (STA) instruction with indirect indexed addressing mode
   def sta_indirect_indexed
     zp_address = fetch_byte
