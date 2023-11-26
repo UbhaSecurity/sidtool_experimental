@@ -1,20 +1,20 @@
 module SidtoolExperimental
-class Memory
-  attr_accessor :ram, :basic_rom, :kernal_rom, :char_rom, :io_devices
-  attr_accessor :loram, :hiram, :charen, :exrom, :game, :processor_port
+  class Memory
+    attr_accessor :ram, :basic_rom, :kernal_rom, :char_rom, :io_devices
+    attr_accessor :loram, :hiram, :charen, :exrom, :game, :processor_port
 
-  def initialize
-    @ram = Array.new(65536, 0) # 64KB of RAM
-    @basic_rom = load_rom('basic.rom') # Load BASIC ROM
-    @kernal_rom = load_rom('kernal.rom') # Load KERNAL ROM
-    @char_rom = load_rom('character.rom') # Load Character ROM
-    @io_devices = setup_io_devices # Setup I/O devices (VIC, SID, CIA)
+    def initialize
+      @ram = Array.new(65536, 0) # Initialize 64KB of RAM
+      @basic_rom = load_rom('basic.rom') # Load BASIC ROM content
+      @kernal_rom = load_rom('kernal.rom') # Load KERNAL ROM content
+      @char_rom = load_rom('character.rom') # Load Character ROM content
+      @io_devices = setup_io_devices # Initialize I/O devices (VIC-II, SID, CIAs)
 
-    # Memory management attributes
-    @loram = @hiram = @charen = 1 # Defaults to 1 on reset
-    @exrom = @game = 0            # Defaults to 0 (no cartridge)
-    @processor_port = 0x37       # Default value for the processor port
-  end
+      # Default memory configuration attributes
+      @loram = @hiram = @charen = 1 # Defaults to 1 on reset
+      @exrom = @game = 0 # Defaults to 0 (no cartridge)
+      @processor_port = 0x37 # Default value for processor I/O port
+    end
 
   # Read from memory: Determines the behavior when an address is read based on its range and configuration.
   def read(address)
