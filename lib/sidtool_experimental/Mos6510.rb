@@ -326,6 +326,27 @@ end
         write_memory(address, @registers[:X])
       end
 
+      # LDY (Load Y Register)
+      def ldy(mode)
+        value = get_value(mode)
+        @registers[:Y] = value
+        update_zero_and_negative_flags(@registers[:Y])
+      end
+
+      # LDA (Load Accumulator)
+      def lda(mode)
+        value = get_value(mode)
+        @registers[:A] = value
+        update_zero_and_negative_flags(@registers[:A])
+      end
+
+      # LDX (Load X Register)
+      def ldx(mode)
+        value = get_value(mode)
+        @registers[:X] = value
+        update_zero_and_negative_flags(@registers[:X])
+      end
+
       # ROR (Rotate Right)
       def ror(mode)
         address = get_address(mode)
@@ -1125,27 +1146,6 @@ def jmp_indirect
   jump_address = read_word(indirect_address)
   @pc = jump_address
 end
-
-      # LDY (Load Y Register)
-      def ldy(mode)
-        value = get_value(mode)
-        @registers[:Y] = value
-        update_zero_and_negative_flags(@registers[:Y])
-      end
-
-      # LDA (Load Accumulator)
-      def lda(mode)
-        value = get_value(mode)
-        @registers[:A] = value
-        update_zero_and_negative_flags(@registers[:A])
-      end
-
-      # LDX (Load X Register)
-      def ldx(mode)
-        value = get_value(mode)
-        @registers[:X] = value
-        update_zero_and_negative_flags(@registers[:X])
-      end
 
 # Load Accumulator from Indexed Indirect, X-Indexed Memory
 def lda_indexed_indirect_x
