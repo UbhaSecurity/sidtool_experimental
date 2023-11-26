@@ -73,7 +73,9 @@ cpu_instance.state = state_instance
   end
 
   def self.run_emulation(options)
+    puts "Creating C64Emulator instance..."
     c64_emulator = C64Emulator.new  # This line should instantiate Memory and CPU correctly
+    puts "C64Emulator instance created."
     c64_emulator.load_program(File.binread(input_file), 0x0801) # Example load address
 
     if options[:info]
