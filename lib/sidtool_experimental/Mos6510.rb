@@ -41,7 +41,7 @@ module SidtoolExperimental
       def pc; @registers[:PC]; end
 
       # Initialize the CPU with provided memory and set up initial state.
-      def initialize(mem)
+       def initialize(mem)
         raise "Memory not initialized" if mem.nil?
         
         @memory = mem
@@ -53,7 +53,7 @@ module SidtoolExperimental
           P: Flags::INTERRUPT_DISABLE | Flags::BREAK
         }
 
-        # Initialize the Program Counter (PC) using memory reads
+        # Initialize the Program Counter (PC) using direct memory reads
         @PC = @memory.read(0xFFFC) | (@memory.read(0xFFFD) << 8)
 
         @cycles = 0
@@ -62,7 +62,6 @@ module SidtoolExperimental
         initialize_instructions # Initialize the instruction set for this instance
         @halt = false  # Initialize the @halt variable
       end
-
 
       # Reset method to reinitialize registers to default values.
       def reset
