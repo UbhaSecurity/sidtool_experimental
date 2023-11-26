@@ -44,8 +44,11 @@ module SidtoolExperimental
   end
 
 memory_instance = SidtoolExperimental::Memory.new
-cpu_instance = Mos6510::Cpu.new(memory_instance)
-STATE = SidtoolExperimental::State.new(cpu_instance)
+cpu_instance = SidtoolExperimental::Mos6510::Cpu.new(memory_instance)
+state_instance = SidtoolExperimental::State.new(cpu_instance)
+
+cpu_instance.state = state_instance
+
 
 
   EXPORTERS = {
