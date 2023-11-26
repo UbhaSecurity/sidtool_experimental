@@ -40,38 +40,51 @@ module SidtoolExperimental
       def p; @registers[:P]; end
       def pc; @registers[:PC]; end
 
-     def initialize(mem)
-  raise "Memory not initialized" if mem.nil?
+     # Initialization method for the CPU
+      def initialize(mem, state = nil)
+        raise "Memory not initialized" if mem.nil?
 
-  @memory = mem
-  @registers = {
-    A: 0x00, 
-    X: 0x00, 
-    Y: 0x00, 
-    SP: 0xFF, 
-    P: Flags::INTERRUPT_DISABLE | Flags::BREAK
-  }
+        @memory = mem # Assigning the provided memory instance
+        @state = state # Assigning the provided state instance, if any
 
-  # Call reset to initialize the Program Counter and other state
-  reset
+        # Set up the initial state of the CPU registers
+        @registers = {
+          A: 0x00, 
+          X: 0x00, 
+          Y: 0x00, 
+          SP: 0xFF, 
+          P: Flags::INTERRUPT_DISABLE | Flags::BREAK
+        }
 
-  @state = SidtoolExperimental::State.new(self) # Initialize the state with a reference to this CPU.
-  initialize_instructions # Initialize the instruction set for this instance
-  @halt = false  # Initialize the @halt variable
-end
+        # Initialize the Program Counter (PC)
+        reset
 
-# Reset method to reinitialize registers to default values.
-def reset
-  @registers[:A] = 0
-  @registers[:X] = 0
-  @registers[:Y] = 0
-  @registers[:SP] = 0xFF
-  @registers[:P] = Flags::INTERRUPT_DISABLE | Flags::BREAK
+        # If state is not provided, create a new state instance (optional, based on your design)
+        @state ||= SidtoolExperimental::State.new(self)
 
-  # Use the memory instance directly to set the Program Counter from the reset vector.
-  @registers[:PC] = @memory.read(0xFFFC) | (@memory.read(0xFFFD) << 8)
-  @cycles = 0
-end
+        # Initialize other necessary components of the CPU
+        initialize_instructions # Initialize the instruction set
+        @halt = false # Initialize the halt flag
+      end
+
+      # Reset method to reinitialize registers to default values
+      def reset
+        # Reset the main registers to their default values
+        @registers[:A] = 0
+        @registers[:X] = 0
+        @registers[:Y] = 0
+        @registers[:SP] = 0xFF  # Stack pointer starts at 0xFF
+        @registers[:P] = Flags::INTERRUPT_DISABLE | Flags::BREAK  # Default processor status
+
+        # Set the Program Counter to the address stored in the reset vector (0xFFFC and 0xFFFD)
+        @registers[:PC] = @memory.read(0xFFFC) | (@memory.read(0xFFFD) << 8)
+
+        # Reset cycle count
+        @cycles = 0
+
+        # Additional reset actions can be added here
+        # For example, resetting internal state, flags, etc.
+      end
 
       def brk
       # Increment PC by one to simulate the CPU's behavior of reading the next byte (which is ignored)
