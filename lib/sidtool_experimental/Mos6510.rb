@@ -1401,18 +1401,11 @@ def and_operation(value)
 end
 
 
-
-    end
-
-    end
-  end
-
     def run_cycles(cyc)
       while @cycles < cyc
         step
       end
     end
-
 
       # Method to read a byte from memory
       def read_memory(address)
@@ -1423,7 +1416,6 @@ end
       def write_memory(address, value)
         @memory.write(address, value)
       end
-
 
   private
 
