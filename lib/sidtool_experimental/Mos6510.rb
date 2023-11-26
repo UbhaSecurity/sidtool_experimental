@@ -1327,7 +1327,6 @@ end
 
     end
   end
-end
 
     def run_cycles(cyc)
       while @cycles < cyc
