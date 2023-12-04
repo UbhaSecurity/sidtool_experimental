@@ -15,6 +15,8 @@ module SidtoolExperimental
   class TestC64
     def initialize
       @memory = Memory.new  # Initialize the complex memory system
+      puts "Memory initialized: #{@memory != nil}"  # Debugging statement
+
       @cpu = Mos6510::Cpu.new(@memory)  # Initialize the CPU with the memory system
       # Initialize other components as needed...
     end
