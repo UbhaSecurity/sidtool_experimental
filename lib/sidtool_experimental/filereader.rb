@@ -1,9 +1,8 @@
-# FileReader.rb
 module SidtoolExperimental
   class FileReader
     attr_reader :format, :version, :init_address, :play_address, :songs, :start_song
     attr_reader :name, :author, :released
-    attr_reader :data
+    attr_reader :data, :load_address, :speed, :flags, :start_page, :page_length, :second_sid_address, :third_sid_address
 
     # Reads and parses a SID file
     def self.read(path)
@@ -30,10 +29,13 @@ module SidtoolExperimental
       data = read_bytes(contents[data_offset..-1])
 
       new(format: format, version: version, init_address: init_address, play_address: play_address,
-          songs: songs, start_song: start_song, name: name, author: author, released: released, data: data)
+          songs: songs, start_song: start_song, name: name, author: author, released: released, data: data,
+          load_address: load_address, speed: speed, flags: flags, start_page: start_page,
+          page_length: page_length, second_sid_address: second_sid_address, third_sid_address: third_sid_address)
     end
 
-    def initialize(format:, version:, init_address:, play_address:, songs:, start_song:, name:, author:, released:, data:)
+    def initialize(format:, version:, init_address:, play_address:, songs:, start_song:, name:, author:, released:, data:,
+                   load_address:, speed:, flags:, start_page:, page_length:, second_sid_address:, third_sid_address:)
       @format = format
       @version = version
       @init_address = init_address
@@ -44,6 +46,13 @@ module SidtoolExperimental
       @author = author
       @released = released
       @data = data
+      @load_address = load_address
+      @speed = speed
+      @flags = flags
+      @start_page = start_page
+      @page_length = page_length
+      @second_sid_address = second_sid_address
+      @third_sid_address = third_sid_address
     end
 
     # Emulates the SID file
