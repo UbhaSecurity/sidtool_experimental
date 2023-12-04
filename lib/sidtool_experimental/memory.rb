@@ -3,7 +3,7 @@ module SidtoolExperimental
     attr_accessor :ram, :basic_rom, :kernal_rom, :char_rom, :io_devices
     attr_accessor :loram, :hiram, :charen, :exrom, :game, :processor_port
 
-    def initialize
+  def initialize
       @ram = Array.new(65536, 0) # Initialize 64KB of RAM
       @basic_rom = load_rom('basic.rom') # Load BASIC ROM content
       @kernal_rom = load_rom('kernal.rom') # Load KERNAL ROM content
