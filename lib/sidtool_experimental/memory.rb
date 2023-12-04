@@ -69,7 +69,7 @@ module SidtoolExperimental
       # For example:
       @ram[address] = value
 
-    private
+
 
   # Helper method to validate memory addresses
     def validate_address(address)
