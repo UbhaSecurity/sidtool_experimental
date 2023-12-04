@@ -235,5 +235,4 @@ module SidtoolExperimental
         # Other devices as needed.
       }
     end
-  end
 end
