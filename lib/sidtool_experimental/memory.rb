@@ -53,7 +53,30 @@ module SidtoolExperimental
       end
     end
 
+
+    # Implement array-like access for reading memory
+    def [](address)
+      validate_address(address)
+      # Add logic to return the value at the given address
+      # For example:
+      @ram[address]
+    end
+
+    # Implement array-like access for writing to memory
+    def []=(address, value)
+      validate_address(address)
+      # Add logic to set the value at the given address
+      # For example:
+      @ram[address] = value
+
     private
+
+  # Helper method to validate memory addresses
+    def validate_address(address)
+      unless address.between?(0x0000, 0xFFFF)
+        raise "Invalid memory address: #{address}"
+      end
+    end
 
     def current_memory_config
       {
