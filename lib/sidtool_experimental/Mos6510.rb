@@ -92,26 +92,27 @@ module SidtoolExperimental
         # For example, resetting internal state, flags, etc.
       end
 
-      def brk
-      # Increment PC by one to simulate the CPU's behavior of reading the next byte (which is ignored)
-      @registers[:PC] = (@registers[:PC] + 1) & 0xFFFF
+    def brk
+  # Increment PC by one to simulate the CPU's behavior of reading the next byte (which is ignored)
+  @registers[:PC] = (@registers[:PC] + 1) & 0xFFFF
 
-      # Push PC to stack
-      push_stack((@registers[:PC] >> 8) & 0xFF) # Push high byte of PC to stack
-      push_stack(@registers[:PC] & 0xFF)        # Push low byte of PC to stack
+  # Push PC to stack
+  push_stack((@registers[:PC] >> 8) & 0xFF) # Push high byte of PC to stack
+  push_stack(@registers[:PC] & 0xFF)        # Push low byte of PC to stack
 
-      # Set Break flag before pushing
-      set_flag(Flags::BREAK)
+  # Set Break flag before pushing
+  set_flag(Flags::BREAK)
 
-      # Push processor status to stack with Break and Unused flags set
-      push_stack(@registers[:P] | Flags::BREAK | Flags::UNUSED)
+  # Push processor status to stack with Break and Unused flags set
+  push_stack(@registers[:P] | Flags::BREAK | Flags::UNUSED)
 
-      # Load the IRQ interrupt vector into the PC
-      @registers[:PC] = read_memory(0xFFFE) | (read_memory(0xFFFF) << 8)
+  # Load the IRQ interrupt vector into the PC
+  @registers[:PC] = @memory.read(0xFFFE) | (@memory.read(0xFFFF) << 8)
 
-      # Set the interrupt disable flag to prevent further IRQs
-      set_flag(Flags::INTERRUPT_DISABLE)
-      end
+  # Set the interrupt disable flag to prevent further IRQs
+  set_flag(Flags::INTERRUPT_DISABLE)
+    end
+
 
       # Implement the step method to execute a single CPU instruction.
       def step
@@ -365,7 +366,20 @@ def push_stack(value)
   @memory[@registers[:SP] + 0x0100] = value
 end
 
+def irq
+  return if (@registers[:P] & Flags::INTERRUPT_DISABLE) != 0
 
+  # Push the program counter and processor status to the stack
+  push_stack((@registers[:PC] >> 8) & 0xFF)
+  push_stack(@registers[:PC] & 0xFF)
+  push_stack(@registers[:P] | Flags::BREAK)
+
+  # Set the program counter to the IRQ vector
+  @registers[:PC] = @memory.read(0xFFFE) | (@memory.read(0xFFFF) << 8)
+
+  # Set the interrupt disable flag
+  @registers[:P] |= Flags::INTERRUPT_DISABLE
+end
   # Implement the Store Accumulator (STA) instruction with zero page addressing mode
   def sta_zero_page
     address = fetch_byte
@@ -866,10 +880,11 @@ end
   end
 
   # Implement the Pop Processor Status (PLP) instruction
-  def plp
-    status = pop_stack
-    @registers[:P] = status & ~Flags::BREAK  # Clear the BREAK flag upon popping
-  end
+def plp
+  status = pop_stack
+  @registers[:P] = status & ~Flags::BREAK  # Clear the BREAK flag upon popping
+end
+
 
   # Implement the Branch if Carry Clear (BCC) instruction
       def bcc
@@ -1149,7 +1164,7 @@ def irq
   push_stack(@registers[:P] | Flags::BREAK)
 
   # Set the program counter to the IRQ vector
-  @registers[:PC] = read_memory(0xFFFE) | (read_memory(0xFFFF) << 8)
+  @registers[:PC] = @memory.read(0xFFFE) | (@memory.read(0xFFFF) << 8)
 
   # Set the interrupt disable flag
   @registers[:P] |= Flags::INTERRUPT_DISABLE
@@ -1173,7 +1188,6 @@ end
     @registers[:PC] = (high_byte << 8) | low_byte
   end
 
-# Helper method to perform a branch instruction
 def branch(condition)
   offset = fetch_byte
   if condition
@@ -1617,16 +1631,15 @@ def branch_taken?(instruction)
     raise "Unsupported branch operation"
   end
 
-     # Method to get the address and value based on the addressing mode
-      def get_address_and_value(mode)
-        case mode
-        when Mode::ACC
-          [nil, @registers[:A]]
-        else
-          address = get_address(mode)
-          [address, read_memory(address)]
-        end
-      end
+def get_address_and_value(mode)
+  case mode
+  when Mode::ACC
+    [nil, @registers[:A]]
+  else
+    address = get_address(mode)
+    [address, @memory.read(address)]
+  end
+end
 
       # Method to set the value back to memory or accumulator based on the addressing mode
       def set_memory_or_accumulator(mode, address, value)
