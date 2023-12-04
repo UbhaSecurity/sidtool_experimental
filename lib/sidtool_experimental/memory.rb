@@ -88,29 +88,26 @@ module SidtoolExperimental
       }
     end
 
-    # Enhanced load_rom method with detailed error handling and debugging
-    def load_rom(filename)
-      begin
-        # Construct the full file path relative to this script's location
-        file_path = File.join(File.dirname(__FILE__), '..', 'bin', filename)
-        puts "Attempting to load ROM from: #{file_path}"
+def load_rom(filename)
+  begin
+    # Assuming the ROM files are in the same directory as this script
+    file_path = File.join(__dir__, filename)
+    puts "Attempting to load ROM from: #{file_path}"
 
-        # Check if the file exists before attempting to read
-        unless File.exist?(file_path)
-          raise "ROM file not found: #{file_path}"
-        end
-
-        # Read and return the ROM data
-        rom_data = File.binread(file_path).bytes
-        puts "Loaded ROM successfully: #{filename}, Size: #{rom_data.size} bytes"
-        rom_data
-      rescue StandardError => e
-        # Log any errors encountered during the file read operation
-        puts "Error loading ROM: #{e.message}"
-        puts e.backtrace.join("\n")
-        []
-      end
+    unless File.exist?(file_path)
+      raise "ROM file not found: #{file_path}"
     end
+
+    rom_data = File.binread(file_path).bytes
+    puts "Loaded ROM successfully: #{filename}, Size: #{rom_data.size} bytes"
+    rom_data
+  rescue StandardError => e
+    puts "Error loading ROM: #{e.message}"
+    puts e.backtrace.join("\n")
+    []
+  end
+end
+
 
     def rom_area_basic(address, config)
       return @basic_rom[address - 0xA000] if config[:basic_rom_enabled]
