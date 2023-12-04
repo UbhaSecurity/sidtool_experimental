@@ -88,6 +88,9 @@ module SidtoolExperimental
       }
     end
 
+private
+
+
    # Enhanced load_rom method with detailed error handling and debugging
     def load_rom(filename)
       begin
