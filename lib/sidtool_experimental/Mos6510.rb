@@ -381,22 +381,22 @@ def irq
   @registers[:P] |= Flags::INTERRUPT_DISABLE
 end
   # Implement the Store Accumulator (STA) instruction with zero page addressing mode
-  def sta_zero_page
-    address = fetch_byte
-    write_memory(address, @registers[:A])
+ def sta_zero_page
+        address = fetch_byte
+        write_memory(address, @registers[:A])
   end
 
   # Implement the Store Accumulator (STA) instruction with zero page X addressing mode
-  def sta_zero_page_x
-    address = (fetch_byte + @registers[:X]) & 0xFF
-    write_memory(address, @registers[:A])
-  end
+     def sta_zero_page_x
+        address = (fetch_byte + @registers[:X]) & 0xFF
+        write_memory(address, @registers[:A])
+      end
 
   # Implement the Store Accumulator (STA) instruction with absolute addressing mode
-  def sta_absolute
-    address = fetch_word
-    write_memory(address, @registers[:A])
-  end
+      def sta_absolute
+        address = fetch_word
+        write_memory(address, @registers[:A])
+      end
 
     # NOP (No Operation)
       def nop
@@ -404,16 +404,16 @@ end
       end
 
   # Implement the Store Accumulator (STA) instruction with absolute X addressing mode
-  def sta_absolute_x
-    address = (fetch_word + @registers[:X]) & 0xFFFF
-    write_memory(address, @registers[:A])
-  end
+      def sta_absolute_x
+        address = (fetch_word + @registers[:X]) & 0xFFFF
+        write_memory(address, @registers[:A])
+      end
 
   # Implement the Store Accumulator (STA) instruction with absolute Y addressing mode
-  def sta_absolute_y
-    address = (fetch_word + @registers[:Y]) & 0xFFFF
-    write_memory(address, @registers[:A])
-  end
+      def sta_absolute_y
+        address = (fetch_word + @registers[:Y]) & 0xFFFF
+        write_memory(address, @registers[:A])
+      end
 
       # EOR (Exclusive OR)
       def eor(value)
@@ -433,12 +433,12 @@ end
       end
 
   # Implement the Store Accumulator (STA) instruction with indexed indirect addressing mode
-  def sta_indexed_indirect
-    zp_address = fetch_byte
-    zp_address_x = (zp_address + @registers[:X]) & 0xFF
-    address = read_memory(zp_address_x) | (read_memory((zp_address_x + 1) & 0xFF) << 8)
-    write_memory(address, @registers[:A])
-  end
+      def sta_indexed_indirect
+        zp_address = fetch_byte
+        zp_address_x = (zp_address + @registers[:X]) & 0xFF
+        address = @memory.read(zp_address_x) | (@memory.read((zp_address_x + 1) & 0xFF) << 8)
+        write_memory(address, @registers[:A])
+      end
 
       # SED (Set Decimal Flag)
       def sed
@@ -447,12 +447,12 @@ end
       end
 
   # Implement the Store Accumulator (STA) instruction with indirect indexed addressing mode
-  def sta_indirect_indexed
-    zp_address = fetch_byte
-    address = read_memory(zp_address) | (read_memory((zp_address + 1) & 0xFF) << 8)
-    address += @registers[:Y]
-    write_memory(address, @registers[:A])
-  end
+      def sta_indirect_indexed
+        zp_address = fetch_byte
+        address = @memory.read(zp_address) | (@memory.read((zp_address + 1) & 0xFF) << 8)
+        address += @registers[:Y]
+        write_memory(address, @registers[:A])
+      end
 
   # Implement the Transfer Accumulator to X (TAX) instruction
   def tax
@@ -1454,9 +1454,10 @@ end
         @memory.read(address)
       end
 
-      # Method to write a byte to memory
+
       def write_memory(address, value)
-        @memory.write(address, value)
+        validate_address(address)  # Ensure the address is within the valid range
+        @memory.write(address, value)   # Call the write method of the @memory object
       end
 
   private
@@ -1532,11 +1533,11 @@ def fetch_word
   (high_byte << 8) | low_byte
 end
 
-  def validate_address(address)
-    unless address >= 0x0000 && address <= 0xFFFF
-      raise "Invalid memory address: 0x#{address.to_s(16)}"
-    end
-  end
+ def validate_address(address)
+        unless address >= 0x0000 && address <= 0xFFFF
+          raise "Invalid memory address: #{address}"
+        end
+      end
 
     # Define a method to handle illegal opcodes.
     def handle_illegal_opcode(opcode)
