@@ -39,29 +39,38 @@ module SidtoolExperimental
       def p; @registers[:P]; end
       def pc; @registers[:PC]; end
 
-   # Initialization method for the CPU
       def initialize(mem, state = nil)
-        # Ensure that the memory object is correctly initialized and responds to required methods
-        raise "Memory not initialized" unless mem.respond_to?(:[]=) && mem.respond_to?(:[])
+        puts "CPU initialization started..."
+
+        # Debugging: Check if memory object is correctly initialized
+        if mem.nil?
+          puts "Error: Memory object is nil."
+          raise "Memory object is nil"
+        elsif !mem.respond_to?(:[]) || !mem.respond_to?(:[]=)
+          puts "Error: Memory object does not have required methods."
+          raise "Memory object does not have required methods ([] and []=)"
+        else
+          puts "Memory object is valid and ready."
+        end
 
         @memory = mem
-        @state = state || SidtoolExperimental::State.new(self)  # Use provided state or initialize a new one
+        @state = state || SidtoolExperimental::State.new(self)
 
         # Initialize CPU registers with default values
         @registers = {
           A: 0x00,
           X: 0x00,
           Y: 0x00,
-          SP: 0xFF,  # Stack pointer starts at 0xFF
-          P: Flags::INTERRUPT_DISABLE | Flags::BREAK  # Default processor status
+          SP: 0xFF,
+          P: Flags::INTERRUPT_DISABLE | Flags::BREAK
         }
 
-        @cycles = 0  # Initialize cycle count
+        @cycles = 0
+        reset
+        initialize_instructions
+        @halt = false
 
-        reset  # Call reset to initialize the Program Counter and other settings
-
-        initialize_instructions  # Initialize the instruction set
-        @halt = false  # Initialize the halt flag
+        puts "CPU initialization completed."
       end
 
       # Reset method to reinitialize registers to default values
