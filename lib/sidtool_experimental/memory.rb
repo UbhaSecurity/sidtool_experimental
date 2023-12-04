@@ -88,12 +88,18 @@ module SidtoolExperimental
       }
     end
 
-    # Load ROM data from binary files
-    def load_rom(filename)
-      # Load ROM data from file
-      # Replace this with your specific implementation
-      File.binread(filename).bytes
-    end
+def load_rom(filename)
+  begin
+    # Assuming the ROM files are in the same directory as the script
+    file_path = File.join(File.dirname(__FILE__), filename)
+    raise "ROM file not found: #{file_path}" unless File.exist?(file_path)
+    
+    File.binread(file_path).bytes
+  rescue StandardError => e
+    puts "Error loading ROM: #{e.message}"
+    []
+  end
+end
 
     def rom_area_basic(address, config)
       return @basic_rom[address - 0xA000] if config[:basic_rom_enabled]
