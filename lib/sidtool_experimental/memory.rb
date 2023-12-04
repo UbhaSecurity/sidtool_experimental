@@ -3,7 +3,7 @@ module SidtoolExperimental
     attr_accessor :ram, :basic_rom, :kernal_rom, :char_rom, :io_devices
     attr_accessor :loram, :hiram, :charen, :exrom, :game, :processor_port
 
-  def initialize
+    def initialize
       @ram = Array.new(65536, 0) # Initialize 64KB of RAM
       @basic_rom = load_rom('basic.rom') # Load BASIC ROM content
       @kernal_rom = load_rom('kernal.rom') # Load KERNAL ROM content
@@ -53,7 +53,6 @@ module SidtoolExperimental
       end
     end
 
-
     # Implement array-like access for reading memory
     def [](address)
       validate_address(address)
@@ -68,10 +67,11 @@ module SidtoolExperimental
       # Add logic to set the value at the given address
       # For example:
       @ram[address] = value
+    end
 
+    private
 
-
-  # Helper method to validate memory addresses
+    # Helper method to validate memory addresses
     def validate_address(address)
       unless address.between?(0x0000, 0xFFFF)
         raise "Invalid memory address: #{address}"
@@ -88,10 +88,7 @@ module SidtoolExperimental
       }
     end
 
-private
-
-
-   # Enhanced load_rom method with detailed error handling and debugging
+    # Enhanced load_rom method with detailed error handling and debugging
     def load_rom(filename)
       begin
         # Construct the full file path relative to this script's location
@@ -256,5 +253,4 @@ private
       }
     end
   end
-end
 end
