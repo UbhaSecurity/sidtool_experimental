@@ -1,4 +1,3 @@
-require_relative 'memory'
 module SidtoolExperimental
   class Mos6510
     class Cpu
@@ -40,30 +39,29 @@ module SidtoolExperimental
       def p; @registers[:P]; end
       def pc; @registers[:PC]; end
 
-     # Initialization method for the CPU
+   # Initialization method for the CPU
       def initialize(mem, state = nil)
-          raise "Memory not initialized" unless mem.respond_to?(:[]=)
-        @memory = mem
-        @state = state # Assigning the provided state instance, if any
+        # Ensure that the memory object is correctly initialized and responds to required methods
+        raise "Memory not initialized" unless mem.respond_to?(:[]=) && mem.respond_to?(:[])
 
-        # Set up the initial state of the CPU registers
+        @memory = mem
+        @state = state || SidtoolExperimental::State.new(self)  # Use provided state or initialize a new one
+
+        # Initialize CPU registers with default values
         @registers = {
-          A: 0x00, 
-          X: 0x00, 
-          Y: 0x00, 
-          SP: 0xFF, 
-          P: Flags::INTERRUPT_DISABLE | Flags::BREAK
+          A: 0x00,
+          X: 0x00,
+          Y: 0x00,
+          SP: 0xFF,  # Stack pointer starts at 0xFF
+          P: Flags::INTERRUPT_DISABLE | Flags::BREAK  # Default processor status
         }
 
-        # Initialize the Program Counter (PC)
-        reset
+        @cycles = 0  # Initialize cycle count
 
-        # If state is not provided, create a new state instance (optional, based on your design)
-        @state ||= SidtoolExperimental::State.new(self)
+        reset  # Call reset to initialize the Program Counter and other settings
 
-        # Initialize other necessary components of the CPU
-        initialize_instructions # Initialize the instruction set
-        @halt = false # Initialize the halt flag
+        initialize_instructions  # Initialize the instruction set
+        @halt = false  # Initialize the halt flag
       end
 
       # Reset method to reinitialize registers to default values
