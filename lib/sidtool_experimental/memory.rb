@@ -65,6 +65,11 @@ module SidtoolExperimental
       @ram[address] = value
     end
 
+  # Method to validate a memory address
+  def valid_address?(address)
+    address.between?(0x0000, 0xFFFF)
+  end
+
     # Additional methods for memory management, ROM loading, I/O handling, etc.
 
     private
