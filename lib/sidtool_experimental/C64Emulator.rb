@@ -5,7 +5,7 @@ module SidtoolExperimental
 
     def initialize(memory, sid6581)
       @memory = memory
-      @cpu = Mos6510::Cpu.new(@memory, self)  # Initialize CPU with memory and self-reference
+      @cpu = Mos6510::Cpu.new(@memory, self)
       @ciaTimerA = CIATimer.new(self)         # Initialize CIA Timer A
       @ciaTimerB = CIATimer.new(self)         # Initialize CIA Timer B
       @sid6581 = sid6581                      # SID chip instance
