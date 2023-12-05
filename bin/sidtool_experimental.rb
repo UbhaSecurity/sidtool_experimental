@@ -53,17 +53,19 @@ module SidtoolExperimental
     c64_emulator.load_program(File.binread(input_file), 0x0801) # Example load address
 
     if options[:info]
-      # TODO: Display file information
+      display_file_info(input_file)
     else
       emulate(c64_emulator, options[:frames], exporter, options[:out])
     end
   end
 
   def self.parse_arguments
-    options = { frames: DEFAULT_FRAME_COUNT, format: 'ruby' }
+    options = { frames: DEFAULT_FRAME_COUNT, format: 'ruby', info: false }
     OptionParser.new do |opts|
       opts.banner = "Usage: sidtool_experimental [options] <inputfile.sid>"
-      opts.on('-i', '--info', 'Show file information')
+      opts.on('-i', '--info', 'Show file information') do
+        options[:info] = true
+      end
       opts.on('--format FORMAT', 'Output format, "ruby" or "midi"') do |format|
         options[:format] = format.downcase
         unless EXPORTERS.key?(options[:format])
@@ -90,6 +92,26 @@ module SidtoolExperimental
       frame_count += 1
     end
     exporter.export(output_file, emulator.state)
+  end
+
+  def self.display_file_info(file_path)
+    begin
+      sid_file = FileReader.read(file_path)
+      puts "File Information:"
+      puts "Format: #{sid_file.format}"
+      puts "Version: #{sid_file.version}"
+      puts "Load Address: 0x#{sid_file.load_address.to_s(16)}"
+      puts "Init Address: 0x#{sid_file.init_address.to_s(16)}"
+      puts "Play Address: 0x#{sid_file.play_address.to_s(16)}"
+      puts "Number of Songs: #{sid_file.songs}"
+      puts "Start Song: #{sid_file.start_song}"
+      puts "Name: #{sid_file.name}"
+      puts "Author: #{sid_file.author}"
+      puts "Released: #{sid_file.released}"
+      puts "Data Size: #{sid_file.data.size} bytes"
+    rescue StandardError => e
+      puts "Error reading SID file: #{e.message}"
+    end
   end
 end
 
