@@ -375,6 +375,23 @@ def push_stack(value)
   @memory[@registers[:SP] + 0x0100] = value
 end
 
+def clc
+  @registers[:P] &= ~Flags::CARRY
+end
+
+def sec
+  @registers[:P] |= Flags::CARRY
+end
+
+def cli
+  @registers[:P] &= ~Flags::INTERRUPT_DISABLE
+end
+
+def sei
+  @registers[:P] |= Flags::INTERRUPT_DISABLE
+end
+
+
 def irq
   return if (@registers[:P] & Flags::INTERRUPT_DISABLE) != 0
 
@@ -1152,21 +1169,7 @@ end
         end
       end
 
-def clc
-  @registers[:P] &= ~Flags::CARRY
-end
 
-def sec
-  @registers[:P] |= Flags::CARRY
-end
-
-def cli
-  @registers[:P] &= ~Flags::INTERRUPT_DISABLE
-end
-
-def sei
-  @registers[:P] |= Flags::INTERRUPT_DISABLE
-end
 
 def update_flags(value)
   # Clear existing Zero and Negative flags
