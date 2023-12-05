@@ -8,8 +8,7 @@ module SidtoolExperimental
       @sid6581 = Sid6581.new(memory: @memory)
       @ciaTimerA = CIATimer.new(self)
       @ciaTimerB = CIATimer.new(self)
-      puts "CIATimerA: #{@ciaTimerA}, CIATimerB: #{@ciaTimerB}" # Debug line
-      @state = State.new(@cpu, self, [@ciaTimerA, @ciaTimerB], @sid6581)
+      @state = State.new(@cpu, self, [@ciaTimerA, @ciaTimerB], @sid6581) # Corrected initialization
     end
 
     def load_sid_file(file_path)
@@ -65,8 +64,6 @@ module SidtoolExperimental
 
       # Additional environment setup logic as required
     end
-
-  private
 
     def handle_extended_sid_file(sid_file)
       # Logic to handle extended SID file features
