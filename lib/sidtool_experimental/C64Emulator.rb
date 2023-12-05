@@ -16,8 +16,8 @@ DEFAULT_LOAD_ADDRESS = 0x1000  # Set your desired default load address here
 def load_sid_file(file_path)
   sid_file = FileReader.read(file_path)
   
-  # Use the load_address from the sid_file, if available
-  load_address = sid_file.load_address if sid_file.respond_to?(:load_address)
+  # Use the load_address from the sid_file, if available, else use the default
+  load_address = sid_file.respond_to?(:load_address) ? sid_file.load_address : DEFAULT_LOAD_ADDRESS
 
   # Ensure that @memory is an instance of the Memory class and is properly initialized
   raise 'Memory not initialized' unless @memory.is_a?(Memory)
