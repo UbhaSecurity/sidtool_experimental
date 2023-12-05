@@ -28,7 +28,7 @@ module SidtoolExperimental
 
    def initialize(memory:)
       @memory = memory
-      @voices = [] # Initialize an empty array for voices
+      @voices = []
       @global_filter_cutoff = 0
       @global_filter_resonance = 0
       @global_volume = 0
