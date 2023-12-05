@@ -62,11 +62,6 @@ module SidtoolExperimental
         handle_extended_sid_file(sid_file)
       end
 
-      # Handle specific features based on flags or other data
-      if sid_file.flags & SOME_FLAG
-        # Do something specific for this flag
-      end
-
       # Additional environment setup logic as required
     end
 
