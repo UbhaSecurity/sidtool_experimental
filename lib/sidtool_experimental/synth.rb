@@ -115,9 +115,9 @@ module SidtoolExperimental
 
     def initialize_lfo
       @lfo_rate = 1.0
-      @lfo_depth = 0.5
+      @lfo_depth = 0.5  # You can set the default LFO depth here or adjust it as needed
       @lfo_waveform = :sine
-      @lfo_phase = 0.0
+      @lfo_phase = 0.5
       @lfo_destination = :pitch
     end
 
