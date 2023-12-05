@@ -1,6 +1,6 @@
 module SidtoolExperimental
   class FileReader
-  attr_reader :format, :version, :data_offset, :load_address, :init_address, :play_address, :songs,
+    attr_reader :format, :version, :data_offset, :load_address, :init_address, :play_address, :songs,
                 :start_song, :speed, :flags, :start_page, :page_length, :second_sid_address, 
                 :third_sid_address, :name, :author, :released, :data
     
@@ -122,4 +122,3 @@ module SidtoolExperimental
     end
   end
 end
-
