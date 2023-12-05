@@ -1,5 +1,6 @@
 module SidtoolExperimental
   class Sid6581
+  attr_accessor :state
     # Define waveform constants for easy reference
     WAVEFORM_TRIANGLE = 0x01
     WAVEFORM_SAWTOOTH = 0x02
