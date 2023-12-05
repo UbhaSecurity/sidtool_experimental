@@ -26,10 +26,9 @@ module SidtoolExperimental
     OSC3       = 0xD41B
     ENV3       = 0xD41C
 
-     def initialize(memory:, state:)
+   def initialize(memory:)
       @memory = memory
-      @state = state
-      @voices = Array.new(3) { |voice_number| Voice.new(self, voice_number, @state) }
+      @voices = Array.new(3) { |voice_number| Voice.new(self, voice_number) }
       @global_filter_cutoff = 0
       @global_filter_resonance = 0
       @global_volume = 0
