@@ -24,24 +24,23 @@ module SidtoolExperimental
     'midi' => MidiFileWriter
   }
 
- def self.run
-  options = parse_arguments
+  def self.run
+    options = parse_arguments
 
-  if ARGV.empty?
-    puts "Error: Please provide the path to the input SID file."
-    exit(1)
-  end
+    if ARGV.empty?
+      puts "Error: Please provide the path to the input SID file."
+      exit(1)
+    end
 
-  input_file = ARGV[0]
+    input_file = ARGV[0]
 
-  unless File.exist?(input_file)
-    puts "Error: The specified SID file does not exist: #{input_file}"
-    exit(1)
-  end
+    unless File.exist?(input_file)
+      puts "Error: The specified SID file does not exist: #{input_file}"
+      exit(1)
+    end
 
-  # Handle exceptions during loading
-  begin
-memory = Memory.new
+    begin
+      memory = Memory.new
       sid6581 = Sid6581.new(memory: memory)
 
       c64_emulator = C64Emulator.new(memory: memory)
@@ -55,17 +54,15 @@ memory = Memory.new
 
       puts "C64Emulator instance created."
 
-    c64_emulator.load_sid_file(input_file) # Load the SID fil
-  rescue StandardError => e
-    puts "Error: An error occurred while loading the SID file: #{e.message}"
-    exit(1)
+      c64_emulator.load_sid_file(input_file) # Load the SID file
+    rescue StandardError => e
+      puts "Error: An error occurred while loading the SID file: #{e.message}"
+      exit(1)
+    end
+
+    # Handle exporting and emulation
+    handle_export_and_emulation(c64_emulator, options)
   end
-  if options[:info]
-    display_file_info(input_file)
-  else
-    emulate(c64_emulator, options[:frames], exporter, options[:out], options[:song])
-  end
-end
 
   def self.parse_arguments
     options = { frames: DEFAULT_FRAME_COUNT, format: 'ruby', info: false, out: nil, song: nil }
@@ -98,6 +95,20 @@ end
     options
   end
 
+  def self.handle_export_and_emulation(emulator, options)
+    if options[:info]
+      display_file_info(options[:input_file])
+    else
+      exporter = EXPORTERS[options[:format]]
+      emulate(emulator, options[:frames], exporter, options[:out], options[:song])
+    end
+  end
+
+  def self.display_file_info(file_path)
+    # Implementation for displaying file information
+    # ...
+  end
+
   def self.emulate(emulator, frame_limit, exporter, output_file, song_number)
     frame_count = 0
     loop do
@@ -106,11 +117,6 @@ end
       frame_count += 1
     end
     exporter.export(output_file, emulator.state)
-  end
-
-  def self.display_file_info(file_path)
-    # Implementation for displaying file information
-    # ...
   end
 
   # Additional methods and classes as needed
