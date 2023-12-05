@@ -42,7 +42,7 @@ module SidtoolExperimental
 
    memory = Memory.new # Create Memory instance
   sid6581 = Sid6581.new(memory: memory) # Initialize SID6581 with memory
-  
+
   # Create C64Emulator instance with sid6581
   c64_emulator = C64Emulator.new(sid6581)
 
