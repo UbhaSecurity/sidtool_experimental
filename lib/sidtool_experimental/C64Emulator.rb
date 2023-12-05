@@ -16,13 +16,8 @@ DEFAULT_LOAD_ADDRESS = 0x1000  # Set your desired default load address here
 def load_sid_file(file_path)
   sid_file = FileReader.read(file_path)
   
-  # Check if the sid_file object has a load_address attribute
-  if sid_file.respond_to?(:load_address)
-    load_address = sid_file.load_address
-  else
-    # If the load_address attribute is not present, use the default load address
-    load_address = DEFAULT_LOAD_ADDRESS
-  end
+  # Use the load_address from the sid_file, if available
+  load_address = sid_file.load_address if sid_file.respond_to?(:load_address)
 
   # Ensure that @memory is an instance of the Memory class and is properly initialized
   raise 'Memory not initialized' unless @memory.is_a?(Memory)
@@ -30,7 +25,6 @@ def load_sid_file(file_path)
   # Check if the start address is valid
   raise 'Invalid start address' unless @memory.valid_address?(load_address)
 
-  # Call load_program with the program data and the determined load address
   load_program(sid_file.data, load_address)
   setup_sid_environment(sid_file)
 end
