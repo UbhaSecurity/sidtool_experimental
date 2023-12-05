@@ -8,7 +8,7 @@ module SidtoolExperimental
       @sid6581 = Sid6581.new(memory: @memory)
       @ciaTimerA = CIATimer.new(self)
       @ciaTimerB = CIATimer.new(self)
-      @state = State.new(@cpu, self) 
+      @state = State.new(@cpu, self)  # Pass CPU and emulator instances to State
     end
 
     def load_sid_file(file_path)
