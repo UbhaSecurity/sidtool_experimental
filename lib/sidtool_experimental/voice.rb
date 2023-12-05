@@ -50,7 +50,6 @@ end
       @control_register = 0
       @attack_decay = @sustain_release = 0
       @current_synth = nil
-      @synths = []
       @previous_midi_note = nil
       @filter_cutoff = 1024
       @filter_resonance = 8
