@@ -11,6 +11,12 @@ module SidtoolExperimental
       @state = State.new(@cpu, self)  # Pass CPU and emulator instances to State
     end
 
+    def load_sid_file(file_path)
+      sid_file = FileReader.read(file_path)
+      load_program(sid_file.data, sid_file.load_address)
+      setup_sid_environment(sid_file)
+    end
+
     def load_program(program_data, start_address)
       @cpu.load_program(program_data, start_address)
     end
@@ -27,7 +33,7 @@ module SidtoolExperimental
       @state.emulation_finished = true
     end
 
-    def run_cycle
+    def run_cycle    
       @cpu.step
       emulate_cycle
     end
@@ -38,6 +44,13 @@ module SidtoolExperimental
       @state.update
       @sid6581.generate_sound
       # Add more logic as needed
+    end
+
+    def setup_sid_environment(sid_file)
+      # Setup the environment based on the SID file's properties
+      # This could include setting initial values, configuring the SID chip, etc.
+      # Example:
+      @cpu.pc = sid_file.init_address
     end
 
     # Additional methods for SID operations, memory management, etc.
