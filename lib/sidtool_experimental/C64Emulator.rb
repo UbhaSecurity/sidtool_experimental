@@ -1,5 +1,6 @@
 module SidtoolExperimental
   class C64Emulator
+    
     attr_reader :memory, :cpu, :ciaTimerA, :ciaTimerB
     attr_accessor :sid6581, :state
 
@@ -10,6 +11,7 @@ module SidtoolExperimental
       @ciaTimerB = CIATimer.new(self)
       @sid6581 = sid6581
     end
+DEFAULT_LOAD_ADDRESS = 0x1000  # Set your desired default load address here
 
 def load_sid_file(file_path)
   sid_file = FileReader.read(file_path)
@@ -18,7 +20,8 @@ def load_sid_file(file_path)
   if sid_file.respond_to?(:load_address)
     load_address = sid_file.load_address
   else
-    raise 'SID file does not have a load_address attribute'
+    # If the load_address attribute is not present, use the default load address
+    load_address = DEFAULT_LOAD_ADDRESS
   end
 
   # Ensure that @memory is an instance of the Memory class and is properly initialized
