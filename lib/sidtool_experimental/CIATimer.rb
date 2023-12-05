@@ -132,8 +132,6 @@ module SidtoolExperimental
       # Additional update logic
     end
 
-    private
-
     def handle_timer_expiration(timer_index)
       case timer_index
       when 0
