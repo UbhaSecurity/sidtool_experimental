@@ -134,6 +134,11 @@ module SidtoolExperimental
         byte
     end
 
+     # Setter method for PC (program counter)
+      def pc=(value)
+        @registers[:PC] = value
+      end
+
 def execute_next_instruction
   opcode = fetch_byte
   case opcode
