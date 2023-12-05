@@ -40,17 +40,20 @@ module SidtoolExperimental
       exit(1)
     end
 
-    memory = Memory.new # Create an instance of Memory
-    sid6581 = Sid6581.new(memory: memory) # Initialize SID6581 with memory
+  memory = Memory.new # Create an instance of Memory
+  sid6581 = Sid6581.new(memory: memory) # Initialize SID6581 with memory
+  
+  # Create C64Emulator instance with sid6581
+  c64_emulator = C64Emulator.new(sid6581)
 
-    # Create C64Emulator instance with sid6581
-    c64_emulator = C64Emulator.new(sid6581)
+  # Create State instance with the necessary components
+  state = State.new(c64_emulator.cpu, c64_emulator, [c64_emulator.ciaTimerA, c64_emulator.ciaTimerB], sid6581)
 
-    # Create State instance with the necessary components
-    state = State.new(c64_emulator.cpu, c64_emulator, [c64_emulator.ciaTimerA, c64_emulator.ciaTimerB], sid6581)
+  # Assign State to SID6581
+  sid6581.state = state
 
-    # Assign State to SID6581
-    sid6581.state = state
+  # Now that SID6581 has its state set, update the C64Emulator's state
+  c64_emulator.state = state
 
   puts "C64Emulator instance created."
 
