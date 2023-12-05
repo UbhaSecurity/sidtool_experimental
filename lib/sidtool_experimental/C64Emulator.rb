@@ -4,11 +4,11 @@ module SidtoolExperimental
 
     def initialize
       @memory = Memory.new
-      @cpu = Mos6510::Cpu.new(@memory, self)
       @sid6581 = Sid6581.new(memory: @memory)
       @ciaTimerA = CIATimer.new(self)
       @ciaTimerB = CIATimer.new(self)
-      @state = State.new(@cpu, self, [@ciaTimerA, @ciaTimerB], @sid6581) # Pass four arguments here
+      @cpu = Mos6510::Cpu.new(@memory, self)
+      @state = State.new(@cpu, self, [@ciaTimerA, @ciaTimerB], @sid6581)
     end
 
     def load_sid_file(file_path)
