@@ -27,6 +27,11 @@ module SidtoolExperimental
       @state.emulation_finished = true
     end
 
+    def run_cycle
+      @cpu.step
+      emulate_cycle
+    end
+
     private
 
     def emulate_cycle
