@@ -3,18 +3,19 @@ module SidtoolExperimental
     attr_accessor :current_frame, :emulation_finished, :memory
     attr_reader :sid6581, :cia_timers, :cpu
   
-    def initialize(cpu, emulator)
+    def initialize(cpu, emulator, cia_timers)
       raise "CPU instance is required" if cpu.nil?
 
       @cpu = cpu
       @current_frame = 0
       @memory = emulator.memory  # Use the emulator's memory
       @sid6581 = emulator.sid6581  # Use the emulator's SID instance
-      @cia_timers = [emulator.ciaTimerA, emulator.ciaTimerB]  # Use the emulator's CIATimer instances
+      @cia_timers = cia_timers  # Assign the provided cia_timers array
       @emulation_finished = false
       @interrupt_flag = false # Flag to ignore or respond to IRQs
       initialize_vectors
     end
+
 
     def update
       update_timers
