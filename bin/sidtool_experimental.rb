@@ -1,4 +1,3 @@
-require 'optparse'
 require_relative '../lib/sidtool_experimental/filereader'
 require_relative '../lib/sidtool_experimental/midi_file_writer'
 require_relative '../lib/sidtool_experimental/Sid6581'
@@ -25,6 +24,46 @@ module SidtoolExperimental
     'midi' => MidiFileWriter
   }
 
+  def self.run_emulation_with_sid(sid_file_path)
+    puts "Initializing SID Emulation with file: #{sid_file_path}"
+
+    memory = Memory.new
+    sid6581 = Sid6581.new(memory: memory)
+    c64_emulator = C64Emulator.new(memory, sid6581)
+
+    begin
+      c64_emulator.load_sid_file(sid_file_path)
+      c64_emulator.run
+    rescue StandardError => e
+      puts "Error during SID file loading or emulation: #{e.message}"
+      puts e.backtrace.join("\n")
+    end
+  end
+
+  class TestC64
+    def initialize(sid_file_path)
+      puts "Initializing TestC64 with SID file: #{sid_file_path}"
+
+      @memory = Memory.new
+      @sid6581 = Sid6581.new(memory: @memory)
+      @c64_emulator = C64Emulator.new(@memory, @sid6581)
+      @sid_file_path = sid_file_path
+
+      puts "TestC64 initialization complete."
+    end
+
+    def run
+      puts "Running the emulator..."
+      begin
+        @c64_emulator.load_sid_file(@sid_file_path)
+        @c64_emulator.run
+      rescue StandardError => e
+        puts "Error during SID file loading or emulation: #{e.message}"
+        puts e.backtrace.join("\n")
+      end
+    end
+  end
+
   def self.run
     options = parse_arguments
 
@@ -40,29 +79,33 @@ module SidtoolExperimental
       exit(1)
     end
 
-    begin
-      memory = Memory.new
-      sid6581 = Sid6581.new(memory: memory)
-      c64_emulator = C64Emulator.new(memory, sid6581)
+    if options[:test_mode]
+      TestC64.new(input_file).run
+    else
+      begin
+        memory = Memory.new
+        sid6581 = Sid6581.new(memory: memory)
+        c64_emulator = C64Emulator.new(memory, sid6581)
 
-      state = State.new(c64_emulator.cpu, c64_emulator, [c64_emulator.ciaTimerA, c64_emulator.ciaTimerB], sid6581)
-      c64_emulator.state = state
-      sid6581.state = state
-      sid6581.create_voices
+        state = State.new(c64_emulator.cpu, c64_emulator, [c64_emulator.ciaTimerA, c64_emulator.ciaTimerB], sid6581)
+        c64_emulator.state = state
+        sid6581.state = state
+        sid6581.create_voices
 
-      puts "C64Emulator instance created."
+        puts "C64Emulator instance created."
 
-      c64_emulator.load_sid_file(input_file)  # Corrected to pass only the file path
-    rescue StandardError => e
-      puts "Error: An error occurred while loading the SID file: #{e.message}"
-      exit(1)
+        c64_emulator.load_sid_file(input_file)  # Corrected to pass only the file path
+      rescue StandardError => e
+        puts "Error: An error occurred while loading the SID file: #{e.message}"
+        exit(1)
+      end
+
+      handle_export_and_emulation(c64_emulator, options)
     end
-
-    handle_export_and_emulation(c64_emulator, options)
   end
 
   def self.parse_arguments
-    options = { frames: DEFAULT_FRAME_COUNT, format: 'ruby', info: false, out: nil, song: nil }
+    options = { frames: DEFAULT_FRAME_COUNT, format: 'ruby', info: false, out: nil, song: nil, test_mode: false }
     OptionParser.new do |opts|
       opts.banner = "Usage: sidtool_experimental [options] <inputfile.sid>"
       opts.on('-i', '--info', 'Show file information') do
@@ -83,6 +126,9 @@ module SidtoolExperimental
       end
       opts.on('-f', '--frames NUMBER', Integer, "Number of frames to process (default #{DEFAULT_FRAME_COUNT})") do |frames|
         options[:frames] = frames
+      end
+      opts.on('-t', '--test', 'Run in test mode (SID emulation only)') do
+        options[:test_mode] = true
       end
       opts.on_tail('-h', '--help', 'Show this message') do
         puts opts
