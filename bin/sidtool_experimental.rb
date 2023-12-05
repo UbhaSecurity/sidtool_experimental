@@ -41,8 +41,11 @@ module SidtoolExperimental
     end
 
     memory = Memory.new
-    sid6581 = Sid6581.new(memory: memory)
+    sid6581 = Sid6581.new(memory: memory) # Initialize without state
     c64_emulator = C64Emulator.new(sid6581)
+
+    state = State.new(c64_emulator.cpu, c64_emulator, [c64_emulator.ciaTimerA, c64_emulator.ciaTimerB], sid6581)
+    sid6581.state = state # Set the state in Sid6581 after State is initialized
 
     puts "C64Emulator instance created."
 
