@@ -1449,6 +1449,11 @@ end
 
   private
 
+# Method to validate if the address is within the acceptable range
+      def valid_address?(address)
+        (0x0000..0xFFFF).include?(address)
+      end
+
 def get_value(mode)
   case mode
   when Mode::IMM, Mode::ZP, Mode::ZPX, Mode::ZPY, Mode::ABS, Mode::ABX, Mode::ABY
