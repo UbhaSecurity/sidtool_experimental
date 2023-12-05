@@ -28,10 +28,17 @@ module SidtoolExperimental
 
    def initialize(memory:)
       @memory = memory
-      @voices << Voice.new(@memory, @state, voice_index)
+      @voices = [] # Initialize an empty array for voices
       @global_filter_cutoff = 0
       @global_filter_resonance = 0
       @global_volume = 0
+    end
+
+    # Method to create voices. Call this after state is set.
+    def create_voices
+      3.times do |voice_index|
+        @voices << Voice.new(@memory, @state, voice_index)
+      end
     end
 
     # Apply LFO modulation to all voices
