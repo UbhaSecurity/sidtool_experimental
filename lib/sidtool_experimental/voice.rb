@@ -13,8 +13,9 @@ module SidtoolExperimental
 # @param sid6581 [Sid6581] Reference to the SID chip instance.
 # @param voice_number [Integer] The number of the voice on the SID chip.
 
-def initialize(sid6581, voice_number)
+def initialize(sid6581, voice_number, state)
   @sid6581 = sid6581
+  @synth = Synth.new(0, state)  # Pass the state here
   @voice_number = voice_number
   @frequency_low = @frequency_high = 0
   @pulse_low = @pulse_high = 0
@@ -24,7 +25,6 @@ def initialize(sid6581, voice_number)
   @previous_midi_note = nil
   @filter_cutoff = 1024
   @filter_resonance = 8
-  @synth = Synth.new(0) 
 end
 
     def update_from_synth(synth_params)
