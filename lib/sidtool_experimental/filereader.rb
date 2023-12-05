@@ -5,7 +5,7 @@ module SidtoolExperimental
     attr_reader :data, :load_address, :speed, :flags, :start_page, :page_length, :second_sid_address, :third_sid_address
 
     # Reads and parses a SID file
-       def self.read(path)
+    def self.read(path)
       puts "Reading SID file: #{path}"
       contents = File.open(path, 'rb', encoding: 'ascii-8bit') { |file| file.read }
       raise "File is too small. The file may be corrupt." unless contents.length >= 0x7C
