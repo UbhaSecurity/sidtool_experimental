@@ -96,7 +96,7 @@ module SidtoolExperimental
       @decay = 0
       @sustain = 0
       @release = 0
-      # Other initializations as needed
+      @lfo_phase = 0  # Initialize @lfo_phase here
     end
 
  def initialize_defaults
@@ -147,6 +147,7 @@ module SidtoolExperimental
       # Additional waveform cases...
       end * @lfo_depth
     end
+
     # Set the frequency and handle slides if detected.
     #
     # @param frequency [Float] The new frequency to set.
