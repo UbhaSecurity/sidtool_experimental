@@ -50,6 +50,8 @@ module SidtoolExperimental
     def emulate_cycle
       @state.update
       @sid6581.generate_sound
+      @ciaTimerA.update
+      @ciaTimerB.update
       # Add more logic as needed for the emulation cycle
     end
 
