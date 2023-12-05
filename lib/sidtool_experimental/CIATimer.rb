@@ -126,7 +126,6 @@ module SidtoolExperimental
       @timers[timer_index][:counter] == 0
     end
 
-    # Update method called each cycle
     def update
       update_timers
       check_alarm
@@ -144,6 +143,25 @@ module SidtoolExperimental
       when 1
         # Handle Timer 1 expiration event
         @state.handle_timer_1_expiration
+      end
+    end
+
+   # Methods for event conditions
+    def event_condition_met?(timer_index)
+      underflow?(timer_index) && interrupt_enabled?(timer_index)
+    end
+
+ def update_timers
+      @timers.each_with_index do |timer, index|
+        next if timer[:counter] == 0 # Skip if the timer has already expired
+
+        timer[:counter] -= 1 # Decrement the timer counter
+
+        if timer[:counter] == 0
+          handle_timer_expiration(index)
+          timer[:counter] = timer[:initial_value] if timer_mode_continuous?(index) # Reload counter for continuous mode
+          timer[:underflow] = true
+        end
       end
     end
 
