@@ -8,6 +8,24 @@ module SidtoolExperimental
     # Define arrays to store the conversion values for attack and decay/release
     ATTACK_VALUES = [0.002, 0.008, 0.016, 0.024, 0.038, 0.056, 0.068, 0.08, 0.1, 0.25, 0.5, 0.8, 1, 3, 5, 8]
     DECAY_RELEASE_VALUES = [0.006, 0.024, 0.048, 0.072, 0.114, 0.168, 0.204, 0.24, 0.3, 0.75, 1.5, 2.4, 3, 9, 15, 24]
+# Initialize a new Voice instance with a reference to the SID chip and its voice number.
+#
+# @param sid6581 [Sid6581] Reference to the SID chip instance.
+# @param voice_number [Integer] The number of the voice on the SID chip.
+
+def initialize(sid6581, voice_number)
+  @sid6581 = sid6581
+  @voice_number = voice_number
+  @frequency_low = @frequency_high = 0
+  @pulse_low = @pulse_high = 0
+  @control_register = 0
+  @attack_decay = @sustain_release = 0
+  @current_synth = Synth.new(0) # Initialize @current_synth with a default frame value (0)
+  @previous_midi_note = nil
+  @filter_cutoff = 1024
+  @filter_resonance = 8
+  @synths = [] # Ensure this is just an empty array without creating new Synth instances here
+end
 
     def update_from_synth(synth_params)
       # Initialize a new Synth instance if @synth is nil
@@ -29,26 +47,6 @@ module SidtoolExperimental
       @synth.apply_lfo
     end
 
-# Initialize a new Voice instance with a reference to the SID chip and its voice number.
-#
-# @param sid6581 [Sid6581] Reference to the SID chip instance.
-# @param voice_number [Integer] The number of the voice on the SID chip.
-def initialize(sid6581, voice_number)
-  @sid6581 = sid6581
-  @voice_number = voice_number
-  @frequency_low = @frequency_high = 0
-  @pulse_low = @pulse_high = 0
-  @control_register = 0
-  @attack_decay = @sustain_release = 0
-  @current_synth = nil
-  @previous_midi_note = nil
-  @filter_cutoff = 1024
-  @filter_resonance = 8
-  @synths = [] # Ensure this is just an empty array without creating new Synth instances here
-  
-  # Initialize @synth here (assuming @state is your intended variable)
-  @current_synth = Synth.new(@state.current_frame) if @state
-end
 
     # Apply LFO modulation to voice parameters and filter parameters
     def apply_lfo_modulation
