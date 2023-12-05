@@ -25,13 +25,13 @@ module SidtoolExperimental
     OSC3       = 0xD41B
     ENV3       = 0xD41C
 
-    def initialize(memory:)
-      @memory = memory  # Store reference to Memory
-      @voices = Array.new(3) { |voice_number| Voice.new(self, voice_number) }
+     def initialize(memory:, state:)
+      @memory = memory
+      @state = state
+      @voices = Array.new(3) { |voice_number| Voice.new(self, voice_number, @state) }
       @global_filter_cutoff = 0
       @global_filter_resonance = 0
       @global_volume = 0
-      # Additional initializations can be added here
     end
 
     # Apply LFO modulation to all voices
