@@ -10,12 +10,13 @@ module SidtoolExperimental
       @ciaTimerA = CIATimer.new(self)
       @ciaTimerB = CIATimer.new(self)
       @sid6581 = sid6581
-      puts "Hello"
+      puts "Hello c64"
     end
 
   def load_sid_file(file_path, default_load_address = 0x1000)
   sid_file = FileReader.read(file_path)
 puts sid_file
+puts sid_file.data, load_address
 
   # Use load_address from the sid_file if available, otherwise use the default
   load_address = sid_file.respond_to?(:load_address) ? sid_file.load_address : default_load_address
