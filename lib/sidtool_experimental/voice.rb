@@ -29,20 +29,26 @@ module SidtoolExperimental
       @synth.apply_lfo
     end
 
-    # Initialize a new Voice instance with a reference to the SID chip and its voice number.
-    def initialize(sid6581, voice_number)
-      @sid6581 = sid6581
-      @voice_number = voice_number
-      @frequency_low = @frequency_high = 0
-      @pulse_low = @pulse_high = 0
-      @control_register = 0
-      @attack_decay = @sustain_release = 0
-      @current_synth = Synth.new(STATE.current_frame) # Initialize @synth here
-      @previous_midi_note = nil
-      @filter_cutoff = 1024
-      @filter_resonance = 8
-      @synths = [] # Ensure this is just an empty array without creating new Synth instances here
-    end
+# Initialize a new Voice instance with a reference to the SID chip and its voice number.
+#
+# @param sid6581 [Sid6581] Reference to the SID chip instance.
+# @param voice_number [Integer] The number of the voice on the SID chip.
+def initialize(sid6581, voice_number)
+  @sid6581 = sid6581
+  @voice_number = voice_number
+  @frequency_low = @frequency_high = 0
+  @pulse_low = @pulse_high = 0
+  @control_register = 0
+  @attack_decay = @sustain_release = 0
+  @current_synth = nil
+  @previous_midi_note = nil
+  @filter_cutoff = 1024
+  @filter_resonance = 8
+  @synths = [] # Ensure this is just an empty array without creating new Synth instances here
+  
+  # Initialize @synth here (assuming @state is your intended variable)
+  @current_synth = Synth.new(@state.current_frame) if @state
+end
 
     # Apply LFO modulation to voice parameters and filter parameters
     def apply_lfo_modulation
