@@ -28,7 +28,7 @@ module SidtoolExperimental
 
    def initialize(memory:)
       @memory = memory
-      @voices = Array.new(3) { |voice_number| Voice.new(self, voice_number) }
+      @voices << Voice.new(@memory, @state, voice_index)
       @global_filter_cutoff = 0
       @global_filter_resonance = 0
       @global_volume = 0
