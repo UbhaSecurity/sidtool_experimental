@@ -4,11 +4,11 @@ module SidtoolExperimental
 
     def initialize
       @memory = Memory.new
-      @cpu = Mos6510::Cpu.new(@memory, self) # Pass emulator instance to CPU
+      @cpu = Mos6510::Cpu.new(@memory, self) # Correctly passing self (C64Emulator instance)
       @sid6581 = Sid6581.new(memory: @memory)
       @ciaTimerA = CIATimer.new(self)
       @ciaTimerB = CIATimer.new(self)
-      @state = State.new(@cpu, self)  # Pass CPU and emulator instances to State
+      @state = State.new(@cpu, self) # This should work now
     end
 
     def load_sid_file(file_path)
