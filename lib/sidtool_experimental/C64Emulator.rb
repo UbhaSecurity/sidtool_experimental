@@ -11,20 +11,22 @@ module SidtoolExperimental
       @sid6581 = sid6581
     end
 
-    def load_sid_file(file_path)
-      sid_file = FileReader.read(file_path)
-      # Access the load_address attribute of the sid_file object
-      load_address = sid_file.load_address
+def load_sid_file(file_path)
+  sid_file = FileReader.read(file_path)
+  
+  # Access the load_address attribute of the sid_file object
+  load_address = sid_file.load_address
 
-      # Ensure that @memory is an instance of the Memory class and is properly initialized
-      raise 'Memory not initialized' unless @memory.is_a?(Memory)
+  # Ensure that @memory is an instance of the Memory class and is properly initialized
+  raise 'Memory not initialized' unless @memory.is_a?(Memory)
 
-      # Check if the start address is valid
-      raise 'Invalid start address' unless @memory.valid_address?(sid_file.load_address)
+  # Check if the start address is valid
+  raise 'Invalid start address' unless @memory.valid_address?(load_address)
 
-      load_program(sid_file.data, sid_file.load_address)
-      setup_sid_environment(sid_file)
-    end
+  # Call load_program with the program data and the determined load address
+  load_program(sid_file.data, load_address)
+  setup_sid_environment(sid_file)
+end
 
     def load_program(program_data, start_address)
       @cpu.load_program(program_data, start_address)
