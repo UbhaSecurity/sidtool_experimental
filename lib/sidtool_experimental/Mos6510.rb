@@ -1055,7 +1055,7 @@ def page_boundary_crossed?(instruction)
   when Mode::ABX
     base_address = fetch_word
     crossed = (base_address & 0xFF00) != ((base_address + @registers[:X]) & 0xFF00)
-  when Mode::ABSY
+  when Mode::ABY
     base_address = fetch_word
     crossed = (base_address & 0xFF00) != ((base_address + @registers[:Y]) & 0xFF00)
   when Mode::IZY
