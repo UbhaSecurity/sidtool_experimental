@@ -11,36 +11,19 @@ module SidtoolExperimental
       @sid6581 = sid6581                      # SID chip instance
     end
 
-def load_sid_file(file_path)
-  sid_file = FileReader.read(file_path)
-  
-  # Debugging: Print the start address
-  puts "Start Address: #{sid_file.load_address}"
+ def load_sid_file(file_path)
+      sid_file = FileReader.read(file_path)
+      
+      # Ensure that the memory and the SID file's load address are valid
+      raise 'Memory not initialized' unless @memory.is_a?(Memory)
+      raise 'Invalid start address' unless @memory.valid_address?(sid_file.load_address)
 
-  load_address = sid_file.load_address
-  raise 'Memory not initialized' unless @memory.is_a?(Memory)
-  raise 'Invalid start address' unless @memory.valid_address?(load_address)
-
-  # Example fix: Pass both program data and the load address
-  load_program(sid_file.data, load_address)
-
-  setup_sid_environment(sid_file)
-end
-
-def load_program(program_data, start_address)
-  # Validate the program data and start address
-  raise 'Invalid program data' unless program_data.is_a?(Array)
-
-  # Debugging: Print the start address
-  puts "Loading program at start address: #{start_address.to_s(16)}"
-
-  raise 'Invalid start address' unless @memory.valid_address?(start_address)
-
-  # Debugging: Print the program data size
-  puts "Program data size: #{program_data.size} bytes"
-
-  @cpu.load_program(program_data, start_address)  # Load program into CPU
-end
+      # Pass both the data and the load address to the load_program method
+      load_program(sid_file.data, sid_file.load_address)
+      
+      # Set up the SID environment
+      setup_sid_environment(sid_file)
+    end
 
     def run
       @cpu.reset                                   # Reset CPU
@@ -74,6 +57,13 @@ end
       if sid_file.version >= 2
         handle_extended_sid_file(sid_file)        # Handle extended SID features
       end
+    end
+
+ def load_program(program_data, start_address)
+      raise 'Invalid program data' unless program_data.is_a?(Array)
+      raise 'Invalid start address' unless @memory.valid_address?(start_address)
+
+      @cpu.load_program(program_data, start_address)
     end
 
     def handle_extended_sid_file(sid_file)
