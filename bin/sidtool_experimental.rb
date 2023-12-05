@@ -24,7 +24,7 @@ module SidtoolExperimental
     'midi' => MidiFileWriter
   }
 
-def self.run
+  def self.run
     options = parse_arguments
 
     if ARGV.empty?
@@ -53,68 +53,66 @@ def self.run
     end
   end
 
- def self.parse_arguments
-  options = { frames: DEFAULT_FRAME_COUNT, format: 'ruby', info: false, out: nil, song: nil }
-  OptionParser.new do |opts|
-    opts.banner = "Usage: sidtool_experimental [options] <inputfile.sid>"
-    opts.on('-i', '--info', 'Show file information') do
-      options[:info] = true
-    end
-    opts.on('--format FORMAT', 'Output format, "ruby" or "midi"') do |format|
-      options[:format] = format.downcase
-      unless EXPORTERS.key?(options[:format])
-        puts "Invalid format specified. Supported formats: ruby, midi."
-        exit(1)
+  def self.parse_arguments
+    options = { frames: DEFAULT_FRAME_COUNT, format: 'ruby', info: false, out: nil, song: nil }
+    OptionParser.new do |opts|
+      opts.banner = "Usage: sidtool_experimental [options] <inputfile.sid>"
+      opts.on('-i', '--info', 'Show file information') do
+        options[:info] = true
       end
-    end
-    opts.on('-o', '--out FILENAME', 'Output file') do |out|
-      options[:out] = out
-    end
-    opts.on('-s', '--song NUMBER', Integer, 'Song number to process (defaults to the start song in the file)') do |song|
-      options[:song] = song
-    end
-    opts.on('-f', '--frames NUMBER', Integer, "Number of frames to process (default #{DEFAULT_FRAME_COUNT})") do |frames|
-      options[:frames] = frames
-    end
-    opts.on_tail('-h', '--help', 'Show this message') do
-      puts opts
-      exit
-    end
-  end.parse!
-  options
-end
-
-# Step 11: Emulate SID playback with specified options
-def self.emulate(emulator, frame_limit, output_file, exporter, song_number)
-  frame_count = 0
-  loop do
-    break if frame_count >= frame_limit
-    emulator.run_cycle
-    frame_count += 1
+      opts.on('--format FORMAT', 'Output format, "ruby" or "midi"') do |format|
+        options[:format] = format.downcase
+        unless EXPORTERS.key?(options[:format])
+          puts "Invalid format specified. Supported formats: ruby, midi."
+          exit(1)
+        end
+      end
+      opts.on('-o', '--out FILENAME', 'Output file') do |out|
+        options[:out] = out
+      end
+      opts.on('-s', '--song NUMBER', Integer, 'Song number to process (defaults to the start song in the file)') do |song|
+        options[:song] = song
+      end
+      opts.on('-f', '--frames NUMBER', Integer, "Number of frames to process (default #{DEFAULT_FRAME_COUNT})") do |frames|
+        options[:frames] = frames
+      end
+      opts.on_tail('-h', '--help', 'Show this message') do
+        puts opts
+        exit
+      end
+    end.parse!
+    options
   end
-  exporter.export(output_file, emulator.state)
-end
 
-# Step 12: Display information about the input SID file
-def self.display_file_info(file_path)
-  begin
-    sid_file = FileReader.read(file_path)
-    puts "File Information:"
-    puts "Format: #{sid_file.format}"
-    puts "Version: #{sid_file.version}"
-    puts "Load Address: 0x#{sid_file.load_address.to_s(16)}"
-    puts "Init Address: 0x#{sid_file.init_address.to_s(16)}"
-    puts "Play Address: 0x#{sid_file.play_address.to_s(16)}"
-    puts "Number of Songs: #{sid_file.songs}"
-    puts "Start Song: #{sid_file.start_song}"
-    puts "Name: #{sid_file.name}"
-    puts "Author: #{sid_file.author}"
-    puts "Released: #{sid_file.released}"
-    puts "Data Size: #{sid_file.data.size} bytes"
-  rescue StandardError => e
-    puts "Error reading SID file: #{e.message}"
+  def self.emulate(emulator, frame_limit, output_file, exporter, song_number)
+    frame_count = 0
+    loop do
+      break if frame_count >= frame_limit
+      emulator.run_cycle
+      frame_count += 1
+    end
+    exporter.export(output_file, emulator.state)
   end
-end
+
+  def self.display_file_info(file_path)
+    begin
+      sid_file = FileReader.read(file_path) # Assuming FileReader contains necessary methods
+      puts "File Information:"
+      puts "Format: #{sid_file.format}"
+      puts "Version: #{sid_file.version}"
+      puts "Load Address: 0x#{sid_file.load_address.to_s(16)}"
+      puts "Init Address: 0x#{sid_file.init_address.to_s(16)}"
+      puts "Play Address: 0x#{sid_file.play_address.to_s(16)}"
+      puts "Number of Songs: #{sid_file.songs}"
+      puts "Start Song: #{sid_file.start_song}"
+      puts "Name: #{sid_file.name}"
+      puts "Author: #{sid_file.author}"
+      puts "Released: #{sid_file.released}"
+      puts "Data Size: #{sid_file.data.size} bytes"
+    rescue StandardError => e
+      puts "Error reading SID file: #{e.message}"
+    end
+  end
 end
 
 SidtoolExperimental.run
