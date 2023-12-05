@@ -34,7 +34,6 @@ module SidtoolExperimental
     end
 
     input_file = ARGV[0]
-    puts input_file
 
     unless File.exist?(input_file)
       puts "Error: The specified SID file does not exist: #{input_file}"
@@ -42,7 +41,6 @@ module SidtoolExperimental
     end
 
     begin
-      puts "hello"
       memory = Memory.new
       sid6581 = Sid6581.new(memory: memory)
       c64_emulator = C64Emulator.new(memory, sid6581)
@@ -54,7 +52,7 @@ module SidtoolExperimental
 
       puts "C64Emulator instance created."
 
-      c64_emulator.load_sid_file(input_file, DEFAULT_LOAD_ADDRESS)  # Provide a default load address
+      c64_emulator.load_sid_file(input_file)  # Corrected to pass only the file path
     rescue StandardError => e
       puts "Error: An error occurred while loading the SID file: #{e.message}"
       exit(1)
