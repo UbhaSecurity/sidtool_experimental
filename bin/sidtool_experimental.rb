@@ -40,12 +40,11 @@ module SidtoolExperimental
       exit(1)
     end
 
-    memory = Memory.new
-    sid6581 = Sid6581.new(memory: memory) # Initialize without state
-    c64_emulator = C64Emulator.new(sid6581) # Pass the Sid6581 instance to C64Emulator
-    state = State.new(c64_emulator.cpu, c64_emulator, [c64_emulator.ciaTimerA, c64_emulator.ciaTimerB], sid6581)
-    sid6581.state = state # Set the state in Sid6581 after State is initialized
-
+    sid6581 = SidtoolExperimental::Sid6581.new(memory: memory)
+    c64_emulator = SidtoolExperimental::C64Emulator.new(sid6581)
+    state = SidtoolExperimental::State.new(c64_emulator.cpu, c64_emulator, [c64_emulator.ciaTimerA, c64_emulator.ciaTimerB], sid6581)
+    sid6581.state = state # Set the state
+    sid6581.create_voices # Now create the voices
     puts "C64Emulator instance created."
 
     c64_emulator.load_sid_file(input_file) # Load the SID file
