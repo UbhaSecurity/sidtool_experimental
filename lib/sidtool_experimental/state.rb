@@ -16,7 +16,6 @@ module SidtoolExperimental
       initialize_vectors
     end
 
-
     def update
       update_timers
       handle_timer_events
