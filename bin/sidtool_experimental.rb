@@ -24,40 +24,41 @@ module SidtoolExperimental
     'midi' => MidiFileWriter
   }
 
-  def self.run
-    options = parse_arguments
+ def self.run
+  options = parse_arguments
 
-    if ARGV.empty?
-      puts "Please provide the path to the input SID file."
-      exit(1)
-    end
+  if ARGV.empty?
+    puts "Error: Please provide the path to the input SID file."
+    exit(1)
+  end
 
-    input_file = ARGV[0]
-    exporter = EXPORTERS[options[:format]]
+  input_file = ARGV[0]
 
-    unless exporter
-      puts "Invalid format specified. Supported formats: ruby, midi."
-      exit(1)
-    end
+  unless File.exist?(input_file)
+    puts "Error: The specified SID file does not exist: #{input_file}"
+    exit(1)
+  end
 
-  memory = Memory.new
-  sid6581 = Sid6581.new(memory: memory)
-  c64_emulator = C64Emulator.new(memory, sid6581)
-  # Create State instance with the necessary components
-  state = State.new(c64_emulator.cpu, c64_emulator, [c64_emulator.ciaTimerA, c64_emulator.ciaTimerB], sid6581)
-
-  # Assign State to SID6581
-  sid6581.state = state
-  puts "C64Emulator instance created."
+  # Handle exceptions during loading
+  begin
+    memory = Memory.new
+    sid6581 = Sid6581.new(memory: memory)
+    c64_emulator = C64Emulator.new(memory, sid6581)
+    state = State.new(c64_emulator.cpu, c64_emulator, [c64_emulator.ciaTimerA, c64_emulator.ciaTimerB], sid6581)
+    sid6581.state = state
+    puts "C64Emulator instance created."
 
     c64_emulator.load_sid_file(input_file) # Load the SID file
-
-    if options[:info]
-      display_file_info(input_file)
-    else
-      emulate(c64_emulator, options[:frames], exporter, options[:out], options[:song])
-    end
+  rescue StandardError => e
+    puts "Error: An error occurred while loading the SID file: #{e.message}"
+    exit(1)
   end
+  if options[:info]
+    display_file_info(input_file)
+  else
+    emulate(c64_emulator, options[:frames], exporter, options[:out], options[:song])
+  end
+end
 
   def self.parse_arguments
     options = { frames: DEFAULT_FRAME_COUNT, format: 'ruby', info: false, out: nil, song: nil }
