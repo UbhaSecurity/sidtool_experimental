@@ -120,5 +120,27 @@ module SidtoolExperimental
     def self.read_bytes(bytes)
       bytes.chars.map(&:ord)
     end
+
+    # Initialize FileReader with parsed data
+    def initialize(params)
+      @format = params[:format]
+      @version = params[:version]
+      @data_offset = params[:data_offset]
+      @load_address = params[:load_address]
+      @init_address = params[:init_address]
+      @play_address = params[:play_address]
+      @songs = params[:songs]
+      @start_song = params[:start_song]
+      @speed = params[:speed]
+      @flags = params[:flags]
+      @start_page = params[:start_page]
+      @page_length = params[:page_length]
+      @second_sid_address = params[:second_sid_address]
+      @third_sid_address = params[:third_sid_address]
+      @name = params[:name]
+      @author = params[:author]
+      @released = params[:released]
+      @data = params[:data]
+    end
   end
 end
