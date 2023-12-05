@@ -54,10 +54,29 @@ module SidtoolExperimental
     end
 
     def setup_sid_environment(sid_file)
-      # Setup the environment based on the SID file's properties
-      # Example setup (adjust as necessary):
+      # Basic setup based on SID file properties
       @cpu.pc = sid_file.init_address
-      # More setup logic here if needed
+      @sid6581.setup(sid_file.version, sid_file.second_sid_address, sid_file.third_sid_address)
+
+      # Additional setup based on the version, flags, etc.
+      if sid_file.version >= 2
+        handle_extended_sid_file(sid_file)
+      end
+
+      # Handle specific features based on flags or other data
+      if sid_file.flags & SOME_FLAG
+        # Do something specific for this flag
+      end
+
+      # Additional environment setup logic as required
+    end
+
+  private
+
+    def handle_extended_sid_file(sid_file)
+      # Logic to handle extended SID file features
+      # Example: setup for additional SID chips, handling speed settings, etc.
+      # Adjust based on the specifics of the sid_file object
     end
 
     # Additional methods for SID operations, memory management, etc.
