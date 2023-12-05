@@ -1049,6 +1049,61 @@ def clear_flag(flag)
   @registers[:P] &= ~flag
 end
 
+
+def branch_taken?(instruction)
+  return false unless instruction[:addr_mode] == Mode::REL
+
+  # Helper method to perform comparison and set flags
+      def compare(register_value, value)
+        result = register_value - value
+        set_flag(Flags::CARRY) if register_value >= value
+        clear_flag(Flags::CARRY) if register_value < value
+        update_zero_and_negative_flags(result & 0xFF)
+      end
+
+  offset = fetch_byte
+  case instruction[:operation]
+  when :bpl
+    condition = @registers[:P] & Flags::NEGATIVE == 0
+  when :bmi
+    condition = @registers[:P] & Flags::NEGATIVE != 0
+  when :bvc
+    condition = @registers[:P] & Flags::OVERFLOW == 0
+  when :bvs
+    condition = @registers[:P] & Flags::OVERFLOW != 0
+  when :bcc
+    condition = @registers[:P] & Flags::CARRY == 0
+  when :bcs
+    condition = @registers[:P] & Flags::CARRY != 0
+  when :bne
+    condition = @registers[:P] & Flags::ZERO == 0
+  when :beq
+    condition = @registers[:P] & Flags::ZERO != 0
+  else
+    raise "Unsupported branch operation"
+  end
+
+def get_address_and_value(mode)
+  case mode
+  when Mode::ACC
+    [nil, @registers[:A]]
+  else
+    address = get_address(mode)
+    [address, @memory.read(address)]
+  end
+end
+
+      # Method to set the value back to memory or accumulator based on the addressing mode
+      def set_memory_or_accumulator(mode, address, value)
+        case mode
+        when Mode::ACC
+          @registers[:A] = value
+        else
+          write_memory(address, value)
+        end
+      end
+
+
 # Check if a page boundary is crossed, which affects cycle count.
 def page_boundary_crossed?(instruction)
   case instruction[:addr_mode]
@@ -1279,6 +1334,8 @@ def interrupt(vector_address)
   @registers[:P][:I] = 1
   @registers[:PC] = read_memory(vector_address) << 8 | read_memory(vector_address - 1)
 end
+
+
 
 
 # No Operation
@@ -1603,58 +1660,7 @@ end
         set_flag(Flags::NEGATIVE) if value & 0x80 != 0
       end
 
-def branch_taken?(instruction)
-  return false unless instruction[:addr_mode] == Mode::REL
 
-  # Helper method to perform comparison and set flags
-      def compare(register_value, value)
-        result = register_value - value
-        set_flag(Flags::CARRY) if register_value >= value
-        clear_flag(Flags::CARRY) if register_value < value
-        update_zero_and_negative_flags(result & 0xFF)
-      end
-
-  offset = fetch_byte
-  case instruction[:operation]
-  when :bpl
-    condition = @registers[:P] & Flags::NEGATIVE == 0
-  when :bmi
-    condition = @registers[:P] & Flags::NEGATIVE != 0
-  when :bvc
-    condition = @registers[:P] & Flags::OVERFLOW == 0
-  when :bvs
-    condition = @registers[:P] & Flags::OVERFLOW != 0
-  when :bcc
-    condition = @registers[:P] & Flags::CARRY == 0
-  when :bcs
-    condition = @registers[:P] & Flags::CARRY != 0
-  when :bne
-    condition = @registers[:P] & Flags::ZERO == 0
-  when :beq
-    condition = @registers[:P] & Flags::ZERO != 0
-  else
-    raise "Unsupported branch operation"
-  end
-
-def get_address_and_value(mode)
-  case mode
-  when Mode::ACC
-    [nil, @registers[:A]]
-  else
-    address = get_address(mode)
-    [address, @memory.read(address)]
-  end
-end
-
-      # Method to set the value back to memory or accumulator based on the addressing mode
-      def set_memory_or_accumulator(mode, address, value)
-        case mode
-        when Mode::ACC
-          @registers[:A] = value
-        else
-          write_memory(address, value)
-        end
-      end
 
 def get_address(mode)
   case mode
