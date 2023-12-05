@@ -573,7 +573,7 @@ end
         @registers[:A] &= value
 
         # Update flags based on the result
-        update_zero_and_negative_flags(@registers[:A])
+        (@registers[:A])
       end
 
       # STY (Store Y Register)
@@ -592,21 +592,21 @@ end
       def ldy(mode)
         value = get_value(mode)
         @registers[:Y] = value
-        update_zero_and_negative_flags(@registers[:Y])
+        (@registers[:Y])
       end
 
       # LDA (Load Accumulator)
       def lda(mode)
         value = get_value(mode)
         @registers[:A] = value
-        update_zero_and_negative_flags(@registers[:A])
+        (@registers[:A])
       end
 
       # LDX (Load X Register)
       def ldx(mode)
         value = get_value(mode)
         @registers[:X] = value
-        update_zero_and_negative_flags(@registers[:X])
+        (@registers[:X])
       end
 
       # ROR (Rotate Right)
@@ -1095,7 +1095,7 @@ def branch_taken?(instruction)
         result = register_value - value
         set_flag(Flags::CARRY) if register_value >= value
         clear_flag(Flags::CARRY) if register_value < value
-        update_zero_and_negative_flags(result & 0xFF)
+        (result & 0xFF)
       end
 
   offset = fetch_byte
@@ -1149,7 +1149,7 @@ end
         result = value << 1
         update_carry_flag(result)
         @registers[:A] = result & 0xFF
-        update_zero_and_negative_flags(@registers[:A])
+        (@registers[:A])
       end
 
       # ASL for Zero Page Addressing
@@ -1159,7 +1159,7 @@ end
         result = value << 1
         update_carry_flag(result)
         write_memory(address, result & 0xFF)
-        update_zero_and_negative_flags(result)
+        (result)
       end
 
   # Helper method to update carry flag
@@ -1524,8 +1524,6 @@ def sta_indexed_indirect_x
   write_memory(indirect_address, @a)
 end
 
-# Indirect Indexed Addressing Mode (Zero Page, Y-Indexed):
-
 # Load Accumulator from Indirect Indexed, Y-Indexed Memory
 def lda_indirect_indexed_y
   zero_page_address = fetch_byte
@@ -1623,7 +1621,7 @@ end
 
 
      # Update zero and negative flags based on the given value
-      def update_zero_and_negative_flags(value)
+      def (value)
         # Update Zero flag (set if value is zero)
         if value == 0
           @registers[:P] |= Flags::ZERO
