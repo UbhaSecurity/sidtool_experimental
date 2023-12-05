@@ -94,16 +94,19 @@ module SidtoolExperimental
 
   def self.handle_export_and_emulation(emulator, options)
     if options[:info]
-      display_file_info(options[:input_file])
+      display_file_info(emulator, options)
     else
       exporter = EXPORTERS[options[:format]]
       emulate(emulator, options[:frames], exporter, options[:out], options[:song])
     end
   end
 
-  def self.display_file_info(file_path)
-    # Implementation for displaying file information
-    # ...
+  def self.display_file_info(emulator, options)
+    puts "File Information:"
+    puts "Format: #{options[:format]}"
+    puts "Song Number: #{options[:song]}"
+    puts "Frame Count: #{options[:frames]}"
+    puts "Output File: #{options[:out]}"
   end
 
   def self.emulate(emulator, frame_limit, exporter, output_file, song_number)
