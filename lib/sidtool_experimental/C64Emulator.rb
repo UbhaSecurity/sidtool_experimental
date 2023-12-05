@@ -11,8 +11,12 @@ module SidtoolExperimental
       @state = State.new(@cpu, self) # This should work now
     end
 
-    def load_sid_file(file_path)
+   def load_sid_file(file_path)
       sid_file = FileReader.read(file_path)
+
+      # Check if the start address is valid before proceeding
+      raise 'Invalid start address' unless @memory.valid_address?(sid_file.load_address)
+
       load_program(sid_file.data, sid_file.load_address)
       setup_sid_environment(sid_file)
     end
