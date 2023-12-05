@@ -34,7 +34,7 @@ def load_program(program_data, start_address)
   # Debugging: Print the start address
   puts "Loading program at start address: #{start_address.to_s(16)}"
 
-  raise 'Invalid start address' unless valid_address?(start_address)
+  raise 'Invalid start address' unless @memory.valid_address?(start_address)
 
   # Debugging: Print the program data size
   puts "Program data size: #{program_data.size} bytes"
