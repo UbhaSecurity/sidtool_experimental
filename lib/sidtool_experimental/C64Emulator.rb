@@ -13,11 +13,11 @@ module SidtoolExperimental
     end
 DEFAULT_LOAD_ADDRESS = 0x1000  # Set your desired default load address here
 
-def load_sid_file(file_path, load_address = DEFAULT_LOAD_ADDRESS)
-  sid_file = FileReader.read(file_path)
-  
-  # Use the load_address from the sid_file, if available, else use the default
-  load_address = sid_file.respond_to?(:load_address) ? sid_file.load_address : DEFAULT_LOAD_ADDRESS
+  def load_sid_file(file_path, default_load_address = 0x1000)
+    sid_file = FileReader.read(file_path)
+
+    # Use load_address from the sid_file if available, otherwise use the default
+    load_address = sid_file.respond_to?(:load_address) ? sid_file.load_address : default_load_addres
 
   # Ensure that @memory is an instance of the Memory class and is properly initialized
   raise 'Memory not initialized' unless @memory.is_a?(Memory)
