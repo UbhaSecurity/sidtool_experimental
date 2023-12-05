@@ -2,7 +2,7 @@ module SidtoolExperimental
   class State
     attr_accessor :current_frame, :emulation_finished, :memory
     attr_reader :sid6581, :cia_timers, :cpu
-  
+
     def initialize(cpu, emulator, cia_timers, sid6581)
       raise "CPU instance is required" if cpu.nil?
       raise "SID6581 instance is required" if sid6581.nil?
