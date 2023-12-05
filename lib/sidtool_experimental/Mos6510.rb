@@ -39,28 +39,28 @@ module SidtoolExperimental
       def p; @registers[:P]; end
       def pc; @registers[:PC]; end
 
-    def initialize(mem, emulator)
-  puts "CPU initialization started..."
-  @memory = mem
-  @emulator = emulator
-  @state = State.new(self, @emulator, [@emulator.ciaTimerA, @emulator.ciaTimerB])
+      def initialize(mem, emulator)
+        puts "CPU initialization started..."
+        @memory = mem
+        @emulator = emulator
+        @state = State.new(self, @emulator, [@emulator.ciaTimerA, @emulator.ciaTimerB], @emulator.sid6581)
 
-  # Initialize CPU registers with default values
-  @registers = {
-    A: 0x00,
-    X: 0x00,
-    Y: 0x00,
-    SP: 0xFF,
-    P: Flags::INTERRUPT_DISABLE | Flags::BREAK
-  }
+        # Initialize CPU registers with default values
+        @registers = {
+          A: 0x00,
+          X: 0x00,
+          Y: 0x00,
+          SP: 0xFF,
+          P: Flags::INTERRUPT_DISABLE | Flags::BREAK
+        }
 
-  @cycles = 0
-  reset
-  initialize_instructions
-  @halt = false
+        @cycles = 0
+        reset
+        initialize_instructions
+        @halt = false
 
-  puts "CPU initialization completed."
-    end
+        puts "CPU initialization completed."
+      end
 
       # Reset method to reinitialize registers to default values
       def reset
