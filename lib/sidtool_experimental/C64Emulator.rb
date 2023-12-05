@@ -13,7 +13,7 @@ module SidtoolExperimental
     end
 DEFAULT_LOAD_ADDRESS = 0x1000  # Set your desired default load address here
 
-def load_sid_file(file_path)
+def load_sid_file(file_path, load_address = DEFAULT_LOAD_ADDRESS)
   sid_file = FileReader.read(file_path)
   
   # Use the load_address from the sid_file, if available, else use the default
