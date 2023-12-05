@@ -54,12 +54,11 @@ module SidtoolExperimental
       @data = data
     end
 
-    # Emulates the SID file
     def emulate_sid
       emulator = C64Emulator.new
       emulator.load_program(@data, @load_address)
-      emulator.setup_environment(@format, @version, @speed, @flags, @start_page, @page_length, @second_sid_address, @third_sid_address)
-      emulator.run(@init_address, @play_address, @songs, @start_song)
+      emulator.setup_sid_environment(self)
+      emulator.run
       emulator
     end
 
