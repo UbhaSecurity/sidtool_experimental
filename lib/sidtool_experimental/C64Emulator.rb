@@ -3,8 +3,8 @@ module SidtoolExperimental
     attr_reader :memory, :cpu, :sid6581, :ciaTimerA, :ciaTimerB, :state
 
     def initialize
-    @memory = Memory.new
-    @cpu = Mos6510::Cpu.new(@memory, self) # Ensure two arguments are passed
+      @memory = Memory.new
+      @cpu = Mos6510::Cpu.new(@memory, self) # Ensure two arguments are passed
       @sid6581 = Sid6581.new(memory: @memory)
       @ciaTimerA = CIATimer.new(self)
       @ciaTimerB = CIATimer.new(self)
@@ -18,7 +18,12 @@ module SidtoolExperimental
     end
 
     def load_program(program_data, start_address)
-      @cpu.load_program(program_data, start_address)
+      raise 'Invalid program data' unless program_data.is_a?(Array)
+      raise 'Invalid start address' unless @memory.valid_address?(start_address)
+
+      program_data.each_with_index do |byte, offset|
+        @memory.write(start_address + offset, byte)
+      end
     end
 
     def run
@@ -40,17 +45,16 @@ module SidtoolExperimental
 
     private
 
+    def setup_sid_environment(sid_file)
+      # Setup the environment based on the SID file's properties
+      @cpu.pc = sid_file.init_address
+      # Additional setup as needed
+    end
+
     def emulate_cycle
       @state.update
       @sid6581.generate_sound
       # Add more logic as needed
-    end
-
-    def setup_sid_environment(sid_file)
-      # Setup the environment based on the SID file's properties
-      # This could include setting initial values, configuring the SID chip, etc.
-      # Example:
-      @cpu.pc = sid_file.init_address
     end
 
     # Additional methods for SID operations, memory management, etc.
