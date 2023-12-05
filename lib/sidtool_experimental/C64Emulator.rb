@@ -13,21 +13,16 @@ module SidtoolExperimental
       puts "Hello c64"
     end
 
-  def load_sid_file(file_path, default_load_address = 0x1000)
+def load_sid_file(file_path)
   sid_file = FileReader.read(file_path)
-puts sid_file
-puts sid_file.data, load_address
 
-  # Use load_address from the sid_file if available, otherwise use the default
-  load_address = sid_file.respond_to?(:load_address) ? sid_file.load_address : default_load_address
-
-  # Ensure that @memory is an instance of the Memory class and is properly initialized
+  load_address = sid_file.load_address
   raise 'Memory not initialized' unless @memory.is_a?(Memory)
-
-  # Check if the start address is valid
   raise 'Invalid start address' unless @memory.valid_address?(load_address)
 
+  # Example fix: Pass both program data and the load address
   load_program(sid_file.data, load_address)
+
   setup_sid_environment(sid_file)
 end
 
