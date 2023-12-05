@@ -1449,10 +1449,10 @@ end
 
   private
 
-# Method to validate if the address is within the acceptable range
-      def valid_address?(address)
-        (0x0000..0xFFFF).include?(address)
-      end
+  # Method to validate if the address is within the acceptable range
+  def valid_address?(address)
+    address.is_a?(Integer) && address.between?(0x0000, 0xFFFF)
+  end
 
 def get_value(mode)
   case mode
