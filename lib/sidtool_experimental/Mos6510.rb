@@ -54,9 +54,9 @@ module SidtoolExperimental
         end
 
         @memory = mem
-        # In Mos6510.rb, when you initialize State, pass both required arguments:
 
-@state = State.new(self, emulator_instance) # Replace 'emulator_instance' with your actual emulator instance variable
+
+         @state = State.new(self, emulator)
 
 
         # Initialize CPU registers with default values
