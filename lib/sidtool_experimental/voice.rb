@@ -24,7 +24,7 @@ def initialize(sid6581, voice_number)
   @previous_midi_note = nil
   @filter_cutoff = 1024
   @filter_resonance = 8
-  @synths = [] # Ensure this is just an empty array without creating new Synth instances here
+  @synth = Synth.new(0) 
 end
 
     def update_from_synth(synth_params)
@@ -47,7 +47,6 @@ end
       @synth.apply_lfo
     end
 
-
     # Apply LFO modulation to voice parameters and filter parameters
     def apply_lfo_modulation
       @synth.apply_lfo  # Apply LFO modulation to synth parameters
@@ -62,11 +61,10 @@ end
       modulate_filter_with_lfo
     end
 
-    # ...
 
     # Method to apply LFO modulation to voice parameters
     def modulate_with_lfo
-      @synth.apply_lfo
+      @synth.apply_lfo if @synth
       update_sid_registers
     end
 
@@ -86,11 +84,7 @@ end
       @current_synth.release = release
     end
 
-    # ...
-
     private
-
-    # ...
 
     # Convert a frequency to a MIDI note number.
     def frequency_to_midi(frequency)
@@ -102,6 +96,5 @@ end
       440.0 * 2 ** ((midi_note - 69) / 12.0)
     end
 
-    # ...
   end
 end
