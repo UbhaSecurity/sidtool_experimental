@@ -56,33 +56,33 @@ module SidtoolExperimental
     # Implement array-like access for reading memory
     def [](address)
       validate_address(address)
-      # Add logic to return the value at the given address
-      # For example:
       @ram[address]
     end
 
     # Implement array-like access for writing to memory
     def []=(address, value)
       validate_address(address)
-      # Add logic to set the value at the given address
-      # For example:
       @ram[address] = value
     end
 
-# Method to handle processor port reads and writes (memory addresses 0 and 1).
-def handle_processor_port(address, value = nil)
-  if address == 0
-    # Reading or writing to address 0 (Data Direction Register)
-    value.nil? ? @processor_port_ddr : @processor_port_ddr = value
-  elsif address == 1
-    # Reading or writing to address 1 (Processor Port)
-    value.nil? ? @processor_port : @processor_port = value
-  else
-    raise "Invalid address for processor port: #{address}"
-  end
-end
+    # Additional methods for memory management, ROM loading, I/O handling, etc.
 
     private
+
+    # Helper methods and internal logic for managing memory, I/O devices, ROMs, etc.
+
+    # Method to handle processor port reads and writes (memory addresses 0 and 1).
+    def handle_processor_port(address, value = nil)
+      if address == 0
+        # Reading or writing to address 0 (Data Direction Register)
+        value.nil? ? @processor_port_ddr : @processor_port_ddr = value
+      elsif address == 1
+        # Reading or writing to address 1 (Processor Port)
+        value.nil? ? @processor_port : @processor_port = value
+      else
+        raise "Invalid address for processor port: #{address}"
+      end
+    end
 
     # Helper method to validate memory addresses
     def validate_address(address)
@@ -101,26 +101,25 @@ end
       }
     end
 
-def load_rom(filename)
-  begin
-    # Assuming the ROM files are in the same directory as this script
-    file_path = File.join(__dir__, filename)
-    puts "Attempting to load ROM from: #{file_path}"
+    def load_rom(filename)
+      begin
+        # Assuming the ROM files are in the same directory as this script
+        file_path = File.join(__dir__, filename)
+        puts "Attempting to load ROM from: #{file_path}"
 
-    unless File.exist?(file_path)
-      raise "ROM file not found: #{file_path}"
+        unless File.exist?(file_path)
+          raise "ROM file not found: #{file_path}"
+        end
+
+        rom_data = File.binread(file_path).bytes
+        puts "Loaded ROM successfully: #{filename}, Size: #{rom_data.size} bytes"
+        rom_data
+      rescue StandardError => e
+        puts "Error loading ROM: #{e.message}"
+        puts e.backtrace.join("\n")
+        []
+      end
     end
-
-    rom_data = File.binread(file_path).bytes
-    puts "Loaded ROM successfully: #{filename}, Size: #{rom_data.size} bytes"
-    rom_data
-  rescue StandardError => e
-    puts "Error loading ROM: #{e.message}"
-    puts e.backtrace.join("\n")
-    []
-  end
-end
-
 
     def rom_area_basic(address, config)
       return @basic_rom[address - 0xA000] if config[:basic_rom_enabled]
