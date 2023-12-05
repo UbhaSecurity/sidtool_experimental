@@ -4,11 +4,11 @@ module SidtoolExperimental
 
     def initialize
       @memory = Memory.new
-      @cpu = Mos6510::Cpu.new(@memory)
+      @cpu = Mos6510::Cpu.new(@memory, self) # Pass emulator instance to CPU
       @sid6581 = Sid6581.new(memory: @memory)
       @ciaTimerA = CIATimer.new(self)
       @ciaTimerB = CIATimer.new(self)
-      @state = State.new(@cpu)  # Pass CPU instance to State
+      @state = State.new(@cpu, self)  # Pass CPU and emulator instances to State
     end
 
     def load_program(program_data, start_address)
