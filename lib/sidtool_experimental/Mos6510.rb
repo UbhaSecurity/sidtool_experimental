@@ -849,6 +849,26 @@ def pc_increment
   @registers[:PC] = (@registers[:PC] + 1) & 0xFFFF
 end
 
+# Check if a page boundary is crossed, which affects cycle count.
+def page_boundary_crossed?(instruction)
+  case instruction[:addr_mode]
+  when Mode::ABX
+    base_address = fetch_word
+    crossed = (base_address & 0xFF00) != ((base_address + @registers[:X]) & 0xFF00)
+  when Mode::ABY
+    base_address = fetch_word
+    crossed = (base_address & 0xFF00) != ((base_address + @registers[:Y]) & 0xFF00)
+  when Mode::IZY
+    zp_address = fetch_byte
+    base_address = read_memory(zp_address) | (read_memory((zp_address + 1) & 0xFF) << 8)
+    crossed = (base_address & 0xFF00) != ((base_address + @registers[:Y]) & 0xFF00)
+  else
+    crossed = false
+  end
+  crossed
+end
+
+
 # ROL (Rotate Left)
       def rol(mode)
         value = get_value(mode) # Get the value based on addressing mode
@@ -1121,24 +1141,6 @@ end
       end
 
 
-# Check if a page boundary is crossed, which affects cycle count.
-def page_boundary_crossed?(instruction)
-  case instruction[:addr_mode]
-  when Mode::ABX
-    base_address = fetch_word
-    crossed = (base_address & 0xFF00) != ((base_address + @registers[:X]) & 0xFF00)
-  when Mode::ABY
-    base_address = fetch_word
-    crossed = (base_address & 0xFF00) != ((base_address + @registers[:Y]) & 0xFF00)
-  when Mode::IZY
-    zp_address = fetch_byte
-    base_address = read_memory(zp_address) | (read_memory((zp_address + 1) & 0xFF) << 8)
-    crossed = (base_address & 0xFF00) != ((base_address + @registers[:Y]) & 0xFF00)
-  else
-    crossed = false
-  end
-  crossed
-end
 
 
  # ASL for the Accumulator
