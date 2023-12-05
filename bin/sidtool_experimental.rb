@@ -40,12 +40,9 @@ module SidtoolExperimental
       exit(1)
     end
 
- memory = Memory.new # Create only one Memory instance
-  sid6581 = Sid6581.new(memory: memory) # Initialize SID6581 with the shared memory
-
-  # Create C64Emulator instance, passing the existing memory and sid6581
-  c64_emulator = C64Emulator.new(memory, sid6581)
-
+memory = Memory.new
+sid6581 = Sid6581.new(memory: memory)
+c64_emulator = C64Emulator.new(memory, sid6581)
   # Create State instance with the necessary components
   state = State.new(c64_emulator.cpu, c64_emulator, [c64_emulator.ciaTimerA, c64_emulator.ciaTimerB], sid6581)
 
