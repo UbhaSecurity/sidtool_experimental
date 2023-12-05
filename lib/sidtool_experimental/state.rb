@@ -5,11 +5,12 @@ module SidtoolExperimental
   
     def initialize(cpu, emulator, cia_timers, sid6581)
       raise "CPU instance is required" if cpu.nil?
+      raise "SID6581 instance is required" if sid6581.nil?
 
       @cpu = cpu
       @current_frame = 0
       @memory = emulator.memory  # Use the emulator's memory
-      @sid6581 = emulator.sid6581  # Use the emulator's SID instance
+      @sid6581 = sid6581  # Use the provided SID6581 instance
       @cia_timers = cia_timers  # Assign the provided cia_timers array
       @emulation_finished = false
       @interrupt_flag = false # Flag to ignore or respond to IRQs
@@ -17,7 +18,6 @@ module SidtoolExperimental
     end
 
     def update
-      return unless @sid6581
       update_timers
       handle_timer_events
       update_sid
@@ -75,19 +75,12 @@ module SidtoolExperimental
 
     private
 
-  def update_timers
-      @cia_timers.each do |timer|
-        # Check if the timer object is not nil before calling update on it
-        timer.update if timer
-      end
+    def update_timers
+      @cia_timers.each(&:update)
     end
 
-# Updated handle_timer_events method with a nil check
     def handle_timer_events
       @cia_timers.each_with_index do |timer, index|
-        # Check if the timer object is not nil before calling event_condition_met? on it
-        next if timer.nil?
-
         if timer.event_condition_met?
           case index
           when 0
