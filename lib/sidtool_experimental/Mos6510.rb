@@ -39,7 +39,8 @@ module SidtoolExperimental
       def p; @registers[:P]; end
       def pc; @registers[:PC]; end
 
-     def initialize(mem, emulator)
+      def initialize(mem, emulator)
+        puts "CPU initialization started..."
         @memory = mem
         @emulator = emulator
         @state = State.new(self, emulator) # Using the passed emulator instance
