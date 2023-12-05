@@ -1,16 +1,16 @@
 require 'optparse'
-require_relative '../lib/sidtool_experimental/filereader'
-require_relative '../lib/sidtool_experimental/midi_file_writer'
-require_relative '../lib/sidtool_experimental/Sid6581'
-require_relative '../lib/sidtool_experimental/synth'
-require_relative '../lib/sidtool_experimental/voice'
-require_relative '../lib/sidtool_experimental/version'
-require_relative '../lib/sidtool_experimental/C64Emulator'
-require_relative '../lib/sidtool_experimental/memory'
-require_relative '../lib/sidtool_experimental/CIATimer'
-require_relative '../lib/sidtool_experimental/RubyFileWriter'
-require_relative '../lib/sidtool_experimental/state'
-require_relative '../lib/sidtool_experimental/Mos6510'
+require_relative 'lib/sidtool_experimental/filereader'
+require_relative 'lib/sidtool_experimental/midi_file_writer'
+require_relative 'lib/sidtool_experimental/Sid6581'
+require_relative 'lib/sidtool_experimental/synth'
+require_relative 'lib/sidtool_experimental/voice'
+require_relative 'lib/sidtool_experimental/version'
+require_relative 'lib/sidtool_experimental/C64Emulator'
+require_relative 'lib/sidtool_experimental/memory'
+require_relative 'lib/sidtool_experimental/CIATimer'
+require_relative 'lib/sidtool_experimental/RubyFileWriter'
+require_relative 'lib/sidtool_experimental/state'
+require_relative 'lib/sidtool_experimental/Mos6510'
 
 module SidtoolExperimental
   FRAMES_PER_SECOND = 50.0
@@ -51,12 +51,12 @@ module SidtoolExperimental
     if options[:info]
       display_file_info(input_file)
     else
-      emulate(c64_emulator, options[:frames], exporter, options[:out])
+      emulate(c64_emulator, options[:frames], exporter, options[:out], options[:song])
     end
   end
 
   def self.parse_arguments
-    options = { frames: DEFAULT_FRAME_COUNT, format: 'ruby', info: false }
+    options = { frames: DEFAULT_FRAME_COUNT, format: 'ruby', info: false, out: nil, song: nil }
     OptionParser.new do |opts|
       opts.banner = "Usage: sidtool_experimental [options] <inputfile.sid>"
       opts.on('-i', '--info', 'Show file information') do
@@ -69,9 +69,15 @@ module SidtoolExperimental
           exit(1)
         end
       end
-      opts.on('-o', '--out FILENAME', 'Output file')
-      opts.on('-s', '--song NUMBER', Integer, 'Song number to process (defaults to the start song in the file)')
-      opts.on('-f', '--frames NUMBER', Integer, "Number of frames to process (default #{DEFAULT_FRAME_COUNT})")
+      opts.on('-o', '--out FILENAME', 'Output file') do |out|
+        options[:out] = out
+      end
+      opts.on('-s', '--song NUMBER', Integer, 'Song number to process (defaults to the start song in the file)') do |song|
+        options[:song] = song
+      end
+      opts.on('-f', '--frames NUMBER', Integer, "Number of frames to process (default #{DEFAULT_FRAME_COUNT})") do |frames|
+        options[:frames] = frames
+      end
       opts.on_tail('-h', '--help', 'Show this message') do
         puts opts
         exit
@@ -80,7 +86,7 @@ module SidtoolExperimental
     options
   end
 
-  def self.emulate(emulator, frame_limit, output_file, exporter)
+  def self.emulate(emulator, frame_limit, output_file, exporter, song_number)
     frame_count = 0
     loop do
       break if frame_count >= frame_limit
