@@ -132,6 +132,24 @@ def apply_lfo
   end
 end
 
+
+    # Convert SID frequency value to the nearest MIDI note.
+    #
+    # @param frequency [Float] The frequency.
+    # @return [Integer] The nearest MIDI note number.
+    def sid_frequency_to_nearest_midi(frequency)
+      # Calculate the MIDI note number based on the frequency
+      if frequency > 0
+        # Formula to calculate MIDI note number from frequency:
+        midi_note = 69 + 12 * Math.log2(frequency / 440.0)
+        # Round to the nearest integer
+        midi_note.round
+      else
+        # Handle the case where frequency is zero or negative
+        0  # You can choose a default value if needed
+      end
+    end
+
     private
 
    def calculate_lfo_modulation
@@ -163,6 +181,22 @@ def frequency=(frequency)
     end
   end
   @frequency = frequency
+    # Convert SID frequency value to the nearest MIDI note.
+    #
+    # @param frequency [Float] The frequency.
+    # @return [Integer] The nearest MIDI note number.
+    def sid_frequency_to_nearest_midi(frequency)
+      # Calculate the MIDI note number based on the frequency
+      if frequency > 0
+        # Formula to calculate MIDI note number from frequency:
+        midi_note = 69 + 12 * Math.log2(frequency / 440.0)
+        # Round to the nearest integer
+        midi_note.round
+      else
+        # Handle the case where frequency is zero or negative
+        0  # You can choose a default value if needed
+      end
+    end
 end
 
     # Trigger the release of the synth, marking the beginning of the release phase.
