@@ -81,8 +81,12 @@ module SidtoolExperimental
       end
     end
 
+# Updated handle_timer_events method with a nil check
     def handle_timer_events
       @cia_timers.each_with_index do |timer, index|
+        # Check if the timer object is not nil before calling event_condition_met? on it
+        next if timer.nil?
+
         if timer.event_condition_met?
           case index
           when 0
