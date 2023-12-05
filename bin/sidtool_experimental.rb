@@ -84,22 +84,22 @@ module SidtoolExperimental
       TestC64.new(input_file).run
     else
       begin
-        memory = Memory.new
-        sid6581 = Sid6581.new(memory: memory)
-        c64_emulator = C64Emulator.new(memory, sid6581)
+  memory = Memory.new
+  sid6581 = Sid6581.new(memory: memory)
+  @c64_emulator = C64Emulator.new(memory, sid6581)
 
-        state = State.new(c64_emulator.cpu, c64_emulator, [c64_emulator.ciaTimerA, c64_emulator.ciaTimerB], sid6581)
-        c64_emulator.state = state
-        sid6581.state = state
-        sid6581.create_voices
+  state = State.new(@c64_emulator.cpu, @c64_emulator, [@c64_emulator.ciaTimerA, @c64_emulator.ciaTimerB], sid6581)
+  @c64_emulator.state = state
+  sid6581.state = state
+  sid6581.create_voices
 
-        puts "C64Emulator instance created."
+  puts "C64Emulator instance created."
 
-        @c64_emulator.load_sid_file(input_file)  # Corrected to pass only the file path
-      rescue StandardError => e
-        puts "Error: An error occurred while loading the SID file: #{e.message}"
-        exit(1)
-      end
+  @c64_emulator.load_sid_file(input_file)  # Corrected to pass only the file path
+rescue StandardError => e
+  puts "Error: An error occurred while loading the SID file: #{e.message}"
+  exit(1)
+end
 
       handle_export_and_emulation(c64_emulator, options)
     end
