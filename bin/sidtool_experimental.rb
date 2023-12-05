@@ -25,44 +25,33 @@ module SidtoolExperimental
   }
 
 def self.run
-  # Step 1: Parse command-line arguments and set default options
-  options = parse_arguments
+    options = parse_arguments
 
-  # Step 2: Check if input file path is provided
-  if ARGV.empty?
-    puts "Please provide the path to the input SID file."
-    exit(1)
+    if ARGV.empty?
+      puts "Please provide the path to the input SID file."
+      exit(1)
+    end
+
+    input_file = ARGV[0]
+    exporter = EXPORTERS[options[:format]]
+
+    unless exporter
+      puts "Invalid format specified. Supported formats: ruby, midi."
+      exit(1)
+    end
+
+    puts "Creating C64Emulator instance..."
+    c64_emulator = C64Emulator.new
+    puts "C64Emulator instance created."
+
+    c64_emulator.load_sid_file(input_file) # Load the SID file
+
+    if options[:info]
+      display_file_info(input_file)
+    else
+      emulate(c64_emulator, options[:frames], exporter, options[:out], options[:song])
+    end
   end
-
-  # Step 3: Get the input file path from command-line arguments
-  input_file = ARGV[0]
-  
-  # Step 4: Determine the exporter based on the specified format
-  exporter = EXPORTERS[options[:format]]
-
-  # Step 5: Check if the specified format is valid
-  unless exporter
-    puts "Invalid format specified. Supported formats: ruby, midi."
-    exit(1)
-  end
-
-  # Step 6: Create a C64Emulator instance for SID emulation
-  puts "Creating C64Emulator instance..."
-  c64_emulator = C64Emulator.new
-  puts "C64Emulator instance created."
-
-  # Step 7: Load the SID program into the emulator
-  c64_emulator.load_program(File.binread(input_file), 0x0801) # Example load address
-
-  # Step 8: Check if the user requested file information
-  if options[:info]
-    display_file_info(input_file)
-  else
-    # Step 9: Emulate the SID playback
-    emulate(c64_emulator, options[:frames], exporter, options[:out], options[:song])
-  end
-end
-
 
  def self.parse_arguments
   options = { frames: DEFAULT_FRAME_COUNT, format: 'ruby', info: false, out: nil, song: nil }
