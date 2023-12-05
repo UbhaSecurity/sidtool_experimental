@@ -25,54 +25,54 @@ module SidtoolExperimental
   }
 
   def self.run
-  options = parse_arguments
+    options = parse_arguments
 
-  if ARGV.empty?
-    puts "Error: Please provide the path to the input SID file."
-    exit(1)
-  end
+    if ARGV.empty?
+      puts "Error: Please provide the path to the input SID file."
+      exit(1)
+    end
 
-  input_file = ARGV[0]
+    input_file = ARGV[0]
 
-  unless File.exist?(input_file)
-    puts "Error: The specified SID file does not exist: #{input_file}"
-    exit(1)
-  end
+    unless File.exist?(input_file)
+      puts "Error: The specified SID file does not exist: #{input_file}"
+      exit(1)
+    end
 
-  begin
-    memory = Memory.new
-    sid6581 = Sid6581.new(memory: memory)
-    c64_emulator = C64Emulator.new(memory, sid6581)
+    begin
+      memory = Memory.new
+      sid6581 = Sid6581.new(memory: memory)
+      c64_emulator = C64Emulator.new(memory, sid6581)
 
-    # Create State instance with the necessary components
-    state = State.new(c64_emulator.cpu, c64_emulator, [c64_emulator.ciaTimerA, c64_emulator.ciaTimerB], sid6581)
+      # Create State instance with the necessary components
+      state = State.new(c64_emulator.cpu, c64_emulator, [c64_emulator.ciaTimerA, c64_emulator.ciaTimerB], sid6581)
 
-    # Set State in both C64Emulator and SID6581
-    c64_emulator.state = state
-    sid6581.state = state
+      # Set State in both C64Emulator and SID6581
+      c64_emulator.state = state
+      sid6581.state = state
 
-    sid6581.create_voices # Create voices after setting the state
+      sid6581.create_voices # Create voices after setting the state
 
-    puts "C64Emulator instance created."
+      puts "C64Emulator instance created."
 
-    # Use FileReader to read the SID file from the specified path
-    sid_file = FileReader.read(input_file)
+      # Use FileReader to read the SID file from the specified path
+      sid_file = FileReader.read(input_file)
 
-    # Now you can access sid_file and its properties
-    # For example:
-    puts "SID File Format: #{sid_file.format}"
-    puts "SID File Version: #{sid_file.version}"
+      # Now you can access sid_file and its properties
+      # For example:
+      puts "SID File Format: #{sid_file.format}"
+      puts "SID File Version: #{sid_file.version}"
     
-    # Load the SID file into the emulator
-    c64_emulator.load_program(sid_file.data, sid_file.load_address)
-  rescue StandardError => e
-    puts "Error: An error occurred while loading the SID file: #{e.message}"
-    exit(1)
-  end
+      # Load the SID file into the emulator
+      c64_emulator.load_program(sid_file.data, sid_file.load_address)
+    rescue StandardError => e
+      puts "Error: An error occurred while loading the SID file: #{e.message}"
+      exit(1)
+    end
 
-  # Handle exporting and emulation
-  handle_export_and_emulation(c64_emulator, options)
-end
+    # Handle exporting and emulation
+    handle_export_and_emulation(c64_emulator, options)
+  end
 
   def self.parse_arguments
     options = { frames: DEFAULT_FRAME_COUNT, format: 'ruby', info: false, out: nil, song: nil }
@@ -133,3 +133,4 @@ end
 end
 
 SidtoolExperimental.run
+
