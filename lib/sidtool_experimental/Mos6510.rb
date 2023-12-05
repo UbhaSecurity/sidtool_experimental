@@ -1213,15 +1213,6 @@ def interrupt(vector_address)
   @registers[:PC] = read_memory(vector_address) << 8 | read_memory(vector_address - 1)
 end
 
-# Load a program into memory (you need to define this method)
-# load_program(cpu, program)
-
-# Execute the program
-cpu.execute
-
-# Print the final state of the CPU
-puts cpu
-
 # No Operation
 def nop
   # Do nothing
