@@ -28,24 +28,30 @@ module SidtoolExperimental
           load_address: load_address)
     end
 
-    def initialize(format:, version:, init_address:, play_address:, songs:, start_song:, name:, author:, released:, data:, load_address:, speed:, flags:, start_page:, page_length:, second_sid_address:, third_sid_address:)
+    
+    def initialize(format: "PSID", version: 1, data_offset: 0x0076, load_address: 0, 
+                   init_address: 0, play_address: 0, songs: 1, start_song: 1, 
+                   speed: 0, flags: 0, start_page: 0, page_length: 0, 
+                   second_sid_address: 0, third_sid_address: 0, 
+                   name: "", author: "", released: "", data: [])
       @format = format
       @version = version
+      @data_offset = data_offset
+      @load_address = load_address
       @init_address = init_address
       @play_address = play_address
       @songs = songs
       @start_song = start_song
-      @name = name
-      @author = author
-      @released = released
-      @data = data
-      @load_address = load_address
       @speed = speed
       @flags = flags
       @start_page = start_page
       @page_length = page_length
       @second_sid_address = second_sid_address
       @third_sid_address = third_sid_address
+      @name = name
+      @author = author
+      @released = released
+      @data = data
     end
 
     # Emulates the SID file
