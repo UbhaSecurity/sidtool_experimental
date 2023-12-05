@@ -1,6 +1,7 @@
 module SidtoolExperimental
   class C64Emulator
-    attr_reader :memory, :cpu, :sid6581, :ciaTimerA, :ciaTimerB, :state, :voices
+    attr_reader :memory, :cpu, :ciaTimerA, :ciaTimerB
+    attr_accessor :sid6581, :state
 
     def initialize(memory, sid6581)
       @memory = memory
@@ -8,8 +9,6 @@ module SidtoolExperimental
       @ciaTimerA = CIATimer.new(self)
       @ciaTimerB = CIATimer.new(self)
       @sid6581 = sid6581
-      @voices = [] # Initialize the voices array
-      @state = State.new(@cpu, self, [@ciaTimerA, @ciaTimerB], @sid6581) # Create State instance
     end
 
     def load_sid_file(file_path)
