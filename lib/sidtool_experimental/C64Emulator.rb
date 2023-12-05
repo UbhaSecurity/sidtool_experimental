@@ -2,11 +2,14 @@ module SidtoolExperimental
   class C64Emulator
     attr_reader :memory, :cpu, :sid6581, :ciaTimerA, :ciaTimerB, :state
 
-    def initialize
+   def initialize
       @memory = Memory.new
       @cpu = Mos6510::Cpu.new(@memory, self)
-      @state = State.new(@cpu, self, [@ciaTimerA, @ciaTimerB])
-      @sid6581 = Sid6581.new(memory: @memory, state: @state)
+      # Ensure SID6581 instance is created before State instance
+      @sid6581 = Sid6581.new(memory: @memory)
+      @state = State.new(@cpu, self, [@ciaTimerA, @ciaTimerB], @sid6581)
+      @ciaTimerA = CIATimer.new(self)
+      @ciaTimerB = CIATimer.new(self)
     end
 
     def load_sid_file(file_path)
