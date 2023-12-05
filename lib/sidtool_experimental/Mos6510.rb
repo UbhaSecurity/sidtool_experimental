@@ -1052,13 +1052,13 @@ end
 # Check if a page boundary is crossed, which affects cycle count.
 def page_boundary_crossed?(instruction)
   case instruction[:addr_mode]
-  when Mode::ABSX
+  when Mode::ABX
     base_address = fetch_word
     crossed = (base_address & 0xFF00) != ((base_address + @registers[:X]) & 0xFF00)
   when Mode::ABSY
     base_address = fetch_word
     crossed = (base_address & 0xFF00) != ((base_address + @registers[:Y]) & 0xFF00)
-  when Mode::INDY
+  when Mode::IZY
     zp_address = fetch_byte
     base_address = read_memory(zp_address) | (read_memory((zp_address + 1) & 0xFF) << 8)
     crossed = (base_address & 0xFF00) != ((base_address + @registers[:Y]) & 0xFF00)
@@ -1067,6 +1067,7 @@ def page_boundary_crossed?(instruction)
   end
   crossed
 end
+
 
  # ASL for the Accumulator
       def asl_accumulator
