@@ -4,17 +4,13 @@ module SidtoolExperimental
     attr_reader :sid6581, :cia_timers, :cpu
 
     def initialize(cpu, emulator, cia_timers, sid6581)
-      raise "CPU instance is required" if cpu.nil?
-      raise "SID6581 instance is required" if sid6581.nil?
-
       @cpu = cpu
-      @current_frame = 0
-      @memory = emulator.memory
-      @sid6581 = sid6581
+      @emulator = emulator
       @cia_timers = cia_timers
+      @sid6581 = sid6581
       @emulation_finished = false
       @interrupt_flag = false
-
+      @current_frame = 0
       initialize_vectors
     end
 
