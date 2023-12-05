@@ -18,13 +18,14 @@ module SidtoolExperimental
   SLIDE_THRESHOLD = 60
   SLIDE_DURATION_FRAMES = 20
   DEFAULT_FRAME_COUNT = 5000
+  DEFAULT_LOAD_ADDRESS = 0x1000  # Default load address
 
   EXPORTERS = {
     'ruby' => RubyFileWriter,
     'midi' => MidiFileWriter
   }
 
-   def self.run
+  def self.run
     options = parse_arguments
 
     if ARGV.empty?
@@ -51,7 +52,7 @@ module SidtoolExperimental
 
       puts "C64Emulator instance created."
 
-      c64_emulator.load_sid_file(input_file)  # Corrected to pass only the file path
+      c64_emulator.load_sid_file(input_file, DEFAULT_LOAD_ADDRESS)  # Provide a default load address
     rescue StandardError => e
       puts "Error: An error occurred while loading the SID file: #{e.message}"
       exit(1)
@@ -119,4 +120,3 @@ module SidtoolExperimental
 end
 
 SidtoolExperimental.run
-
