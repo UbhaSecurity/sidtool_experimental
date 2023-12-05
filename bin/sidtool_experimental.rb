@@ -34,6 +34,7 @@ module SidtoolExperimental
     end
 
     input_file = ARGV[0]
+    puts input_file
 
     unless File.exist?(input_file)
       puts "Error: The specified SID file does not exist: #{input_file}"
