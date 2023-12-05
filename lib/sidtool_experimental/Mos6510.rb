@@ -39,25 +39,11 @@ module SidtoolExperimental
       def p; @registers[:P]; end
       def pc; @registers[:PC]; end
 
-      def initialize(mem, state = nil)
+     def initialize(mem, emulator)
         puts "CPU initialization started..."
-
-        # Debugging: Check if memory object is correctly initialized
-        if mem.nil?
-          puts "Error: Memory object is nil."
-          raise "Memory object is nil"
-        elsif !mem.respond_to?(:[]) || !mem.respond_to?(:[]=)
-          puts "Error: Memory object does not have required methods."
-          raise "Memory object does not have required methods ([] and []=)"
-        else
-          puts "Memory object is valid and ready."
-        end
-
         @memory = mem
-
-
-         @state = State.new(self, emulator)
-
+        @emulator = emulator
+        @state = State.new(self, emulator) # Using the passed emulator instance
 
         # Initialize CPU registers with default values
         @registers = {
