@@ -17,6 +17,7 @@ module SidtoolExperimental
     end
 
     def update
+      return unless @sid6581
       update_timers
       handle_timer_events
       update_sid
