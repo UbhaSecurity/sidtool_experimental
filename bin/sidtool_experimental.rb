@@ -40,15 +40,6 @@ module SidtoolExperimental
       exit(1)
     end
 
-    state_instance = State.new
-    cpu_instance = Mos6510.new(state_instance)
-    cpu_instance.state = state_instance
-
-    puts "Creating C64Emulator instance..."
-    c64_emulator = C64Emulator.new  # This line should instantiate Memory and CPU correctly
-    puts "C64Emulator instance created."
-
-    c64_emulator.load_program(File.binread(input_file), 0x0801) # Example load address
 
     if options[:info]
       display_file_info(input_file)
