@@ -1,5 +1,5 @@
 require 'optparse'
-require_relative 'lib/sidtool_experimental/filereader.rb'
+require_relative 'lib/sidtool_experimental/filereader'
 require_relative 'lib/sidtool_experimental/midi_file_writer'
 require_relative 'lib/sidtool_experimental/Sid6581'
 require_relative 'lib/sidtool_experimental/synth'
