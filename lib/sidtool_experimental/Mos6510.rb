@@ -1300,27 +1300,31 @@ end
   end
 
 def branch(condition)
+  # Fetch a single byte from memory as the branch offset
   offset = fetch_byte
+
+  # Check if the specified condition is true (branch should be taken)
   if condition
+    # Calculate the new program counter (PC) by adding the offset to the current PC
     new_pc = (@registers[:PC] + offset).to_i
-    # Check if the branch crosses a page boundary
+
+    # Check if the branch crosses a page boundary by comparing high bytes
     if new_pc & 0xFF00 != @registers[:PC] & 0xFF00
+      # If a page boundary is crossed, add 2 cycles to account for the penalty
       @cycles += 2
     else
+      # If no page boundary is crossed, add 1 cycle
       @cycles += 1
     end
+
+    # Update the program counter (PC) with the new value, ensuring it wraps to 16 bits
     @registers[:PC] = new_pc & 0xFFFF
   end
+
+  # Return true if the condition was true (branch taken), otherwise return false
+  condition
 end
-  # Update the program counter if the condition is true
-  if condition
-    new_pc = @registers[:PC] + offset
-    new_pc -= 0x0100 if offset >= 0x80 # Handle negative offsets
-    @registers[:PC] = new_pc & 0xFFFF
-    true # Indicates a branch was taken
-  else
-    false # Indicates no branch was taken
-  end
+
 
 def push_stack(value)
   raise "Memory object is nil" if @memory.nil?
