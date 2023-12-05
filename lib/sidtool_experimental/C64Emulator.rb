@@ -11,13 +11,12 @@ module SidtoolExperimental
       @ciaTimerB = CIATimer.new(self)
       @sid6581 = sid6581
     end
-DEFAULT_LOAD_ADDRESS = 0x1000  # Set your desired default load address here
 
   def load_sid_file(file_path, default_load_address = 0x1000)
-    sid_file = FileReader.read(file_path)
+  sid_file = FileReader.read(file_path)
 
-    # Use load_address from the sid_file if available, otherwise use the default
-    load_address = sid_file.respond_to?(:load_address) ? sid_file.load_address : default_load_addres
+  # Use load_address from the sid_file if available, otherwise use the default
+  load_address = sid_file.respond_to?(:load_address) ? sid_file.load_address : default_load_address
 
   # Ensure that @memory is an instance of the Memory class and is properly initialized
   raise 'Memory not initialized' unless @memory.is_a?(Memory)
@@ -28,6 +27,7 @@ DEFAULT_LOAD_ADDRESS = 0x1000  # Set your desired default load address here
   load_program(sid_file.data, load_address)
   setup_sid_environment(sid_file)
 end
+
 
     def load_program(program_data, start_address)
       @cpu.load_program(program_data, start_address)
