@@ -1,4 +1,3 @@
-# sidtool_experimental.rb
 require 'optparse'
 require_relative '../lib/sidtool_experimental/filereader'
 require_relative '../lib/sidtool_experimental/midi_file_writer'
@@ -19,6 +18,46 @@ module SidtoolExperimental
   SLIDE_THRESHOLD = 60
   SLIDE_DURATION_FRAMES = 20
   DEFAULT_FRAME_COUNT = 5000
+
+  EXPORTERS = {
+    'ruby' => RubyFileWriter,
+    'midi' => MidiFileWriter
+  }
+
+  def self.run
+    options = parse_arguments
+
+    if ARGV.empty?
+      puts "Please provide the path to the input SID file."
+      exit(1)
+    end
+
+    input_file = ARGV[0]
+    exporter = EXPORTERS[options[:format]]
+    
+    unless exporter
+      puts "Invalid format specified. Supported formats: ruby, midi."
+      exit(1)
+    end
+
+    memory_instance = Memory.new
+    cpu_instance = Mos6510::Cpu.new(memory_instance)
+    state_instance = State.new(cpu_instance)
+
+    cpu_instance.state = state_instance
+
+    puts "Creating C64Emulator instance..."
+    c64_emulator = C64Emulator.new  # This line should instantiate Memory and CPU correctly
+    puts "C64Emulator instance created."
+
+    c64_emulator.load_program(File.binread(input_file), 0x0801) # Example load address
+
+    if options[:info]
+      # TODO: Display file information
+    else
+      emulate(c64_emulator, options[:frames], exporter, options[:out])
+    end
+  end
 
   def self.parse_arguments
     options = { frames: DEFAULT_FRAME_COUNT, format: 'ruby' }
@@ -43,49 +82,7 @@ module SidtoolExperimental
     options
   end
 
-memory_instance = SidtoolExperimental::Memory.new
-cpu_instance = SidtoolExperimental::Mos6510::Cpu.new(memory_instance)
-state_instance = SidtoolExperimental::State.new(cpu_instance)
-
-cpu_instance.state = state_instance
-
-
-
-  EXPORTERS = {
-    'ruby' => RubyFileWriter,
-    'midi' => MidiFileWriter
-  }
-
-  def self.run
-    options = parse_arguments
-    if ARGV.empty?
-      puts "Please provide the path to the input SID file."
-      exit(1)
-    end
-
-    input_file = ARGV[0]
-    exporter = EXPORTERS[options[:format]]
-    unless exporter
-      puts "Invalid format specified. Supported formats: ruby, midi."
-      exit(1)
-    end
-    run_emulation(options)
-  end
-
-  def self.run_emulation(options)
-    puts "Creating C64Emulator instance..."
-    c64_emulator = C64Emulator.new  # This line should instantiate Memory and CPU correctly
-    puts "C64Emulator instance created."
-    c64_emulator.load_program(File.binread(input_file), 0x0801) # Example load address
-
-    if options[:info]
-      # TODO: Display file information
-    else
-      emulate(c64_emulator, options[:frames])
-    end
-  end
-
-  def self.emulate(emulator, frame_limit)
+  def self.emulate(emulator, frame_limit, exporter, output_file)
     frame_count = 0
     loop do
       break if frame_count >= frame_limit
