@@ -7,7 +7,11 @@ module SidtoolExperimental
       @cpu = Mos6510::Cpu.new(@memory, self)
       @ciaTimerA = CIATimer.new(self)
       @ciaTimerB = CIATimer.new(self)
-      @sid6581 = Sid6581.new(memory: @memory, state: @state)
+
+      # Initialize SID6581 before State, as State depends on SID6581
+      @sid6581 = Sid6581.new(memory: @memory)
+
+      # Now pass the already created SID6581 instance to State
       @state = State.new(@cpu, self, [@ciaTimerA, @ciaTimerB], @sid6581)
     end
 
