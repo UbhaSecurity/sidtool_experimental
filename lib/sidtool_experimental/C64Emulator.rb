@@ -11,18 +11,21 @@ module SidtoolExperimental
       @sid6581 = sid6581                      # SID chip instance
     end
 
-    def load_sid_file(file_path)
-      sid_file = FileReader.read(file_path)   # Read the SID file
+def load_sid_file(file_path)
+  sid_file = FileReader.read(file_path)
+  
+  # Debugging: Print the start address
+  puts "Start Address: #{sid_file.load_address}"
 
-      # Ensure memory is properly initialized
-      raise 'Memory not initialized' unless @memory.is_a?(Memory)
+  load_address = sid_file.load_address
+  raise 'Memory not initialized' unless @memory.is_a?(Memory)
+  raise 'Invalid start address' unless @memory.valid_address?(load_address)
 
-      # Validate the start address
-      raise 'Invalid start address' unless @memory.valid_address?(sid_file.load_address)
+  # Example fix: Pass both program data and the load address
+  load_program(sid_file.data, load_address)
 
-      load_program(sid_file.data, sid_file.load_address)  # Load the SID program
-      setup_sid_environment(sid_file)                     # Setup SID environment
-    end
+  setup_sid_environment(sid_file)
+end
 
     def load_program(program_data, start_address)
       # Validate the program data and start address
