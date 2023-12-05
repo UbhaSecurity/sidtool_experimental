@@ -97,7 +97,7 @@ module SidtoolExperimental
       @sustain = 0
       @release = 0
       @lfo_phase = 0  # Initialize @lfo_phase here
-      @lfo_depth = 0.5  # Initialize @lfo_depth here
+      initialize_lfo
     end
 
  def initialize_defaults
