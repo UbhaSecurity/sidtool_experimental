@@ -8,7 +8,8 @@ module SidtoolExperimental
       @sid6581 = Sid6581.new(memory: @memory)
       @ciaTimerA = CIATimer.new(self)
       @ciaTimerB = CIATimer.new(self)
-      @state = State.new(@cpu, self, [@ciaTimerA, @ciaTimerB]) # Corrected initialization
+      puts "CIATimerA: #{@ciaTimerA}, CIATimerB: #{@ciaTimerB}" # Debug line
+      @state = State.new(@cpu, self, [@ciaTimerA, @ciaTimerB])
     end
 
     def load_sid_file(file_path)
