@@ -1,6 +1,6 @@
 module SidtoolExperimental
   class C64Emulator
-    attr_reader :memory, :cpu, :sid6581, :ciaTimerA, :ciaTimerB, :state
+    attr_reader :memory, :cpu, :sid6581, :ciaTimerA, :ciaTimerB, :state, :voices
 
     def initialize(sid6581)
       @memory = Memory.new
