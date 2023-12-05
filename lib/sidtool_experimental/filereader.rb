@@ -6,25 +6,42 @@ module SidtoolExperimental
 
     # Reads and parses a SID file
     def self.read(path)
+      puts "Reading SID file: #{path}" # Debug: Print the path of the file being read
       contents = File.open(path, 'rb', encoding: 'ascii-8bit') { |file| file.read }
       raise "File is too small. The file may be corrupt." unless contents.length >= 0x7C
 
       format = contents[0..3]
-      raise "Unknown file format: #{format}. Only PSID/RSID are supported." unless ['PSID', 'RSID'].include?(format)
+      puts "File Format: #{format}" # Debug: Print the file format
 
       version = read_word(contents[4..5])
-      raise "Invalid version number: #{version}. Only versions 2, 3, and 4 are supported." unless [2, 3, 4].include?(version)
+      puts "File Version: #{version}" # Debug: Print the file version
 
       data_offset = read_word(contents[6..7])
+      puts "Data Offset: #{data_offset}" # Debug: Print the data offset
+
       load_address = read_word(contents[8..9])
+      puts "Load Address: #{load_address}" # Debug: Print the load address
+
       init_address = read_word(contents[10..11])
+      puts "Init Address: #{init_address}" # Debug: Print the init address
+
       play_address = read_word(contents[12..13])
+      puts "Play Address: #{play_address}" # Debug: Print the play address
+
       songs = read_word(contents[14..15])
+      puts "Number of Songs: #{songs}" # Debug: Print the number of songs
+
       start_song = read_word(contents[16..17])
+      puts "Start Song: #{start_song}" # Debug: Print the start song
 
       name = read_null_terminated_string(contents[22..53])
+      puts "Name: #{name}" # Debug: Print the name
+
       author = read_null_terminated_string(contents[54..85])
+      puts "Author: #{author}" # Debug: Print the author
+
       released = read_null_terminated_string(contents[86..117])
+      puts "Released: #{released}" # Debug: Print the released information
 
       data = read_bytes(contents[data_offset..-1])
 
