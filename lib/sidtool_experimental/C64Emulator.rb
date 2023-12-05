@@ -14,8 +14,12 @@ module SidtoolExperimental
 def load_sid_file(file_path)
   sid_file = FileReader.read(file_path)
   
-  # Access the load_address attribute of the sid_file object
-  load_address = sid_file.load_address
+  # Check if the sid_file object has a load_address attribute
+  if sid_file.respond_to?(:load_address)
+    load_address = sid_file.load_address
+  else
+    raise 'SID file does not have a load_address attribute'
+  end
 
   # Ensure that @memory is an instance of the Memory class and is properly initialized
   raise 'Memory not initialized' unless @memory.is_a?(Memory)
