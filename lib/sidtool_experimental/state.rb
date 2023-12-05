@@ -80,18 +80,20 @@ module SidtoolExperimental
       @cia_timers.each(&:update)
     end
 
-    def handle_timer_events
-      @cia_timers.each_with_index do |timer, index|
-        if timer.event_condition_met?
-          case index
-          when 0
-            generate_interrupt(:timer0)
-          when 1
-            perform_task_for_timer1
-          end
-        end
+def handle_timer_events
+  @cia_timers.each_with_index do |timer, index|
+    # Check if the timer is nil before calling event_condition_met?
+    if timer && timer.event_condition_met?
+      case index
+      when 0
+        generate_interrupt(:timer0)
+      when 1
+        perform_task_for_timer1
       end
     end
+  end
+end
+
 
     def update_sid
       @sid6581.update_sid_state
