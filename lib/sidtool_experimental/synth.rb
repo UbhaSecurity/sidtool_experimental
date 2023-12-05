@@ -84,10 +84,9 @@ module SidtoolExperimental
 
     # Initialize a new Synth instance.
     #
-    # @param start_frame [Integer] The frame number where this synth instance begins.
-    def initialize(start_frame)
+   def initialize(start_frame, state)
       @start_frame = start_frame
-      # Set default values for synth parameters
+      @state = state
       @controls = []
       @state = state  # Assuming STATE is an instance of SidtoolExperimental::State
       @frequency = 0
@@ -98,7 +97,6 @@ module SidtoolExperimental
       @decay = 0
       @sustain = 0
       @release = 0
-      @lfo_phase = 0  # Initialize @lfo_phase here
       initialize_lfo
     end
 
