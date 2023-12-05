@@ -40,14 +40,27 @@ module SidtoolExperimental
       exit(1)
     end
 
-    memory = Memory.new # Create an instance of Memory
-    sid6581 = Sid6581.new(memory: memory) # Pass the memory instance to Sid6581
-    c64_emulator = C64Emulator.new(sid6581) # Now pass sid6581 to C64Emulator
-    # Set up the state and assign it to Sid6581
-    state = State.new(c64_emulator.cpu, c64_emulator, [c64_emulator.ciaTimerA, c64_emulator.ciaTimerB], sid6581)
-    sid6581.state = state
-    sid6581.create_voices
-    puts "C64Emulator instance created."
+
+  memory = Memory.new # Create an instance of Memory
+  sid6581 = Sid6581.new(memory: memory) # Initialize SID6581 with memory
+
+  # Create State instance with the necessary components
+  # Note: At this point, CPU and CIATimers are not yet created, so they can't be passed to State.
+  # They will be created as part of C64Emulator initialization.
+  state = State.new(nil, nil, nil, sid6581) 
+
+  # Create C64Emulator instance with sid6581
+  c64_emulator = C64Emulator.new(sid6581)
+
+  # Now that C64Emulator and its components (CPU, CIATimers) are created, update the State instance
+  state.cpu = c64_emulator.cpu
+  state.cia_timers = [c64_emulator.ciaTimerA, c64_emulator.ciaTimerB]
+  state.emulator = c64_emulator
+
+  # Assign State to SID6581
+  sid6581.state = state
+
+  puts "C64Emulator instance created."
 
     c64_emulator.load_sid_file(input_file) # Load the SID file
 
