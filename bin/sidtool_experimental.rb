@@ -44,11 +44,16 @@ module SidtoolExperimental
     memory = Memory.new
     sid6581 = Sid6581.new(memory: memory)
     c64_emulator = C64Emulator.new(memory, sid6581)
+    
+    # Create State instance with the necessary components
     state = State.new(c64_emulator.cpu, c64_emulator, [c64_emulator.ciaTimerA, c64_emulator.ciaTimerB], sid6581)
+
+    # Assign State to SID6581
     sid6581.state = state
+    sid6581.create_voices # Ensure to create voices after the state is set
     puts "C64Emulator instance created."
 
-    c64_emulator.load_sid_file(input_file) # Load the SID file
+    c64_emulator.load_sid_file(input_file) # Load the SID fil
   rescue StandardError => e
     puts "Error: An error occurred while loading the SID file: #{e.message}"
     exit(1)
