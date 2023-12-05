@@ -3,11 +3,11 @@ module SidtoolExperimental
     attr_reader :memory, :cpu, :sid6581, :ciaTimerA, :ciaTimerB, :state, :voices
 
     def initialize(memory, sid6581)
-      @memory = memory # Use the provided Memory instance
+      @memory = memory
       @cpu = Mos6510::Cpu.new(@memory, self)
       @ciaTimerA = CIATimer.new(self)
       @ciaTimerB = CIATimer.new(self)
-      @sid6581 = sid6581 # Store the provided SID6581 instance
+      @sid6581 = sid6581
       @voices = [] # Initialize the voices array
       @state = State.new(@cpu, self, [@ciaTimerA, @ciaTimerB], @sid6581) # Create State instance
     end
