@@ -82,15 +82,14 @@ module SidtoolExperimental
     options
   end
 
-  def self.emulate(emulator, frame_limit, exporter, output_file)
+  def self.emulate(emulator, frame_limit, output_file, exporter)
     frame_count = 0
     loop do
       break if frame_count >= frame_limit
-      emulator.run
+      emulator.run_cycle
       frame_count += 1
     end
-    # Post-emulation tasks, like saving the output
-    exporter.export(output_file, STATE)
+    exporter.export(output_file, emulator.state)
   end
 end
 
