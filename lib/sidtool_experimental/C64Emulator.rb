@@ -56,7 +56,6 @@ module SidtoolExperimental
     def setup_sid_environment(sid_file)
       # Basic setup based on SID file properties
       @cpu.pc = sid_file.init_address
-      @sid6581.setup(sid_file.version, sid_file.second_sid_address, sid_file.third_sid_address)
 
       # Additional setup based on the version, flags, etc.
       if sid_file.version >= 2
