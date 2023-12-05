@@ -3,8 +3,8 @@ module SidtoolExperimental
     attr_reader :memory, :cpu, :sid6581, :ciaTimerA, :ciaTimerB, :state
 
     def initialize
-      @memory = Memory.new
-      @cpu = Mos6510::Cpu.new(@memory, self) # Correctly passing self (C64Emulator instance)
+    @memory = Memory.new
+    @cpu = Mos6510::Cpu.new(@memory, self) # Ensure two arguments are passed
       @sid6581 = Sid6581.new(memory: @memory)
       @ciaTimerA = CIATimer.new(self)
       @ciaTimerB = CIATimer.new(self)
