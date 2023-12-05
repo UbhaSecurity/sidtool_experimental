@@ -149,21 +149,21 @@ end
       end * @lfo_depth
     end
 
-    # Set the frequency and handle slides if detected.
-    #
-    # @param frequency [Float] The new frequency to set.
-    def frequency=(frequency)
-      if @frequency
-        previous_midi = sid_frequency_to_nearest_midi(@frequency)
-        current_midi = sid_frequency_to_nearest_midi(frequency)
-        if slide_detected?(@frequency, frequency)
-          handle_slide(previous_midi, current_midi)
-        else
-          @controls << [STATE.current_frame, current_midi] if previous_midi != current_midi
-        end
-      end
-      @frequency = frequency
+# Set the frequency and handle slides if detected.
+#
+# @param frequency [Float] The new frequency to set.
+def frequency=(frequency)
+  if @frequency
+    previous_midi = sid_frequency_to_actual_frequency(@frequency)  # Fix this line
+    current_midi = sid_frequency_to_actual_frequency(frequency)     # Fix this line
+    if slide_detected?(@frequency, frequency)
+      handle_slide(previous_midi, current_midi)
+    else
+      @controls << [STATE.current_frame, current_midi] if previous_midi != current_midi
     end
+  end
+  @frequency = frequency
+end
 
     # Trigger the release of the synth, marking the beginning of the release phase.
     def release!
