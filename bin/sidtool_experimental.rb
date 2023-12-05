@@ -28,9 +28,9 @@ module SidtoolExperimental
   def self.run_emulation_with_sid(sid_file_path)
     puts "Initializing SID Emulation with file: #{sid_file_path}"
 
-    memory = Memory.new
-    sid6581 = Sid6581.new(memory: memory)
-    c64_emulator = C64Emulator.new(memory, sid6581)
+      @memory = Memory.new
+      @sid6581 = Sid6581.new(memory: @memory)
+      @c64_emulator = C64Emulator.new(@memory, @sid6581)
 
     begin
       c64_emulator.load_sid_file(sid_file_path)
