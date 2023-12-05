@@ -24,6 +24,26 @@ module SidtoolExperimental
       increment_frame
     end
 
+
+    def update_sid
+      @sid6581.update_sid_state
+    end
+
+    # Add a method to read from SID registers
+    def read_sid_register(address)
+      @sid6581.read_sid_register(address)
+    end
+
+    # Add a method to write to SID registers
+    def write_sid_register(address, value)
+      @sid6581.write_register(address, value)
+    end
+
+    def process_audio(sample_rate)
+      @sid6581.process_audio(sample_rate)
+      # Additional audio processing can be done here
+    end
+
     def handle_interrupts
       handle_irq if irq_pending? && !@interrupt_flag
       handle_nmi if nmi_pending?
