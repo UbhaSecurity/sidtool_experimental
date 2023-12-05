@@ -13,45 +13,41 @@ require_relative '../lib/sidtool_experimental/Mos6510'
 
 module SidtoolExperimental
   class TestC64
-    def initialize
-      puts "Initializing TestC64..."
+    def initialize(sid_file_path)
+      puts "Initializing TestC64 with SID file: #{sid_file_path}"
 
-      @memory = Memory.new  # Initialize the complex memory system
-      puts "Memory initialized: #{@memory != nil}"  # Debugging statement
-
-      # Check if memory responds to expected methods (additional debugging)
-      if @memory.respond_to?(:[]) && @memory.respond_to?(:[]=)
-        puts "Memory object is valid and ready."
-      else
-        puts "Memory object is not valid. Please check Memory class implementation."
-      end
-
-      @cpu = Mos6510::Cpu.new(@memory)  # Initialize the CPU with the memory system
-      puts "CPU initialized with memory."  # Debugging statement
-
-      # Additional debugging to verify CPU and Memory interaction
-      if @cpu.memory == @memory
-        puts "CPU memory correctly linked."
-      else
-        puts "Error: CPU memory not correctly linked."
-      end
+      @memory = Memory.new
+      @sid6581 = Sid6581.new(memory: @memory)
+      @c64_emulator = C64Emulator.new(@memory, @sid6581)
+      @sid_file_path = sid_file_path
 
       puts "TestC64 initialization complete."
     end
 
     def run
-      # Implementation for running the emulator...
       puts "Running the emulator..."
-      # Add your emulator's main loop or execution logic here
+      begin
+        @c64_emulator.load_sid_file(@sid_file_path)
+        @c64_emulator.run
+      rescue StandardError => e
+        puts "Error during SID file loading or emulation: #{e.message}"
+        puts e.backtrace.join("\n")
+      end
     end
   end
 end
 
 # Main execution
+if ARGV.empty?
+  puts "Please provide a SID file path."
+  exit
+end
+
+sid_file_path = ARGV[0]
 begin
-  test_c64 = SidtoolExperimental::TestC64.new
+  test_c64 = SidtoolExperimental::TestC64.new(sid_file_path)
   test_c64.run
 rescue StandardError => e
   puts "Error occurred: #{e.message}"
-  puts e.backtrace.join("\n")  # Print the backtrace for detailed debugging
+  puts e.backtrace.join("\n")
 end
