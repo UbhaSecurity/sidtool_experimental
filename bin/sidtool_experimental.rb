@@ -42,6 +42,7 @@ module SidtoolExperimental
     end
 
     begin
+      puts "hello"
       memory = Memory.new
       sid6581 = Sid6581.new(memory: memory)
       c64_emulator = C64Emulator.new(memory, sid6581)
