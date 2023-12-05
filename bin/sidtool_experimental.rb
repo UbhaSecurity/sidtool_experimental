@@ -40,7 +40,7 @@ module SidtoolExperimental
       exit(1)
     end
 
-  memory = Memory.new # Create an instance of Memory
+   memory = Memory.new # Create Memory instance
   sid6581 = Sid6581.new(memory: memory) # Initialize SID6581 with memory
   
   # Create C64Emulator instance with sid6581
@@ -51,10 +51,6 @@ module SidtoolExperimental
 
   # Assign State to SID6581
   sid6581.state = state
-
-  # Now that SID6581 has its state set, update the C64Emulator's state
-  c64_emulator.state = state
-
   puts "C64Emulator instance created."
 
     c64_emulator.load_sid_file(input_file) # Load the SID file
