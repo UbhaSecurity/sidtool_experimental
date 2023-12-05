@@ -97,7 +97,7 @@ module SidtoolExperimental
       @sustain = 0
       @release = 0
       @lfo_phase = 0  # Initialize @lfo_phase here
-      @lfo_depth = 0  # Initialize @lfo_depth here
+      @lfo_depth = 0.5  # Initialize @lfo_depth here
     end
 
  def initialize_defaults
@@ -121,16 +121,16 @@ module SidtoolExperimental
       @lfo_destination = :pitch
     end
 
-    def apply_lfo
-      modulated_value = calculate_lfo_modulation
-      case @lfo_destination
-      when :pitch
-        self.frequency = frequency + modulated_value
-      when :pulse_width
-        self.pulse_width = [0, [pulse_width + modulated_value, 4096].min].max
-      # Additional cases for different destinations...
-      end
-    end
+def apply_lfo
+  modulated_value = calculate_lfo_modulation
+  case @lfo_destination
+  when :pitch
+    self.frequency = frequency + (modulated_value || 0)  # Use a default value of 0 if modulated_value is nil
+  when :pulse_width
+    self.pulse_width = [0, [pulse_width + (modulated_value || 0), 4096].min].max  # Use a default value of 0 if modulated_value is nil
+  # Additional cases for different destinations...
+  end
+end
 
     private
 
