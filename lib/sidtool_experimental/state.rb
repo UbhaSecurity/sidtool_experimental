@@ -81,17 +81,7 @@ module SidtoolExperimental
     end
 
 def handle_timer_events
-  @cia_timers.each_with_index do |timer, index|
-    # Use the safe navigation operator (&.) to check if timer is not nil and responds to event_condition_met?
-    if timer&.event_condition_met?
-      case index
-      when 0
-        generate_interrupt(:timer0)
-      when 1
-        perform_task_for_timer1
-      end
-    end
-  end
+ 
 end
 
 
