@@ -69,6 +69,19 @@ module SidtoolExperimental
       @ram[address] = value
     end
 
+# Method to handle processor port reads and writes (memory addresses 0 and 1).
+def handle_processor_port(address, value = nil)
+  if address == 0
+    # Reading or writing to address 0 (Data Direction Register)
+    value.nil? ? @processor_port_ddr : @processor_port_ddr = value
+  elsif address == 1
+    # Reading or writing to address 1 (Processor Port)
+    value.nil? ? @processor_port : @processor_port = value
+  else
+    raise "Invalid address for processor port: #{address}"
+  end
+end
+
     private
 
     # Helper method to validate memory addresses
