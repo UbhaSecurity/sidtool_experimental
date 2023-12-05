@@ -18,6 +18,7 @@ module SidtoolExperimental
       @tod_clock = {hours: 0x12, minutes: 0, seconds: 0, tenths: 0, alarm_set: false, alarm_time: {}}
     end
 
+    # Timer control methods
     def enable_interrupt(timer_index)
       @timers[timer_index][:control] |= INTERRUPT_ENABLE_FLAG
     end
@@ -54,6 +55,7 @@ module SidtoolExperimental
     def clear_underflow(timer_index)
       @timers[timer_index][:underflow] = false
     end
+
     # Parallel I/O Management
     def set_data_direction(port, direction_mask)
       @parallel_ports[port][:direction] = direction_mask
@@ -83,8 +85,8 @@ module SidtoolExperimental
     # Timer Handling
     def configure_timer(timer_number, mode, value)
       set_timer_mode(timer_number, mode)
-      @timers[timer_number][:counter] = value
       set_initial_value(timer_number, value)
+      @timers[timer_number][:counter] = value
     end
 
     def update_timers
@@ -122,10 +124,7 @@ module SidtoolExperimental
       # Logic to check if the current time matches the alarm time
     end
 
-    def event_condition_met?(timer_index)
-      @timers[timer_index][:counter] == 0
-    end
-
+    # Update method called each cycle
     def update
       update_timers
       check_alarm
@@ -133,7 +132,7 @@ module SidtoolExperimental
       # Additional update logic
     end
 
-  private
+    private
 
     def handle_timer_expiration(timer_index)
       case timer_index
@@ -143,25 +142,6 @@ module SidtoolExperimental
       when 1
         # Handle Timer 1 expiration event
         @state.handle_timer_1_expiration
-      end
-    end
-
-   # Methods for event conditions
-    def event_condition_met?(timer_index)
-      underflow?(timer_index) && interrupt_enabled?(timer_index)
-    end
-
- def update_timers
-      @timers.each_with_index do |timer, index|
-        next if timer[:counter] == 0 # Skip if the timer has already expired
-
-        timer[:counter] -= 1 # Decrement the timer counter
-
-        if timer[:counter] == 0
-          handle_timer_expiration(index)
-          timer[:counter] = timer[:initial_value] if timer_mode_continuous?(index) # Reload counter for continuous mode
-          timer[:underflow] = true
-        end
       end
     end
 
