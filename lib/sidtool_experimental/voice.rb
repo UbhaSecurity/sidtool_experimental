@@ -9,27 +9,34 @@ module SidtoolExperimental
     ATTACK_VALUES = [0.002, 0.008, 0.016, 0.024, 0.038, 0.056, 0.068, 0.08, 0.1, 0.25, 0.5, 0.8, 1, 3, 5, 8]
     DECAY_RELEASE_VALUES = [0.006, 0.024, 0.048, 0.072, 0.114, 0.168, 0.204, 0.24, 0.3, 0.75, 1.5, 2.4, 3, 9, 15, 24]
 
-    # Method to update parameters based on data from Synth
-    #
-    # @param synth_params [Hash] A hash containing parameters received from Synth.
-    # @option synth_params [Integer] :frequency The frequency value.
-    # @option synth_params [Integer] :pulse_width The pulse width value.
-    # @option synth_params [Integer] :filter_cutoff The filter cutoff frequency.
-    # @option synth_params [Integer] :filter_resonance The filter resonance value.
-    # @option synth_params [Boolean] :osc_sync The oscillator sync flag.
-    # @option synth_params [Boolean] :ring_mod_effect The ring modulation effect flag.
-    def update_from_synth(synth_params)
-      # Update each parameter based on the data received from Synth
-      self.frequency_low, self.frequency_high = split_frequency(synth_params[:frequency])
-      self.pulse_low, self.pulse_high = split_pulse_width(synth_params[:pulse_width])
-      @filter_cutoff = synth_params[:filter_cutoff]
-      @filter_resonance = synth_params[:filter_resonance]
-      @osc_sync = synth_params[:osc_sync]
-      @ring_mod_effect = synth_params[:ring_mod_effect]
-      # Convert ADSR values if needed and update
-      self.attack_decay = combine_attack_decay(synth_params[:attack], synth_params[:decay])
-      self.sustain_release = combine_sustain_release(synth_params[:sustain], synth_params[:release])
-    end
+# Method to update parameters based on data from Synth
+#
+# @param synth_params [Hash] A hash containing parameters received from Synth.
+# @option synth_params [Integer] :frequency The frequency value.
+# @option synth_params [Integer] :pulse_width The pulse width value.
+# @option synth_params [Integer] :filter_cutoff The filter cutoff frequency.
+# @option synth_params [Integer] :filter_resonance The filter resonance value.
+# @option synth_params [Boolean] :osc_sync The oscillator sync flag.
+# @option synth_params [Boolean] :ring_mod_effect The ring modulation effect flag.
+def update_from_synth(synth_params)
+  # Initialize a new Synth instance if @synth is nil
+  @synth ||= Synth.new(STATE.current_frame)
+
+  # Update each parameter based on the data received from Synth
+  self.frequency_low, self.frequency_high = split_frequency(synth_params[:frequency])
+  self.pulse_low, self.pulse_high = split_pulse_width(synth_params[:pulse_width])
+  @filter_cutoff = synth_params[:filter_cutoff]
+  @filter_resonance = synth_params[:filter_resonance]
+  @osc_sync = synth_params[:osc_sync]
+  @ring_mod_effect = synth_params[:ring_mod_effect]
+
+  # Convert ADSR values if needed and update
+  self.attack_decay = combine_attack_decay(synth_params[:attack], synth_params[:decay])
+  self.sustain_release = combine_sustain_release(synth_params[:sustain], synth_params[:release])
+
+  # Now you can call apply_lfo on the @synth object
+  @synth.apply_lfo
+end
 
     # Initialize a new Voice instance with a reference to the SID chip and its voice number.
     #
