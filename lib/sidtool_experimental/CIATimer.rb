@@ -1,5 +1,5 @@
 module SidtoolExperimental
-  class CIATimer
+    class CIATimer
     # Constants for Timer Modes
     ONE_SHOT_MODE = 1
     CONTINUOUS_MODE = 2
@@ -17,7 +17,6 @@ module SidtoolExperimental
       ]
       @tod_clock = {hours: 0x12, minutes: 0, seconds: 0, tenths: 0, alarm_set: false, alarm_time: {}}
     end
-
     # Timer control methods
     def enable_interrupt(timer_index)
       @timers[timer_index][:control] |= INTERRUPT_ENABLE_FLAG
