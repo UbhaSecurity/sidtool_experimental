@@ -43,7 +43,7 @@ module SidtoolExperimental
         puts "CPU initialization started..."
         @memory = mem
         @emulator = emulator
-        @state = State.new(self, emulator) # Using the passed emulator instance
+        @state = State.new(cpu_instance, emulator_instance, cia_timers_instance)
 
         # Initialize CPU registers with default values
         @registers = {
