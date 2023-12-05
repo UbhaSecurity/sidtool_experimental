@@ -74,8 +74,11 @@ module SidtoolExperimental
 
     private
 
-    def update_timers
-      @cia_timers.each(&:update)
+  def update_timers
+      @cia_timers.each do |timer|
+        # Check if the timer object is not nil before calling update on it
+        timer.update if timer
+      end
     end
 
     def handle_timer_events
