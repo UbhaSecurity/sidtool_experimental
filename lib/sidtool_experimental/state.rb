@@ -24,17 +24,10 @@ module SidtoolExperimental
       increment_frame
     end
 
-
-    def update_sid
-      @sid6581.update_sid_state
-    end
-
-    # Add a method to read from SID registers
     def read_sid_register(address)
       @sid6581.read_sid_register(address)
     end
 
-    # Add a method to write to SID registers
     def write_sid_register(address, value)
       @sid6581.write_register(address, value)
     end
@@ -99,7 +92,7 @@ module SidtoolExperimental
     end
 
     def update_sid
-      @sid6581.update(@current_frame)
+      @sid6581.update_sid_state
     end
 
     def increment_frame
