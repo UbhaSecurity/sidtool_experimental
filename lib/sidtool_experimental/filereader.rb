@@ -28,8 +28,7 @@ module SidtoolExperimental
           load_address: load_address)
     end
 
-    def initialize(format:, version:, init_address:, play_address:, songs:, start_song:, name:, author:, released:, data:,
-                   load_address:, speed:, flags:, start_page:, page_length:, second_sid_address:, third_sid_address:)
+    def initialize(format:, version:, init_address:, play_address:, songs:, start_song:, name:, author:, released:, data:, load_address:, speed:, flags:, start_page:, page_length:, second_sid_address:, third_sid_address:)
       @format = format
       @version = version
       @init_address = init_address
