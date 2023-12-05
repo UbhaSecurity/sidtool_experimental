@@ -9,11 +9,12 @@ module SidtoolExperimental
 
       @cpu = cpu
       @current_frame = 0
-      @memory = emulator.memory  # Use the emulator's memory
-      @sid6581 = sid6581  # Use the provided SID6581 instance
-      @cia_timers = cia_timers  # Assign the provided cia_timers array
+      @memory = emulator.memory
+      @sid6581 = sid6581
+      @cia_timers = cia_timers
       @emulation_finished = false
-      @interrupt_flag = false # Flag to ignore or respond to IRQs
+      @interrupt_flag = false
+
       initialize_vectors
     end
 
