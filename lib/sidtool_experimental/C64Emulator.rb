@@ -1,6 +1,5 @@
 module SidtoolExperimental
   class C64Emulator
-    
     attr_reader :memory, :cpu, :ciaTimerA, :ciaTimerB
     attr_accessor :sid6581, :state
 
@@ -10,24 +9,25 @@ module SidtoolExperimental
       @ciaTimerA = CIATimer.new(self)
       @ciaTimerB = CIATimer.new(self)
       @sid6581 = sid6581
-      puts "Hello c64"
     end
 
-def load_sid_file(file_path)
-  sid_file = FileReader.read(file_path)
+    def load_sid_file(file_path)
+      sid_file = FileReader.read(file_path)
+      
+      # Ensure that @memory is an instance of the Memory class and is properly initialized
+      raise 'Memory not initialized' unless @memory.is_a?(Memory)
 
-  load_address = sid_file.load_address
-  raise 'Memory not initialized' unless @memory.is_a?(Memory)
-  raise 'Invalid start address' unless @memory.valid_address?(load_address)
+      # Check if the start address is valid
+      raise 'Invalid start address' unless @memory.valid_address?(sid_file.load_address)
 
-  # Example fix: Pass both program data and the load address
-  load_program(sid_file.data, load_address)
-
-  setup_sid_environment(sid_file)
-end
-
+      load_program(sid_file.data, sid_file.load_address)
+      setup_sid_environment(sid_file)
+    end
 
     def load_program(program_data, start_address)
+      raise 'Invalid program data' unless program_data.is_a?(Array)
+      raise 'Invalid start address' unless valid_address?(start_address)
+
       @cpu.load_program(program_data, start_address)
     end
 
