@@ -1049,6 +1049,52 @@ def clear_flag(flag)
   @registers[:P] &= ~flag
 end
 
+# Check if a page boundary is crossed, which affects cycle count.
+def page_boundary_crossed?(instruction)
+  case instruction[:addr_mode]
+  when Mode::ABSX
+    base_address = fetch_word
+    crossed = (base_address & 0xFF00) != ((base_address + @registers[:X]) & 0xFF00)
+  when Mode::ABSY
+    base_address = fetch_word
+    crossed = (base_address & 0xFF00) != ((base_address + @registers[:Y]) & 0xFF00)
+  when Mode::INDY
+    zp_address = fetch_byte
+    base_address = read_memory(zp_address) | (read_memory((zp_address + 1) & 0xFF) << 8)
+    crossed = (base_address & 0xFF00) != ((base_address + @registers[:Y]) & 0xFF00)
+  else
+    crossed = false
+  end
+  crossed
+end
+
+ # ASL for the Accumulator
+      def asl_accumulator
+        value = @registers[:A]
+        result = value << 1
+        update_carry_flag(result)
+        @registers[:A] = result & 0xFF
+        update_zero_and_negative_flags(@registers[:A])
+      end
+
+      # ASL for Zero Page Addressing
+      def asl_zero_page
+        address = fetch_byte
+        value = read_memory(address)
+        result = value << 1
+        update_carry_flag(result)
+        write_memory(address, result & 0xFF)
+        update_zero_and_negative_flags(result)
+      end
+
+  # Helper method to update carry flag
+      def update_carry_flag(value)
+        if value > 0xFF
+          set_flag(Flags::CARRY)
+        else
+          clear_flag(Flags::CARRY)
+        end
+      end
 
 def clc
   @registers[:P] &= ~Flags::CARRY
@@ -1548,52 +1594,7 @@ end
     end
 
 
-# Check if a page boundary is crossed, which affects cycle count.
-def page_boundary_crossed?(instruction)
-  case instruction[:addr_mode]
-  when Mode::ABSX
-    base_address = fetch_word
-    crossed = (base_address & 0xFF00) != ((base_address + @registers[:X]) & 0xFF00)
-  when Mode::ABSY
-    base_address = fetch_word
-    crossed = (base_address & 0xFF00) != ((base_address + @registers[:Y]) & 0xFF00)
-  when Mode::INDY
-    zp_address = fetch_byte
-    base_address = read_memory(zp_address) | (read_memory((zp_address + 1) & 0xFF) << 8)
-    crossed = (base_address & 0xFF00) != ((base_address + @registers[:Y]) & 0xFF00)
-  else
-    crossed = false
-  end
-  crossed
-end
 
- # ASL for the Accumulator
-      def asl_accumulator
-        value = @registers[:A]
-        result = value << 1
-        update_carry_flag(result)
-        @registers[:A] = result & 0xFF
-        update_zero_and_negative_flags(@registers[:A])
-      end
-
-      # ASL for Zero Page Addressing
-      def asl_zero_page
-        address = fetch_byte
-        value = read_memory(address)
-        result = value << 1
-        update_carry_flag(result)
-        write_memory(address, result & 0xFF)
-        update_zero_and_negative_flags(result)
-      end
-
-  # Helper method to update carry flag
-      def update_carry_flag(value)
-        if value > 0xFF
-          set_flag(Flags::CARRY)
-        else
-          clear_flag(Flags::CARRY)
-        end
-      end
 
       # Helper method to update zero and negative flags
       def update_zero_and_negative_flags(value)
