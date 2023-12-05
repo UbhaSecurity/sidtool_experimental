@@ -88,6 +88,8 @@ module SidtoolExperimental
     def initialize(start_frame)
       @start_frame = start_frame
       # Set default values for synth parameters
+      @controls = []
+      @state = state  # Assuming STATE is an instance of SidtoolExperimental::State
       @frequency = 0
       @pulse_width = 0
       @filter_cutoff = 1024
@@ -121,13 +123,13 @@ module SidtoolExperimental
       @lfo_destination = :pitch
     end
 
-def apply_lfo
-  modulated_value = calculate_lfo_modulation
-  case @lfo_destination
-  when :pitch
-    self.frequency = frequency + (modulated_value || 0)  # Use a default value of 0 if modulated_value is nil
-  when :pulse_width
-    self.pulse_width = [0, [pulse_width + (modulated_value || 0), 4096].min].max  # Use a default value of 0 if modulated_value is nil
+    def apply_lfo
+      modulated_value = calculate_lfo_modulation
+      case @lfo_destination
+      when :pitch
+        self.frequency = frequency + (modulated_value || 0)
+        @controls << [@state.current_frame, frequency.round] if @state
+      when :pulse_width
   # Additional cases for different destinations...
   end
 end
