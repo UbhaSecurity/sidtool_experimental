@@ -1312,6 +1312,15 @@ def branch(condition)
     @registers[:PC] = new_pc & 0xFFFF
   end
 end
+  # Update the program counter if the condition is true
+  if condition
+    new_pc = @registers[:PC] + offset
+    new_pc -= 0x0100 if offset >= 0x80 # Handle negative offsets
+    @registers[:PC] = new_pc & 0xFFFF
+    true # Indicates a branch was taken
+  else
+    false # Indicates no branch was taken
+  end
 
 def push_stack(value)
   raise "Memory object is nil" if @memory.nil?
@@ -1710,14 +1719,6 @@ def get_address(mode)
 end
 
 
-  # Update the program counter if the condition is true
-  if condition
-    new_pc = @registers[:PC] + offset
-    new_pc -= 0x0100 if offset >= 0x80 # Handle negative offsets
-    @registers[:PC] = new_pc & 0xFFFF
-    true # Indicates a branch was taken
-  else
-    false # Indicates no branch was taken
-  end
+
 end
 end
