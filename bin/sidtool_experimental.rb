@@ -39,26 +39,27 @@ module SidtoolExperimental
       exit(1)
     end
 
-    begin
-      memory = Memory.new
-      sid6581 = Sid6581.new(memory: memory)
+   begin
+    memory = Memory.new
+    sid6581 = Sid6581.new(memory: memory)
+    c64_emulator = C64Emulator.new(memory, sid6581)
 
-      c64_emulator = C64Emulator.new(memory: memory)
-      c64_emulator.sid6581 = sid6581 # Set SID6581 instance
+    # Create State instance with the necessary components
+    state = State.new(c64_emulator.cpu, c64_emulator, [c64_emulator.ciaTimerA, c64_emulator.ciaTimerB], sid6581)
 
-      state = State.new(c64_emulator.cpu, c64_emulator, [c64_emulator.ciaTimerA, c64_emulator.ciaTimerB], sid6581)
-      c64_emulator.state = state # Set State instance
+    # Set State in both C64Emulator and SID6581
+    c64_emulator.state = state
+    sid6581.state = state
 
-      sid6581.state = state # Ensure SID6581 has the state
-      sid6581.create_voices # Create voices after setting the state
+    sid6581.create_voices # Create voices after setting the state
 
-      puts "C64Emulator instance created."
+    puts "C64Emulator instance created."
 
-      c64_emulator.load_sid_file(input_file) # Load the SID file
-    rescue StandardError => e
-      puts "Error: An error occurred while loading the SID file: #{e.message}"
-      exit(1)
-    end
+    c64_emulator.load_sid_file(input_file) # Load the SID file
+  rescue StandardError => e
+    puts "Error: An error occurred while loading the SID file: #{e.message}"
+    exit(1)
+  end
 
     # Handle exporting and emulation
     handle_export_and_emulation(c64_emulator, options)
