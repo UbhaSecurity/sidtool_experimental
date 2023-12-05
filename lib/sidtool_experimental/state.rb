@@ -82,8 +82,8 @@ module SidtoolExperimental
 
 def handle_timer_events
   @cia_timers.each_with_index do |timer, index|
-    # Check if the timer is nil before calling event_condition_met?
-    if timer && timer.event_condition_met?
+    # Use the safe navigation operator (&.) to check if timer is not nil and responds to event_condition_met?
+    if timer&.event_condition_met?
       case index
       when 0
         generate_interrupt(:timer0)
@@ -93,6 +93,7 @@ def handle_timer_events
     end
   end
 end
+
 
 
     def update_sid
