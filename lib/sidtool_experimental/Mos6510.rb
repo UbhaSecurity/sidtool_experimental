@@ -1213,6 +1213,16 @@ def interrupt(vector_address)
   @registers[:PC] = read_memory(vector_address) << 8 | read_memory(vector_address - 1)
 end
 
+ # Method to load a program into the CPU's memory
+      def load_program(program_data, start_address)
+        raise 'Invalid program data' unless program_data.is_a?(Array)
+        raise 'Invalid start address' unless valid_address?(start_address)
+
+        program_data.each_with_index do |byte, offset|
+          @memory.write(start_address + offset, byte)
+        end
+      end
+
 # No Operation
 def nop
   # Do nothing
