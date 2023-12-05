@@ -2,7 +2,7 @@ module SidtoolExperimental
   class Mos6510
     class Cpu
       # Accessors for interacting with the CPU's memory and registers from outside the class.
-      attr_accessor :memory, :registers, :state
+      attr_accessor :memory, :registers, :state, :pc
       # Define constant flags used in the status register (P).
       module Flags
         CARRY = 0x01
