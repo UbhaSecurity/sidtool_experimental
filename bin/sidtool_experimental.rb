@@ -40,10 +40,6 @@ module SidtoolExperimental
       exit(1)
     end
 
-    memory_instance = Memory.new
-    cpu_instance = Mos6510::Cpu.new(memory_instance)
-    state_instance = State.new(cpu_instance)
-
     cpu_instance.state = state_instance
 
     puts "Creating C64Emulator instance..."
