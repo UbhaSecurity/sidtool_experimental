@@ -1621,7 +1621,7 @@ end
 
 
      # Update zero and negative flags based on the given value
-      def (value)
+      def update_zero_and_negative_flags(value)
         # Update Zero flag (set if value is zero)
         if value == 0
           @registers[:P] |= Flags::ZERO
@@ -1636,8 +1636,6 @@ end
           @registers[:P] &= ~Flags::NEGATIVE
         end
       end
-
-
 
 def pc_increment
   @registers[:PC] = (@registers[:PC] + 1) & 0xFFFF
@@ -1668,15 +1666,11 @@ end
     end
 
 
-
-
       # Helper method to update zero and negative flags
       def update_zero_and_negative_flags(value)
         set_flag(Flags::ZERO) if value == 0
         set_flag(Flags::NEGATIVE) if value & 0x80 != 0
       end
-
-
 
 def get_address(mode)
   case mode
@@ -1726,6 +1720,6 @@ def get_address(mode)
 end
 
 
-
+  end
 end
 end
