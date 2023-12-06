@@ -456,7 +456,6 @@ end
   def invert_bits(value)
     (~value) & ((1 << LFSR_STATE_BITS) - 1)
   end
-end
 
   end
 end
