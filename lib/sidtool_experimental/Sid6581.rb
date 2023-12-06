@@ -2,6 +2,7 @@ require 'wav-file'
 module SidtoolExperimental
   class Sid6581
     AUDIO_SAMPLE_RATE = 44100 
+    MAX_BUFFER_SIZE = 8192  # Adjust the value as needed
     attr_accessor :state
 
     # Define waveform constants for easy reference
