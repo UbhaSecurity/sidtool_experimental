@@ -1,6 +1,7 @@
 require 'wav-file'
 module SidtoolExperimental
   class Sid6581
+    AUDIO_SAMPLE_RATE = 44100 
     attr_accessor :state
 
     # Define waveform constants for easy reference
