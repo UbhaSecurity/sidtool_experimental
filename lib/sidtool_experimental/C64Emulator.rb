@@ -3,6 +3,7 @@ module SidtoolExperimental
      CPU_FREQUENCY = 1_000_000 # 1 MHz
      AUDIO_SAMPLE_RATE = 44_100 # 44.1 kHz
      CYCLES_PER_FRAME = CPU_FREQUENCY / AUDIO_SAMPLE_RATE
+     MAX_BUFFER_SIZE = 44100 * 10 # Example size, 10 seconds of audio at 44.1 kHz
     attr_reader :memory, :cpu, :ciaTimerA, :ciaTimerB
     attr_accessor :sid6581, :state
 
@@ -14,6 +15,7 @@ module SidtoolExperimental
     @sid6581 = sid6581
     @state = State.new(@cpu, self, [@ciaTimerA, @ciaTimerB], @sid6581)
     @cycle_count = 0
+    @audio_buffer = [] # Initialize the audio buffer to store sound samples
   end
 
  def load_sid_file(file_path)
@@ -93,11 +95,21 @@ module SidtoolExperimental
       @state.increment_frame
     end
 
+    # Method to manage the size of the audio buffer
     def manage_audio_buffer
       if @audio_buffer.size > MAX_BUFFER_SIZE
-        # Output the buffer to a file or audio device
-        # Clear the buffer after outputting
-        # Example: output_audio_buffer_to_file
+        output_audio_buffer_to_file("output.wav") # Output the buffer to a WAV file
+        @audio_buffer.clear # Clear the buffer after outputting
+      end
+    end
+
+    # Method to output the audio buffer to a file
+    def output_audio_buffer_to_file(filename)
+      format = WavFile::Format.new(:mono, :pcm_16, AUDIO_SAMPLE_RATE, @audio_buffer.size)
+      data_chunk = WavFile::DataChunk.new(@audio_buffer.pack('s*')) # 's*' for 16-bit signed PCM data
+
+      File.open(filename, "wb") do |file|
+        WavFile.write(file, format, [data_chunk])
       end
     end
     
