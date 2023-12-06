@@ -65,7 +65,7 @@ module SidtoolExperimental
     MAX_FREQUENCY = 20000
 
     # Initialize a new Synth instance.
-   def initialize(start_frame, state)
+    def initialize(start_frame, state)
       @start_frame = start_frame
       @state = state
       @controls = []
@@ -146,7 +146,7 @@ module SidtoolExperimental
       end
     end
 
-   def calculate_lfo_modulation
+    def calculate_lfo_modulation
       phase_in_radians = @lfo_phase * Math::PI / 180.0
       time = @start_frame / FRAMES_PER_SECOND.to_f
 
@@ -161,7 +161,7 @@ module SidtoolExperimental
       end * @lfo_depth
     end
 
-   # @param frequency [Float] The new frequency to set.
+    # @param frequency [Float] The new frequency to set.
     def frequency=(frequency)
       if @frequency
         previous_midi = sid_frequency_to_actual_frequency(@frequency)
@@ -286,7 +286,7 @@ module SidtoolExperimental
       end
     end
 
-     # Convert SID frequency value to actual frequency in Hertz.
+    # Convert SID frequency value to actual frequency in Hertz.
     #
     # @param sid_frequency [Integer] The frequency value from the SID chip.
     # @return [Float] The actual frequency in Hertz.
@@ -314,6 +314,7 @@ module SidtoolExperimental
         [0xB0, 0x0B, @expression]
       ]
     end
+
     # Convert pitch bend parameter to MIDI pitch bend messages.
     #
     # This method maps the SID's pitch-related parameters to MIDI's pitch bend.
@@ -324,6 +325,7 @@ module SidtoolExperimental
         [0xE0, pitch_bend_value & 0x7F, (pitch_bend_value >> 7) & 0x7F]
       ]
     end
+
     # Calculate the modulation value for MIDI (Modulation Wheel).
     #
     # @param modulation [Integer] The modulation value from the SID.
@@ -343,33 +345,34 @@ module SidtoolExperimental
       # Modify this mapping based on the desired pitch bend effect.
       8192 + (pitch_bend * 8192).to_i
     end
+
     # Convert ADSR (Attack, Decay, Sustain, Release) parameters to MIDI controller messages.
     #
     # This method simulates ADSR envelope control using MIDI controllers, as MIDI doesn't have direct ADSR control.
-def handle_attack_decay_sustain_release
-  # Scale ADSR parameters to fit the MIDI controller value range (0-127)
-  attack_midi = scale_to_midi(@attack)
-  decay_midi = scale_to_midi(@decay)
-  sustain_midi = scale_to_midi(@sustain)
-  release_midi = scale_to_midi(@release)
+    def handle_attack_decay_sustain_release
+      # Scale ADSR parameters to fit the MIDI controller value range (0-127)
+      attack_midi = scale_to_midi(@attack)
+      decay_midi = scale_to_midi(@decay)
+      sustain_midi = scale_to_midi(@sustain)
+      release_midi = scale_to_midi(@release)
 
-  # Assign ADSR parameters to specific MIDI Control Change (CC) numbers
-  cc_attack = 73   # Typically CC 73 for attack
-  cc_decay = 75    # Typically CC 75 for decay
-  cc_sustain = 70  # Typically CC 70 for sustain
-  cc_release = 72  # Typically CC 72 for release
+      # Assign ADSR parameters to specific MIDI Control Change (CC) numbers
+      cc_attack = 73   # Typically CC 73 for attack
+      cc_decay = 75    # Typically CC 75 for decay
+      cc_sustain = 70  # Typically CC 70 for sustain
+      cc_release = 72  # Typically CC 72 for release
 
-  # Create MIDI controller messages for ADSR parameters
-  midi_messages = [
-    [0xB0, cc_attack, attack_midi],
-    [0xB0, cc_decay, decay_midi],
-    [0xB0, cc_sustain, sustain_midi],
-    [0xB0, cc_release, release_midi]
-  ]
+      # Create MIDI controller messages for ADSR parameters
+      midi_messages = [
+        [0xB0, cc_attack, attack_midi],
+        [0xB0, cc_decay, decay_midi],
+        [0xB0, cc_sustain, sustain_midi],
+        [0xB0, cc_release, release_midi]
+      ]
 
-  # Return the MIDI controller messages
-  midi_messages
-end
+      # Return the MIDI controller messages
+      midi_messages
+    end
 
     # Helper method to scale a parameter value to the MIDI range (0-127)
     def scale_to_midi(value)
@@ -377,3 +380,4 @@ end
     end
   end
 end
+
