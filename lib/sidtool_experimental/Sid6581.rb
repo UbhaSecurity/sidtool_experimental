@@ -233,21 +233,7 @@ def generate_sound
     @audio_buffer.clear  # Clear the buffer after outputting
   end
 
-  # Return or store the processed audio output
-  processed_output = process_audio(sample_rate)
-  processed_output # or store it in an audio buffer
 end
-
-
-      # Mix the outputs from all voices
-      final_output = mix_voices(mixed_output)
-
-      # Apply global filters and volume adjustment
-      processed_output = apply_global_effects(final_output)
-
-      # Return or store the processed audio output
-      return processed_output # or store it in an audio buffer
-    end
 
     def mix_voices(voice_outputs)
       # Implement the logic to mix voice outputs
