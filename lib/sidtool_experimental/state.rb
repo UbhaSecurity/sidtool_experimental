@@ -73,16 +73,13 @@ module SidtoolExperimental
 
     private
 
-def update_timers
-  puts "Updating timers: #{@cia_timers}"
-  @cia_timers.each { |timer| timer.update if timer }
-end
+    def update_timers
+      puts "Updating timers: #{@cia_timers}"
+      @cia_timers.each { |timer| timer.update if timer }
+    end
 
-def handle_timer_events
- 
-end
-
-
+    def handle_timer_events
+    end
 
     def update_sid
       @sid6581.update_sid_state
@@ -107,15 +104,15 @@ end
     end
 
     def handle_irq
-      if irq_pending?
-        @cpu.save_state
-        @cpu.jump_to_address(@irq_vector)
-        @cpu.restore_state
+      if @cpu.irq_pending? && !@interrupt_flag
+      @cpu.save_state
+      @cpu.jump_to_address(@irq_vector)
+      @cpu.restore_state
       end
     end
 
     def handle_nmi
-      if nmi_pending?
+      if @cpu.nmi_pending?
         @cpu.save_state
         @cpu.jump_to_address(@nmi_vector)
         @cpu.restore_state
