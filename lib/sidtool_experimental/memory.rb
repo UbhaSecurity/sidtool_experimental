@@ -69,11 +69,7 @@ module SidtoolExperimental
     address.between?(0x0000, 0xFFFF)
   end
 
-    # Additional methods for memory management, ROM loading, I/O handling, etc.
-
     private
-
-    # Helper methods and internal logic for managing memory, I/O devices, ROMs, etc.
 
     # Method to handle processor port reads and writes (memory addresses 0 and 1).
     def handle_processor_port(address, value = nil)
