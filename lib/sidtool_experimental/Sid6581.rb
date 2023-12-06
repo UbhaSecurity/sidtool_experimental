@@ -287,3 +287,4 @@ end
       filtered_signal
     end
   end
+end
