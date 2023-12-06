@@ -146,8 +146,6 @@ module SidtoolExperimental
       end
     end
 
-    private
-
    def calculate_lfo_modulation
       phase_in_radians = @lfo_phase * Math::PI / 180.0
       time = @start_frame / FRAMES_PER_SECOND.to_f
