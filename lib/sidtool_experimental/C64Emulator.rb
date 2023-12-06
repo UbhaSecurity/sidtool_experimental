@@ -1,5 +1,8 @@
 module SidtoolExperimental
   class C64Emulator
+     CPU_FREQUENCY = 1_000_000 # 1 MHz
+     AUDIO_SAMPLE_RATE = 44_100 # 44.1 kHz
+     CYCLES_PER_FRAME = CPU_FREQUENCY / AUDIO_SAMPLE_RATE
     attr_reader :memory, :cpu, :ciaTimerA, :ciaTimerB
     attr_accessor :sid6581, :state
 
@@ -10,6 +13,7 @@ module SidtoolExperimental
     @ciaTimerB = CIATimer.new(self)
     @sid6581 = sid6581
     @state = State.new(@cpu, self, [@ciaTimerA, @ciaTimerB], @sid6581)
+    @cycle_count = 0
   end
 
  def load_sid_file(file_path)
@@ -50,6 +54,7 @@ module SidtoolExperimental
     @sid6581.generate_sound
     @ciaTimerA.update
     @ciaTimerB.update
+    @cycle_count += 1
   end
 
     def setup_sid_environment(sid_file)
@@ -68,12 +73,23 @@ module SidtoolExperimental
     end
 
   def frame_completed?
-    # Logic to determine if a frame is completed based on CPU cycles or other criteria
+    @cycle_count >= CYCLES_PER_FRAME
   end
 
-  def handle_frame_update
-    # Actions to perform at the end of each frame (e.g., updating the display)
+ def handle_frame_update
+    # Reset cycle count for the next frame
+    @cycle_count = 0
+
+    # Handle SID sound generation for the frame
+    # This might involve mixing the generated SID samples into an audio buffer
+    mix_audio_samples
+
+    # Increment the frame count in the state
     @state.increment_frame
+  end
+    
+ def mix_audio_samples
+    # Logic to mix SID audio samples into an audio buffer
   end
 
     def handle_extended_sid_file(sid_file)
