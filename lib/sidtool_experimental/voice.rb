@@ -185,23 +185,84 @@ module SidtoolExperimental
 
     private
 
-    def generate_triangle_wave(phase)
-      # Triangle waveform generation logic
-      # Assuming phase is a value between 0 and 1 representing the current phase position
+  def generate_triangle_wave(phase)
+  # Calculate the oscillator value (upper 12 bits of the oscillator)
+  oscillator_value = (frequency_high << 4) | (frequency_low >> 4)
 
-      # Calculate the value of the triangle wave based on phase
-      if phase < 0.25
-        amplitude = phase * 4.0
-      elsif phase < 0.75
-        amplitude = 1.0 - (phase - 0.25) * 4.0
-      else
-        amplitude = (phase - 0.75) * 4.0 - 1.0
-      end
+  # Calculate the MSB of the oscillator (bit 23) based on the waveform selector
+  oscillator_msb = select_oscillator_msb(oscillator_value)
 
-      # Ensure the amplitude is within the -1 to 1 range
-      [amplitude, -1.0].max
-      [amplitude, 1.0].min
-    end
+  # Apply ring modulation effect if enabled (Control Register bit 2)
+  oscillator_msb = apply_ring_modulation(oscillator_msb, voice_number) if (@control_register & 0x04) != 0
+
+  # Calculate the result of the XOR logic for each of the 11 bits
+  triangle_bits = calculate_triangle_bits(oscillator_value, oscillator_msb)
+
+  # Combine the 11 bits to form the triangle waveform
+  triangle_waveform = combine_triangle_bits(triangle_bits)
+
+  # Scale the waveform to full amplitude (shift left and set LSB to 0)
+  scaled_waveform = triangle_waveform * 2.0 - 1.0
+
+  scaled_waveform
+end
+
+# Method to select the MSB of the oscillator based on the waveform selector
+def select_oscillator_msb(oscillator_value)
+  # Check if the sawtooth waveform is selected (bit 4 of Control Register)
+  if (@control_register & 0x10) != 0
+    # Invert the MSB for the sawtooth waveform
+    oscillator_msb = ~oscillator_value[11]
+  else
+    # For other waveforms, use the MSB directly
+    oscillator_msb = oscillator_value[11]
+  end
+
+  oscillator_msb
+end
+
+# Method to apply ring modulation effect
+def apply_ring_modulation(oscillator_msb, voice_number)
+  # Calculate the MSB of the ring modulating voice's oscillator
+  modulating_oscillator_msb = get_ring_modulating_oscillator_msb(voice_number)
+
+  # XOR the MSBs to apply ring modulation
+  oscillator_msb ^= modulating_oscillator_msb
+
+  oscillator_msb
+end
+
+# Method to get the MSB of the ring modulating voice's oscillator
+def get_ring_modulating_oscillator_msb(modulating_voice_number)
+  # Implement logic to get the MSB of the modulating voice's oscillator
+  # This may involve accessing the corresponding voice's oscillator MSB
+  # Return the MSB value
+end
+
+# Method to calculate the XOR logic for each of the 11 bits
+def calculate_triangle_bits(oscillator_value, oscillator_msb)
+  triangle_bits = Array.new(11)
+
+  (0..10).each do |bit|
+    bit_x = oscillator_value[bit]
+    tri_xor = (~oscillator_value & oscillator_msb) | (oscillator_value & ~oscillator_msb)
+    triangle_bits[bit] = tri_xor ^ bit_x
+  end
+
+  triangle_bits
+end
+
+# Method to combine the 11 bits to form the triangle waveform
+def combine_triangle_bits(triangle_bits)
+  triangle_waveform = 0.0
+
+  (0..10).each do |bit|
+    triangle_waveform += triangle_bits[bit] * (2**bit)
+  end
+
+  triangle_waveform
+end
+
 
     def generate_sawtooth_wave(phase)
       # Sawtooth waveform generation logic
