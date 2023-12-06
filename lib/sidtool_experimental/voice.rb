@@ -215,22 +215,39 @@ module SidtoolExperimental
       [amplitude, 1.0].min
     end
 
-    def generate_pulse_wave(phase)
-      # Pulse waveform generation logic, considering pulse width
-      # Assuming phase is a value between 0 and 1 representing the current phase position
-      # Assuming pulse_width is a value between 0 and 1 representing the pulse width
+def generate_pulse_wave(phase)
+  # Calculate the Pulse Width value from the PulseWidth register bits (12-bit value)
+  pulse_width = calculate_pulse_width
 
-      pulse_width = (@pulse_low + @pulse_high * 256) / 65535.0
+  # Calculate the oscillator value (upper 12 bits)
+  oscillator_value = (frequency_high << 4) | (frequency_low >> 4)
 
-      # Calculate the value of the pulse wave based on phase and pulse width
-      if phase < pulse_width
-        amplitude = 1.0
-      else
-        amplitude = -1.0
-      end
+  # Calculate the result of the comparison between oscillator and Pulse Width
+  comparison_result = oscillator_value < pulse_width
 
-      amplitude
-    end
+  # Check if the test bit is set (assuming it's stored in @test_bit)
+  if @test_bit
+    # If the test bit is set, invert the comparison result
+    comparison_result = !comparison_result
+  end
+
+  # Generate the pulse waveform based on the comparison result
+  amplitude = comparison_result ? 1.0 : -1.0
+
+  amplitude
+end
+
+# Method to calculate the Pulse Width value from PulseWidth register bits
+def calculate_pulse_width
+  # Extract the low 8 bits and high 4 bits from the PulseWidth register
+  low_bits = (@pulse_low >> 3) & 0xFF
+  high_bits = (@pulse_high >> 4) & 0x0F
+
+  # Calculate the 12-bit Pulse Width value
+  pulse_width = (high_bits << 8) | low_bits
+
+  pulse_width
+end
 
     def generate_noise_wave(_phase)
       # Noise waveform generation logic
