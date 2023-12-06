@@ -40,14 +40,8 @@ module SidtoolExperimental
       end
     end
 
-
     def stop
       @state.emulation_finished = true            # Flag to stop the emulation
-    end
-
-    def run_cycle    
-      @cpu.step                                   # Execute a single CPU cycle
-      emulate_cycle                               # Emulate additional cycle activities
     end
 
     private
@@ -76,25 +70,9 @@ end
       @cpu.load_program(program_data, start_address)
     end
 
-  def frame_completed?
-    @cycle_count >= CYCLES_PER_FRAME
-  end
-
    # Method to check if a frame has completed
     def frame_completed?
       @cycle_count >= CYCLES_PER_FRAME
-    end
-
-    # Method to handle frame updates
-    def handle_frame_update
-      # Reset cycle count for the next frame
-      @cycle_count = 0
-
-      # Process SID sound generation for the frame
-      @sid6581.generate_sound
-
-      # Increment the frame count in the state
-      @state.increment_frame
     end
 
     def handle_frame_update
