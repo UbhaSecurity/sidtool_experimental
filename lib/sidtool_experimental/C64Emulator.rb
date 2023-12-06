@@ -6,6 +6,7 @@ module SidtoolExperimental
      MAX_BUFFER_SIZE = 44100 * 10 # Example size, 10 seconds of audio at 44.1 kHz
     attr_reader :memory, :cpu, :ciaTimerA, :ciaTimerB
     attr_accessor :sid6581, :state
+    attr_accessor :current_frame
 
   def initialize(memory, sid6581)
     @memory = memory
@@ -51,7 +52,7 @@ def run_cycle
   @sid6581.generate_sound # Call the generate_sound method of Sid6581
   @ciaTimerA.update
   @ciaTimerB.update
-  @cycle_count += 1
+  @current_frame += 1  # Increment current frame for each cycle
 end
 
 private
