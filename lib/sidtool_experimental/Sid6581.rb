@@ -40,6 +40,10 @@ def initialize(memory:)
   @filter_state = { last_output: 0.0, last_input: 0.0 } # Initialize filter state
 end
 
+   # Getter method for audio_buffer
+    def audio_buffer
+      @audio_buffer
+    end
 
     def create_voices
       3.times do |voice_index|
