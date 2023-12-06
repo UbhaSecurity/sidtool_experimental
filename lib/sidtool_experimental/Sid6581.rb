@@ -40,9 +40,9 @@ def initialize(memory:)
   @filter_state = { last_output: 0.0, last_input: 0.0 } # Initialize filter state
 end
 
-   # Getter method for audio_buffer
+  # Define the audio_buffer method
     def audio_buffer
-      @audio_buffer
+      @audio_buffer ||= []  # Initialize an empty array if it doesn't exist
     end
 
     def create_voices
