@@ -132,20 +132,22 @@ module SidtoolExperimental
 
     # Handles the countdown and underflow of the timers
     def update_timers
-      @timers.each do |timer|
-        # Decrement the timer counter if it's active
-        if timer_active?(timer)
-          timer[:counter] -= 1
+  @timers.each do |timer|
+    # Check if the timer is not nil before attempting to call methods on it
+    if timer
+      # Update logic for the timer
+      # For example:
+      # timer.update
+      # Add more logic as necessary for each timer
 
-          # Check for underflow
-          if timer[:counter] <= 0
-            handle_underflow(timer)
-            # Reset or disable the timer based on its mode
-            reset_or_disable_timer(timer)
-          end
-        end
+      # Example of calling timer_active? if it's a method defined for the timer
+      # This is just an example. Modify according to your actual method logic.
+      if timer_active?(timer)
+        # Logic for an active timer
       end
     end
+  end
+end
 
     # Additional methods and logic...
   end
