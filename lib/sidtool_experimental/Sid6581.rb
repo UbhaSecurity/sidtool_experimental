@@ -37,7 +37,6 @@ module SidtoolExperimental
       @audio_buffer = []  # Initialize the audio buffer
     end
 
-    # Method to create voices. Call this after state is set.
     def create_voices
       3.times do |voice_index|
         @voices << Voice.new(@memory, @state, voice_index)
