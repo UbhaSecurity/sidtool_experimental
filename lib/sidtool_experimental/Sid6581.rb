@@ -1,3 +1,4 @@
+require 'wav-file'
 module SidtoolExperimental
   class Sid6581
     attr_accessor :state
@@ -231,6 +232,15 @@ module SidtoolExperimental
       # Implement the logic to mix voice outputs
       # For example, calculate the average or sum of the outputs
       voice_outputs.reduce(:+) # Simple sum of outputs
+    end
+
+    def output_sound(filename = "output.wav")
+      format = WavFile::Format.new(:mono, :pcm_16, AUDIO_SAMPLE_RATE, @audio_buffer.size)
+      data_chunk = WavFile::DataChunk.new(@audio_buffer.pack('s*')) # 's*' for 16-bit signed PCM data
+
+      File.open(filename, "wb") do |file|
+        WavFile.write(file, format, [data_chunk])
+      end
     end
 
     def apply_global_effects(audio_signal)
