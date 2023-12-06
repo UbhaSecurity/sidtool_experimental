@@ -6,8 +6,9 @@ module SidtoolExperimental
     def initialize(cpu, emulator, cia_timers, sid6581)
       @cpu = cpu
       @emulator = emulator
+      @memory = Memory.new
       @cia_timers = cia_timers || []
-      @sid6581 = sid6581
+      @sid6581 = Sid6581.new(memory: @memory)
       @emulation_finished = false
       @interrupt_flag = false
       @current_frame = 0
