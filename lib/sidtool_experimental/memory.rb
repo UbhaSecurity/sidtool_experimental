@@ -39,12 +39,11 @@ module SidtoolExperimental
 
     # Write to memory: Determines the behavior when a value is written to an address.
     def write(address, value)
-      config = current_memory_config # Get the current memory configuration
+      config = current_memory_config
 
       case address
-      when 0xD000..0xDFFF
-        # If the I/O is enabled and the address is within the I/O range, write to I/O.
-        write_io_or_char_rom(address, value, config) if config[:io_enabled]
+      when 0xD400..0xD7FF # SID register range
+        @sid6581.update_register(address - 0xD400, value) if config[:io_enabled]
       when 0xA000..0xBFFF, 0xE000..0xFFFF
         # Writes to ROM areas are ignored; they are read-only.
       else
