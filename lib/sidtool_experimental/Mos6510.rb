@@ -58,7 +58,7 @@ module SidtoolExperimental
         reset
         initialize_instructions
         @halt = false
-
+        @irq_flag = false
         puts "CPU initialization completed."
       end
 
@@ -298,6 +298,26 @@ def execute_next_instruction
   end
 end
 
+    # Method to simulate an external component signaling an IRQ
+      def signal_irq
+        @irq_flag = true
+      end
+
+      # Method to check if an IRQ is pending
+      def irq_pending?
+        # Check if the IRQ flag is set and interrupts are not disabled
+        @irq_flag && !interrupts_disabled?
+      end
+
+      # Method to check if interrupts are disabled
+      def interrupts_disabled?
+        (@registers[:P] & Flags::INTERRUPT_DISABLE) != 0
+      end
+
+ # Method to clear the IRQ flag (typically called after handling the IRQ)
+      def clear_irq_flag
+        @irq_flag = false
+      end
 
  # Method to load a program into the CPU's memory
       def load_program(program_data, start_address)
@@ -390,7 +410,6 @@ end
 def sei
   @registers[:P] |= Flags::INTERRUPT_DISABLE
 end
-
 
 def irq
   return if (@registers[:P] & Flags::INTERRUPT_DISABLE) != 0
