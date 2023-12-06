@@ -41,23 +41,86 @@ module SidtoolExperimental
       end
     end
 
-    def process_adsr(sample_rate)
-      # Placeholder for ADSR processing logic
-      # This method should calculate the amplitude based on the current ADSR stage
-      # and the values in attack_decay and sustain_release registers
+ def process_adsr(sample_rate)
+      # Determine the current elapsed time in seconds since the note started
+      elapsed_time = (STATE.current_frame - @start_frame) / sample_rate.to_f
 
-      # Example:
-      # case current_adsr_stage
-      # when :attack
-      #   calculate_attack_amplitude(...)
-      # when :decay
-      #   calculate_decay_amplitude(...)
-      # when :sustain
-      #   calculate_sustain_amplitude(...)
-      # when :release
-      #   calculate_release_amplitude(...)
-      # end
+      case current_adsr_stage(elapsed_time)
+      when :attack
+        calculate_attack_amplitude(elapsed_time)
+      when :decay
+        calculate_decay_amplitude(elapsed_time)
+      when :sustain
+        calculate_sustain_amplitude
+      when :release
+        calculate_release_amplitude(elapsed_time)
+      else
+        0.0  # Return silence if no ADSR stage is active
+      end
     end
+
+    def current_adsr_stage(elapsed_time)
+      if elapsed_time < @attack
+        :attack
+      elsif elapsed_time < @attack + @decay
+        :decay
+      elsif elapsed_time < @attack + @decay + @sustain_length
+        :sustain
+      else
+        :release
+      end
+    end
+
+    def calculate_attack_amplitude(elapsed_time)
+      attack_duration = @attack
+      if attack_duration > 0
+        # Calculate the amplitude increase per second during the attack phase
+        amplitude_increase_per_sec = 1.0 / attack_duration
+        # Calculate the current amplitude based on elapsed time
+        amplitude = elapsed_time * amplitude_increase_per_sec
+        # Ensure that the amplitude doesn't exceed 1.0
+        [amplitude, 1.0].min
+      else
+        # No attack phase, sustain amplitude is 1.0
+        1.0
+      end
+    end
+
+    def calculate_decay_amplitude(elapsed_time)
+      decay_duration = @decay
+      if decay_duration > 0
+        # Calculate the amplitude decrease per second during the decay phase
+        amplitude_decrease_per_sec = 1.0 / decay_duration
+        # Calculate the current amplitude based on elapsed time
+        amplitude = 1.0 - elapsed_time * amplitude_decrease_per_sec
+        # Ensure that the amplitude doesn't go below the sustain level
+        [amplitude, @sustain_level].max
+      else
+        # No decay phase, sustain amplitude is 1.0
+        @sustain_level
+      end
+    end
+
+    def calculate_sustain_amplitude
+      # Sustain amplitude remains constant at the specified level
+      @sustain_level
+    end
+
+    def calculate_release_amplitude(elapsed_time)
+      release_duration = @release
+      if release_duration > 0
+        # Calculate the amplitude decrease per second during the release phase
+        amplitude_decrease_per_sec = 1.0 / release_duration
+        # Calculate the current amplitude based on elapsed time
+        amplitude = @sustain_level - elapsed_time * amplitude_decrease_per_sec
+        # Ensure that the amplitude doesn't go below 0.0
+        [amplitude, 0.0].max
+      else
+        # No release phase, amplitude remains at the sustain level
+        @sustain_level
+      end
+    end
+
 
     def update_from_synth(synth_params)
       # Initialize a new Synth instance if @synth is nil
@@ -134,22 +197,6 @@ module SidtoolExperimental
     # Convert a frequency to a MIDI note number.
     def frequency_to_midi(frequency)
       69 + (12 * Math.log2(frequency / 440.0)).round
-    end
-
-   def calculate_attack_amplitude(...)
-      # Attack phase logic
-    end
-
-    def calculate_decay_amplitude(...)
-      # Decay phase logic
-    end
-
-    def calculate_sustain_amplitude(...)
-      # Sustain phase logic
-    end
-
-    def calculate_release_amplitude(...)
-      # Release phase logic
     end
 
     # Convert a MIDI note number to a frequency.
