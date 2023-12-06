@@ -180,12 +180,11 @@ module SidtoolExperimental
       @current_synth.release = release
     end
 
-    def finish_frame
-      # Process this voice's contribution to the audio for this frame
-      # Add the output to the SID's audio buffer
-      # Note: This is just a placeholder, actual implementation will depend on SID's audio synthesis logic
-      @sid6581.audio_buffer << generate_frame_output
-    end
+def finish_frame
+  output = generate_frame_output
+  puts "Generated output: #{output.inspect}"
+  @sid6581.audio_buffer << output
+end
 
    def oscillator_bit_19_high?
       # Implement the logic to check if oscillator bit 19 is high
