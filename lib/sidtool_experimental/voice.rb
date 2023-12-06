@@ -232,6 +232,32 @@ end
       output_sample
     end
 
+ # Implementation of calculate_phase
+  def calculate_phase
+    # Assuming you have access to the current frame and sample rate
+    current_time = @sid6581.current_frame.to_f / AUDIO_SAMPLE_RATE
+
+    # Calculate frequency in Hertz (cycles per second)
+    frequency_hz = calculate_frequency_hz
+
+    # Calculate phase
+    # Phase is the fractional part of the time multiplied by frequency
+    phase = (current_time * frequency_hz) % 1.0
+
+    phase
+  end
+
+ # Method to calculate frequency in Hertz
+  def calculate_frequency_hz
+    # Convert frequency_low and frequency_high to a single value
+    frequency_value = (@frequency_high << 8) | @frequency_low
+
+    # Convert the frequency value to Hertz (this conversion depends on the SID chip's specifics)
+    frequency_hz = frequency_value  # Placeholder, replace with actual conversion logic
+
+    frequency_hz
+  end
+
     private
 
   def generate_triangle_wave(phase)
