@@ -26,6 +26,22 @@ module SidtoolExperimental
       @previous_midi_note = nil
     end
 
+  def generate_waveform(phase)
+      case control_register & 0x0F # Assuming control_register holds the waveform type
+      when WAVEFORM_TRIANGLE
+        generate_triangle_wave(phase)
+      when WAVEFORM_SAWTOOTH
+        generate_sawtooth_wave(phase)
+      when WAVEFORM_PULSE
+        generate_pulse_wave(phase)
+      when WAVEFORM_NOISE
+        generate_noise_wave(phase)
+      else
+        0 # No waveform selected
+      end
+    end
+
+
     def update_from_synth(synth_params)
       # Initialize a new Synth instance if @synth is nil
       @synth ||= Synth.new(STATE.current_frame)
@@ -81,6 +97,22 @@ module SidtoolExperimental
     end
 
     private
+
+    def generate_triangle_wave(phase)
+      # Triangle waveform generation logic
+    end
+
+    def generate_sawtooth_wave(phase)
+      # Sawtooth waveform generation logic
+    end
+
+    def generate_pulse_wave(phase)
+      # Pulse waveform generation logic, considering pulse width
+    end
+
+    def generate_noise_wave(phase)
+      # Noise waveform generation logic
+    end
 
     # Convert a frequency to a MIDI note number.
     def frequency_to_midi(frequency)
