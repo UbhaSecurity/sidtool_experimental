@@ -15,13 +15,14 @@ module SidtoolExperimental
       initialize_vectors
     end
 
-    def update
-      update_timers
-      handle_timer_events
-      update_sid
-      handle_interrupts
-      increment_frame
-    end
+def update
+  update_timers
+  handle_timer_interrupts  # New method to handle timer interrupts
+  handle_timer_events
+  update_sid
+  handle_interrupts
+  increment_frame
+end
 
     def read_sid_register(address)
       @sid6581.read_sid_register(address)
