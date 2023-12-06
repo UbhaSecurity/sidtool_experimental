@@ -8,7 +8,7 @@ module SidtoolExperimental
     # Define arrays to store the conversion values for attack and decay/release
     ATTACK_VALUES = [0.002, 0.008, 0.016, 0.024, 0.038, 0.056, 0.068, 0.08, 0.1, 0.25, 0.5, 0.8, 1, 3, 5, 8]
     DECAY_RELEASE_VALUES = [0.006, 0.024, 0.048, 0.072, 0.114, 0.168, 0.204, 0.24, 0.3, 0.75, 1.5, 2.4, 3, 9, 15, 24]
-
+   LFSR_STATE_BITS = 23
     # Initialize a new Voice instance with a reference to the SID chip and its voice number.
     #
     # @param sid6581 [Sid6581] Reference to the SID chip instance.
@@ -25,6 +25,9 @@ module SidtoolExperimental
       @filter_resonance = 8
       @filter_enabled = false  # Added filter_enabled flag
       @previous_midi_note = nil
+
+      # Initialize the LFSR state to a non-zero value
+      @lfsr_state = 0b10101010101010101010101  # Replace with your initial value
     end
 
     def generate_waveform(phase)
@@ -183,19 +186,11 @@ module SidtoolExperimental
       # Note: This is just a placeholder, actual implementation will depend on SID's audio synthesis logic
       @sid6581.audio_buffer << generate_frame_output
 
-  def oscillator_bit_19_high?
-    # Implement the logic to check if oscillator bit 19 is high
-    # This logic depends on your specific SID chip model and how bit 19 is accessed
-
-    # For example, if oscillator_state represents the current state of oscillator bits:
-    oscillator_state = 0b10101010101010101010101  # Replace with the actual oscillator state
-
-    # Extract bit 19 (assuming it's the most significant bit)
-    bit_19 = (oscillator_state >> 19) & 0x01
-
-    # Check if bit 19 is high (1)
-    bit_19 == 1
-  end
+   def oscillator_bit_19_high?
+      # Implement the logic to check if oscillator bit 19 is high
+      bit_19 = (@lfsr_state >> 19) & 0x01
+      bit_19 == 1
+    end
 
 
     private
@@ -391,30 +386,31 @@ end
       output_sample
     end
 
- def generate_noise_wave
-    # Clock the LFSR when bit 19 of the oscillator goes high
-    clock_lfsr if oscillator_bit_19_high?
+ def generate_noise_wave(phase)
+      # Clock the LFSR when bit 19 of the oscillator goes high
+      clock_lfsr if oscillator_bit_19_high?
 
-    # Output the selected bits (0, 2, 5, 9, 11, 14, 18, 20)
-    noise_output = (
-      ((@lfsr_state >> 0) & 0x01) << 0 |
-      ((@lfsr_state >> 2) & 0x01) << 2 |
-      ((@lfsr_state >> 5) & 0x01) << 5 |
-      ((@lfsr_state >> 9) & 0x01) << 9 |
-      ((@lfsr_state >> 11) & 0x01) << 11 |
-      ((@lfsr_state >> 14) & 0x01) << 14 |
-      ((@lfsr_state >> 18) & 0x01) << 18 |
-      ((@lfsr_state >> 20) & 0x01) << 20
-    )
+      # Output the selected bits (0, 2, 5, 9, 11, 14, 18, 20)
+      noise_output = (
+        ((@lfsr_state >> 0) & 0x01) << 0 |
+        ((@lfsr_state >> 2) & 0x01) << 2 |
+        ((@lfsr_state >> 5) & 0x01) << 5 |
+        ((@lfsr_state >> 9) & 0x01) << 9 |
+        ((@lfsr_state >> 11) & 0x01) << 11 |
+        ((@lfsr_state >> 14) & 0x01) << 14 |
+        ((@lfsr_state >> 18) & 0x01) << 18 |
+        ((@lfsr_state >> 20) & 0x01) << 20
+      )
 
-    # Invert the output to match the provided logic
-    inverted_output = invert_bits(noise_output)
+      # Invert the output to match the provided logic
+      inverted_output = invert_bits(noise_output)
 
-    # Convert to the range -1 to 1
-    normalized_output = (inverted_output * 2.0) - 1.0
+      # Convert to the range -1 to 1
+      normalized_output = (inverted_output * 2.0) - 1.0
 
-    normalized_output
-  end
+      normalized_output
+    end
+
 
   def handle_midi_note_change(new_midi_note)
     # You can add your custom logic here to respond to MIDI note changes.
@@ -438,29 +434,21 @@ end
     440.0 * 2 ** ((midi_note - 69) / 12.0)
   end
 
-
   # Clock the LFSR by one step
-  def clock_lfsr
-    bit0 = (@lfsr_state >> 0) & 0x01
-    bit17 = (@lfsr_state >> 17) & 0x01
-    bit22 = (@lfsr_state >> 22) & 0x01
+    def clock_lfsr
+      bit0 = (@lfsr_state >> 0) & 0x01
+      bit17 = (@lfsr_state >> 17) & 0x01
+      bit22 = (@lfsr_state >> 22) & 0x01
 
-    # Calculate the new bit0 value based on the provided logic
-    new_bit0 = (bit17 ^ (bit0 | bit22)) & 0x01
+      # Calculate the new bit0 value based on the provided logic
+      new_bit0 = (bit17 ^ (bit0 | bit22)) & 0x01
 
-    # Shift the LFSR one bit to the right
-    @lfsr_state >>= 1
+      # Shift the LFSR one bit to the right
+      @lfsr_state >>= 1
 
-    # Set the new bit0 value in the LFSR
-    @lfsr_state |= (new_bit0 << (LFSR_STATE_BITS - 1))
-  end
-
-  # Check if oscillator bit 19 is high
-  def oscillator_bit_19_high?
-    # Implement the logic to check if oscillator bit 19 is high
-    # This logic was described in a previous response
-    # Return true if bit 19 is high, false otherwise
-  end
+      # Set the new bit0 value in the LFSR
+      @lfsr_state |= (new_bit0 << (LFSR_STATE_BITS - 1))
+    end
 
   # Invert the bits of a given value
   def invert_bits(value)
