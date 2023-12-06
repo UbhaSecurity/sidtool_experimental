@@ -50,6 +50,17 @@ module SidtoolExperimental
       end
     end
 
+    def update_register(register_index, value)
+      # Logic to update SID register based on index and value
+      case register_index
+      when 0..28 # SID has 29 registers (0 to 28)
+        # Update the corresponding SID register
+        # Example: @voices[voice_index].set_frequency_low(value) for a frequency low register
+      else
+        raise "Invalid SID register index: #{register_index}"
+      end
+    end
+
     def handle_sid_register_error(error_message)
       # You can customize this error handling logic based on your requirements.
       # For example, you can raise an exception with the error message.
