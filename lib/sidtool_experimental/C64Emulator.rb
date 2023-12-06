@@ -27,7 +27,7 @@ module SidtoolExperimental
 
     def run
       @cpu.reset                                   # Reset CPU
-      until @state.emulation_finished?            # Run until emulation is finished
+        until @state.emulation_finished
         @cpu.step                                 # Execute CPU cycle
         emulate_cycle                             # Execute additional emulation cycle
       end
