@@ -50,6 +50,12 @@ module SidtoolExperimental
       end
     end
 
+    def handle_sid_register_error(error_message)
+      # You can customize this error handling logic based on your requirements.
+      # For example, you can raise an exception with the error message.
+      raise StandardError, "SID Register Error: #{error_message}"
+    end
+
     # Set the low byte of the frequency for a specific voice
     def set_frequency_low(voice_number, value)
       freq_lo_address = calculate_register_address('FREQ_LO', voice_number)
