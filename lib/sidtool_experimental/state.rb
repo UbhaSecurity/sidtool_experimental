@@ -105,9 +105,9 @@ module SidtoolExperimental
 
     def handle_irq
       if @cpu.irq_pending? && !@interrupt_flag
-      @cpu.save_state
-      @cpu.jump_to_address(@irq_vector)
-      @cpu.restore_state
+        @cpu.save_state
+        @cpu.jump_to_address(@irq_vector)
+        @cpu.restore_state
       end
     end
 
