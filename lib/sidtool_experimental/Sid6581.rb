@@ -78,8 +78,8 @@ def generate_sound
 
   # Finish the frame for each voice and collect their outputs
   @voices.each do |voice|
-    voice.finish_frame
-    voice_outputs << voice.output
+    frame_output = voice.generate_frame_output  # Calling on voice object
+    @audio_buffer << frame_output               # Add output to buffer
   end
 
   # Mix the outputs of all voices to obtain the final audio signal
