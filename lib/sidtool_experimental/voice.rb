@@ -247,16 +247,15 @@ end
     phase
   end
 
- # Method to calculate frequency in Hertz
-  def calculate_frequency_hz
-    # Convert frequency_low and frequency_high to a single value
-    frequency_value = (@frequency_high << 8) | @frequency_low
+def calculate_frequency_hz
+  # Convert frequency_low and frequency_high to a 16-bit value
+  frequency_value = (@frequency_high << 8) | @frequency_low
 
-    # Convert the frequency value to Hertz (this conversion depends on the SID chip's specifics)
-    frequency_hz = frequency_value  # Placeholder, replace with actual conversion logic
+  # Calculate frequency in Hertz using the formula
+  frequency_hz = frequency_value * 0.0596
 
-    frequency_hz
-  end
+  frequency_hz
+end
 
     private
 
