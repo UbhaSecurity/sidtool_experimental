@@ -93,6 +93,15 @@ module SidtoolExperimental
     end
   end
 
+  def self.handle_export_and_emulation(emulator, options)
+    if options[:info]
+      display_file_info(emulator, options)
+    else
+      exporter = EXPORTERS[options[:format]]
+      emulate(emulator, options[:frames], exporter, options[:out], options[:song])
+    end
+  end
+
  def self.parse_arguments
     options = { frames: DEFAULT_FRAME_COUNT, format: 'ruby', info: false, out: nil, song: nil, test_mode: false }
     OptionParser.new do |opts|
