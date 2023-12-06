@@ -59,6 +59,7 @@ module SidtoolExperimental
         initialize_instructions
         @halt = false
         @irq_flag = false
+        @nmi_flag = false
         puts "CPU initialization completed."
       end
 
@@ -314,12 +315,27 @@ end
         (@registers[:P] & Flags::INTERRUPT_DISABLE) != 0
       end
 
- # Method to clear the IRQ flag (typically called after handling the IRQ)
+       # Method to clear the IRQ flag (typically called after handling the IRQ)
       def clear_irq_flag
         @irq_flag = false
       end
 
- # Method to load a program into the CPU's memory
+      # Method to signal an NMI (Non-Maskable Interrupt)
+      def signal_nmi
+        @nmi_flag = true
+      end
+
+      # Method to clear the NMI flag (typically called after handling the NMI)
+      def clear_nmi_flag
+        @nmi_flag = false
+      end
+
+      # Method to check if an NMI is pending
+      def nmi_pending?
+        @nmi_flag
+      end
+
+       # Method to load a program into the CPU's memory
       def load_program(program_data, start_address)
         raise 'Invalid program data' unless program_data.is_a?(Array)
         raise 'Invalid start address' unless valid_address?(start_address)
