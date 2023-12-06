@@ -263,7 +263,33 @@ def combine_triangle_bits(triangle_bits)
   triangle_waveform
 end
 
+def get_ring_modulating_oscillator_msb(modulating_voice_number)
+  # Determine the oscillator value (upper 12 bits) of the modulating voice
+  modulating_oscillator_value = get_modulating_oscillator_value(modulating_voice_number)
 
+  # Determine the MSB of the modulating voice's oscillator
+  modulating_oscillator_msb = calculate_modulating_oscillator_msb(modulating_oscillator_value)
+
+  modulating_oscillator_msb
+end
+
+# Method to get the oscillator value (upper 12 bits) of the modulating voice
+def get_modulating_oscillator_value(modulating_voice_number)
+  # Implement logic to retrieve the oscillator value of the modulating voice
+  # This may involve accessing the corresponding voice's oscillator registers
+  # Return the oscillator value
+end
+
+# Method to calculate the MSB of the modulating voice's oscillator
+def calculate_modulating_oscillator_msb(modulating_oscillator_value)
+  # Implement the XOR logic as described in the technical details
+  # to calculate the MSB of the modulating voice's oscillator
+  tri_xor = (~modulating_oscillator_value & @oscillator_msb) | (modulating_oscillator_value & ~@oscillator_msb)
+  modulating_oscillator_msb = tri_xor ^ modulating_oscillator_value[11]
+
+  modulating_oscillator_msb
+end
+      
     def generate_sawtooth_wave(phase)
       # Sawtooth waveform generation logic
       # Assuming phase is a value between 0 and 1 representing the current phase position
