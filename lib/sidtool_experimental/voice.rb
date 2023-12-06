@@ -210,27 +210,24 @@ end
       bit_19 == 1
     end
 
-   def generate_frame_output
-      # Initialize the output sample as 0.0
-      output_sample = 0.0
+ def generate_frame_output
+    # Calculate the current phase of the waveform
+    current_time = @c64emulator.current_frame.to_f / AUDIO_SAMPLE_RATE
+    frequency = calculate_frequency # Implement this method based on Freq Lo/Hi registers
+    phase = (current_time * frequency) % 1.0
 
-      # Calculate the phase based on some parameters (e.g., frequency, waveform)
-      phase = calculate_phase
+    # Generate the waveform sample based on the current phase
+    waveform_sample = generate_waveform(phase) # Implement waveform generation (e.g., triangle, sawtooth, pulse, noise)
 
-      # Generate the waveform based on the current phase
-      waveform_sample = generate_waveform(phase)
+    # Apply the ADSR envelope to the waveform sample
+    adsr_amplitude = process_adsr(@c64emulator.current_frame) # Implement ADSR processing
 
-      # Apply ADSR envelope to the waveform sample
-      adsr_amplitude = process_adsr(sample_rate)
+    # Combine the waveform sample with the ADSR envelope
+    final_sample = waveform_sample * adsr_amplitude
 
-      # Combine the waveform sample with the ADSR envelope
-      output_sample = waveform_sample * adsr_amplitude
-
-      # Optionally, apply any additional effects or filters here
-
-      # Return the final audio sample for this frame
-      output_sample
-    end
+    # Return the final audio sample for this frame
+    final_sample
+  end
 
 # Implementation of calculate_phase
 def calculate_phase(current_frame, audio_sample_rate, frequency_hz)
