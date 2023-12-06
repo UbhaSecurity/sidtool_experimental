@@ -219,22 +219,32 @@ module SidtoolExperimental
 
 def generate_sound
   sample_rate = AUDIO_SAMPLE_RATE
+
+  # Initialize an array to store the output of each voice
+  voice_outputs = []
+
+  # Finish the frame for each voice and collect their outputs
   @voices.each do |voice|
     voice.finish_frame
+    voice_outputs << voice.output
   end
 
-  # Add the mixed output of this frame to the audio buffer
-  process_audio(sample_rate).each do |sample|
-    @audio_buffer << sample
-  end
+  # Mix the outputs of all voices to obtain the final audio signal
+  mixed_output = mix_voices(voice_outputs)
+
+  # Apply global effects (filter and volume)
+  processed_audio = apply_global_effects([mixed_output])
+
+  # Add the processed audio to the audio buffer
+  @audio_buffer.concat(processed_audio)
 
   # Optionally, handle the buffer size to avoid excessive memory usage
   if @audio_buffer.size > MAX_BUFFER_SIZE
     output_sound  # Output the buffer to a file or audio device
     @audio_buffer.clear  # Clear the buffer after outputting
   end
-
 end
+
 
     def mix_voices(voice_outputs)
       # Implement the logic to mix voice outputs
