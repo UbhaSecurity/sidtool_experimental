@@ -354,19 +354,30 @@ def calculate_pulse_width
   pulse_width
 end
 
-    def generate_noise_wave(_phase)
-      # Noise waveform generation logic
-      # In a noise waveform, the value is typically random at each time step
+ def generate_noise_wave
+    # Clock the LFSR when bit 19 of the oscillator goes high
+    clock_lfsr if oscillator_bit_19_high?
 
-      # You can use a pseudorandom number generator or a noise source
-      # to generate random values for the noise waveform
-      # Here, we'll use Ruby's built-in random number generator for simplicity
+    # Output the selected bits (0, 2, 5, 9, 11, 14, 18, 20)
+    noise_output = (
+      ((@lfsr_state >> 0) & 0x01) << 0 |
+      ((@lfsr_state >> 2) & 0x01) << 2 |
+      ((@lfsr_state >> 5) & 0x01) << 5 |
+      ((@lfsr_state >> 9) & 0x01) << 9 |
+      ((@lfsr_state >> 11) & 0x01) << 11 |
+      ((@lfsr_state >> 14) & 0x01) << 14 |
+      ((@lfsr_state >> 18) & 0x01) << 18 |
+      ((@lfsr_state >> 20) & 0x01) << 20
+    )
 
-      # Generate a random value between -1.0 and 1.0
-      amplitude = (rand * 2.0) - 1.0
+    # Invert the output to match the provided logic
+    inverted_output = invert_bits(noise_output)
 
-      amplitude
-    end
+    # Convert to the range -1 to 1
+    normalized_output = (inverted_output * 2.0) - 1.0
+
+    normalized_output
+  end
 
   def handle_midi_note_change(new_midi_note)
     # You can add your custom logic here to respond to MIDI note changes.
@@ -389,5 +400,37 @@ end
   def midi_to_frequency(midi_note)
     440.0 * 2 ** ((midi_note - 69) / 12.0)
   end
+
+private
+
+  # Clock the LFSR by one step
+  def clock_lfsr
+    bit0 = (@lfsr_state >> 0) & 0x01
+    bit17 = (@lfsr_state >> 17) & 0x01
+    bit22 = (@lfsr_state >> 22) & 0x01
+
+    # Calculate the new bit0 value based on the provided logic
+    new_bit0 = (bit17 ^ (bit0 | bit22)) & 0x01
+
+    # Shift the LFSR one bit to the right
+    @lfsr_state >>= 1
+
+    # Set the new bit0 value in the LFSR
+    @lfsr_state |= (new_bit0 << (LFSR_STATE_BITS - 1))
+  end
+
+  # Check if oscillator bit 19 is high
+  def oscillator_bit_19_high?
+    # Implement the logic to check if oscillator bit 19 is high
+    # This logic was described in a previous response
+    # Return true if bit 19 is high, false otherwise
+  end
+
+  # Invert the bits of a given value
+  def invert_bits(value)
+    (~value) & ((1 << LFSR_STATE_BITS) - 1)
+  end
+end
+
   end
 end
