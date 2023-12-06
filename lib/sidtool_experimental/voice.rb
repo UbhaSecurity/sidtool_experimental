@@ -290,17 +290,35 @@ def calculate_modulating_oscillator_msb(modulating_oscillator_value)
   modulating_oscillator_msb
 end
       
-    def generate_sawtooth_wave(phase)
-      # Sawtooth waveform generation logic
-      # Assuming phase is a value between 0 and 1 representing the current phase position
+  def generate_sawtooth_wave(phase)
+    # Assuming phase is a value between 0 and 1 representing the current phase position
 
-      # Calculate the value of the sawtooth wave based on phase
-      amplitude = phase * 2.0 - 1.0
+    # Calculate the oscillator value (upper 12 bits) based on the current phase
+    oscillator_value = (phase * 0xFFF).to_i & 0xFFF
 
-      # Ensure the amplitude is within the -1 to 1 range
-      [amplitude, -1.0].max
-      [amplitude, 1.0].min
+    # Calculate the MSB of the oscillator
+    oscillator_msb = oscillator_value >> 11
+
+    # Check if ring modulation is enabled (Bit 2 of the Control Register)
+    if (@control_register & 0x04) == 0x04
+      # If ring modulation is enabled, obtain the MSB of the ring modulating voice's oscillator
+      modulating_oscillator_msb = get_ring_modulating_oscillator_msb(modulating_voice_number)
+      # XOR the MSBs to produce non-harmonic overtones
+      oscillator_msb ^= modulating_oscillator_msb
     end
+
+    # Calculate the amplitude based on the MSB of the oscillator
+    amplitude = oscillator_msb.to_f / 0xFFF.to_f * 2.0 - 1.0
+
+    amplitude
+  end
+
+  # Helper method to get the MSB of the ring modulating voice's oscillator
+  def get_ring_modulating_oscillator_msb(modulating_voice_number)
+    # Implement the logic to retrieve the MSB of the modulating voice's oscillator
+    # This logic was described in a previous response
+    # Return the MSB value
+  end
 
 def generate_pulse_wave(phase)
   # Calculate the Pulse Width value from the PulseWidth register bits (12-bit value)
