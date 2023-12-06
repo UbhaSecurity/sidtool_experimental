@@ -37,8 +37,9 @@ module SidtoolExperimental
     end
 
     def handle_interrupts
-      handle_irq if irq_pending? && !@interrupt_flag
-      handle_nmi if nmi_pending?
+      # Call irq_pending? and nmi_pending? on the @cpu instance
+      handle_irq if @cpu.irq_pending? && !@interrupt_flag
+      handle_nmi if @cpu.nmi_pending?
     end
 
     def generate_interrupt(source)
@@ -103,6 +104,7 @@ module SidtoolExperimental
       # Implement the specific action or task for Timer 1
     end
 
+    # Modify the handle_irq method to use @cpu for handling IRQs
     def handle_irq
       if @cpu.irq_pending? && !@interrupt_flag
         @cpu.save_state
@@ -111,12 +113,13 @@ module SidtoolExperimental
       end
     end
 
+    # Modify the handle_nmi method to use @cpu for handling NMIs
     def handle_nmi
       if @cpu.nmi_pending?
         @cpu.save_state
         @cpu.jump_to_address(@nmi_vector)
         @cpu.restore_state
       end
-    end
+    end    
   end
 end
