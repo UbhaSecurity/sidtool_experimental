@@ -198,80 +198,79 @@ module SidtoolExperimental
       end
     end
 
-def generate_sound
-  sample_rate = AUDIO_SAMPLE_RATE # Define or get the sample rate
-  @voices.each do |voice|
-    voice.finish_frame # Finish processing the current frame for each voice
-  end
-  process_audio(sample_rate) # Process and mix audio samples from all voices
-end
+    def generate_sound
+      sample_rate = AUDIO_SAMPLE_RATE # Define or get the sample rate
+      @voices.each do |voice|
+        voice.finish_frame # Finish processing the current frame for each voice
+      end
+      process_audio(sample_rate) # Process and mix audio samples from all voices
+    end
 
-   def process_audio(sample_rate)
-  mixed_output = []
+    def process_audio(sample_rate)
+      mixed_output = []
 
-  # Process each voice and collect their output
-  @voices.each do |voice|
-    phase = calculate_phase(voice, sample_rate)
-    waveform_output = voice.generate_waveform(phase)
-    adsr_output = process_adsr(voice, sample_rate)
-    voice_output = waveform_output * adsr_output
+      # Process each voice and collect their output
+      @voices.each do |voice|
+        phase = calculate_phase(voice, sample_rate)
+        waveform_output = voice.generate_waveform(phase)
+        adsr_output = process_adsr(voice, sample_rate)
+        voice_output = waveform_output * adsr_output
 
-    # Collect voice output for mixing
-    mixed_output << voice_output
-  end
+        # Collect voice output for mixing
+        mixed_output << voice_output
+      end
 
-  # Mix the outputs from all voices
-  final_output = mix_voices(mixed_output)
+      # Mix the outputs from all voices
+      final_output = mix_voices(mixed_output)
 
-  # Apply global filters and volume adjustment
-  processed_output = apply_global_effects(final_output)
+      # Apply global filters and volume adjustment
+      processed_output = apply_global_effects(final_output)
 
-  # Return or store the processed audio output
-  return processed_output # or store it in an audio buffer
-end
+      # Return or store the processed audio output
+      return processed_output # or store it in an audio buffer
+    end
 
-def mix_voices(voice_outputs)
-  # Implement the logic to mix voice outputs
-  # For example, calculate the average or sum of the outputs
-  voice_outputs.reduce(:+) # Simple sum of outputs
-end
+    def mix_voices(voice_outputs)
+      # Implement the logic to mix voice outputs
+      # For example, calculate the average or sum of the outputs
+      voice_outputs.reduce(:+) # Simple sum of outputs
+    end
 
-def apply_global_effects(audio_signal)
-  # Apply global filters and volume adjustments
-  filtered_signal = apply_global_filter(audio_signal)
-  volume_adjusted_signal = filtered_signal * @global_volume
-  volume_adjusted_signal
-end
+    def apply_global_effects(audio_signal)
+      # Apply global filters and volume adjustments
+      filtered_signal = apply_global_filter(audio_signal)
+      volume_adjusted_signal = filtered_signal * @global_volume
+      volume_adjusted_signal
+    end
 
-def apply_global_filter(audio_signal)
-  # Assuming @global_filter_cutoff is the cutoff frequency and it's already scaled appropriately
-  cutoff_frequency = @global_filter_cutoff
-  resonance = @global_filter_resonance
+    def apply_global_filter(audio_signal)
+      # Assuming @global_filter_cutoff is the cutoff frequency and it's already scaled appropriately
+      cutoff_frequency = @global_filter_cutoff
+      resonance = @global_filter_resonance
 
-  # Initialize filter state variables if they don't exist
-  @filter_state ||= { last_output: 0.0, last_input: 0.0 }
+      # Initialize filter state variables if they don't exist
+      @filter_state ||= { last_output: 0.0, last_input: 0.0 }
 
-  # Calculate filter coefficients
-  dt = 1.0 / AUDIO_SAMPLE_RATE
-  rc = 1.0 / (2 * Math::PI * cutoff_frequency)
-  alpha = dt / (rc + dt)
+      # Calculate filter coefficients
+      dt = 1.0 / AUDIO_SAMPLE_RATE
+      rc = 1.0 / (2 * Math::PI * cutoff_frequency)
+      alpha = dt / (rc + dt)
 
-  # Apply the filter to the audio signal
-  filtered_signal = audio_signal.map do |sample|
-    low_pass = @filter_state[:last_output] + alpha * (sample - @filter_state[:last_output])
-    band_pass = (sample - @filter_state[:last_input]) - low_pass
-    high_pass = sample - low_pass - resonance * band_pass
+      # Apply the filter to the audio signal
+      filtered_signal = audio_signal.map do |sample|
+        low_pass = @filter_state[:last_output] + alpha * (sample - @filter_state[:last_output])
+        band_pass = (sample - @filter_state[:last_input]) - low_pass
+        high_pass = sample - low_pass - resonance * band_pass
 
-    # Update filter state
-    @filter_state[:last_output] = low_pass
-    @filter_state[:last_input] = sample
+        # Update filter state
+        @filter_state[:last_output] = low_pass
+        @filter_state[:last_input] = sample
 
-    # Depending on your requirement, return low_pass, band_pass or high_pass
-    low_pass # This line can be changed to select the filter type
-  end
+        # Depending on your requirement, return low_pass, band_pass, or high_pass
+        low_pass # This line can be changed to select the filter type
+      end
 
-  filtered_signal
-end
-
+      filtered_signal
+    end
   end
 end
