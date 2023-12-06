@@ -185,6 +185,7 @@ module SidtoolExperimental
       # Add the output to the SID's audio buffer
       # Note: This is just a placeholder, actual implementation will depend on SID's audio synthesis logic
       @sid6581.audio_buffer << generate_frame_output
+    end
 
    def oscillator_bit_19_high?
       # Implement the logic to check if oscillator bit 19 is high
