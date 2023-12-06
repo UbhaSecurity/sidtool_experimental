@@ -52,7 +52,7 @@ module SidtoolExperimental
 
       puts "C64Emulator instance created."
 
-      @c64_emulator.load_sid_file(input_file)  # Corrected to pass only the file path
+      @c64_emulator.load_sid_file(input_file, @state)  # Corrected to pass only the file path
     rescue StandardError => e
       puts "Error: An error occurred while loading the SID file: #{e.message}"
       exit(1)
