@@ -183,6 +183,21 @@ module SidtoolExperimental
       # Note: This is just a placeholder, actual implementation will depend on SID's audio synthesis logic
       @sid6581.audio_buffer << generate_frame_output
 
+  def oscillator_bit_19_high?
+    # Implement the logic to check if oscillator bit 19 is high
+    # This logic depends on your specific SID chip model and how bit 19 is accessed
+
+    # For example, if oscillator_state represents the current state of oscillator bits:
+    oscillator_state = 0b10101010101010101010101  # Replace with the actual oscillator state
+
+    # Extract bit 19 (assuming it's the most significant bit)
+    bit_19 = (oscillator_state >> 19) & 0x01
+
+    # Check if bit 19 is high (1)
+    bit_19 == 1
+  end
+
+
     private
 
   def generate_triangle_wave(phase)
@@ -401,7 +416,6 @@ end
     440.0 * 2 ** ((midi_note - 69) / 12.0)
   end
 
-private
 
   # Clock the LFSR by one step
   def clock_lfsr
