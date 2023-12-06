@@ -296,4 +296,3 @@ module SidtoolExperimental
       filtered_signal
     end
   end
-end
