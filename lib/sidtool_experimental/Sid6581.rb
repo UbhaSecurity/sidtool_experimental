@@ -282,6 +282,7 @@ end
       dt = 1.0 / AUDIO_SAMPLE_RATE
       rc = 1.0 / (2 * Math::PI * cutoff_frequency)
       alpha = dt / (rc + dt)
+      sample = 0
 
       # Apply the filter to the audio signal
       filtered_signal = audio_signal.map do |sample|
