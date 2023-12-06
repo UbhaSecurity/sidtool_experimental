@@ -93,6 +93,30 @@ module SidtoolExperimental
     end
   end
 
+ def self.parse_arguments
+    options = { frames: DEFAULT_FRAME_COUNT, format: 'ruby', info: false, out: nil, song: nil, test_mode: false }
+    OptionParser.new do |opts|
+      opts.banner = "Usage: sidtool_experimental [options] <inputfile.sid>"
+      opts.on('-i', '--info', 'Show file information') { options[:info] = true }
+      opts.on('--format FORMAT', 'Output format, "ruby" or "midi"') do |format|
+        options[:format] = format.downcase
+        unless EXPORTERS.key?(options[:format])
+          puts "Invalid format specified. Supported formats: ruby, midi."
+          exit(1)
+        end
+      end
+      opts.on('-o', '--out FILENAME', 'Output file') { |out| options[:out] = out }
+      opts.on('-s', '--song NUMBER', Integer, 'Song number to process (defaults to the start song in the file)') { |song| options[:song] = song }
+      opts.on('-f', '--frames NUMBER', Integer, "Number of frames to process (default #{DEFAULT_FRAME_COUNT})") { |frames| options[:frames] = frames }
+      opts.on('-t', '--test', 'Run in test mode (SID emulation only)') { options[:test_mode] = true }
+      opts.on_tail('-h', '--help', 'Show this message') do
+        puts opts
+        exit
+      end
+    end.parse!
+    options
+  end
+
   # ... additional methods and classes as needed ...
 end
 
