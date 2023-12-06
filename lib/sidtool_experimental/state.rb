@@ -72,9 +72,10 @@ module SidtoolExperimental
 
     private
 
-    def update_timers
-      @cia_timers.each(&:update) if @cia_timers
-    end
+def update_timers
+  puts "Updating timers: #{@cia_timers}"
+  @cia_timers.each { |timer| timer.update if timer }
+end
 
 def handle_timer_events
  
