@@ -102,6 +102,16 @@ module SidtoolExperimental
     end
   end
 
+def self.emulate(emulator, frame_limit, exporter, output_file, song_number)
+    frame_count = 0
+    loop do
+      break if frame_count >= frame_limit
+      emulator.run_cycle
+      frame_count += 1
+    end
+    exporter.export(output_file, emulator.state)
+  end
+
  def self.parse_arguments
     options = { frames: DEFAULT_FRAME_COUNT, format: 'ruby', info: false, out: nil, song: nil, test_mode: false }
     OptionParser.new do |opts|
