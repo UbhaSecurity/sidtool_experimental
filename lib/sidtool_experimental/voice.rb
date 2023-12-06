@@ -178,20 +178,65 @@ module SidtoolExperimental
 
     private
 
-    def generate_triangle_wave(phase)
+     def generate_triangle_wave(phase)
       # Triangle waveform generation logic
+      # Assuming phase is a value between 0 and 1 representing the current phase position
+
+      # Calculate the value of the triangle wave based on phase
+      if phase < 0.25
+        amplitude = phase * 4.0
+      elsif phase < 0.75
+        amplitude = 1.0 - (phase - 0.25) * 4.0
+      else
+        amplitude = (phase - 0.75) * 4.0 - 1.0
+      end
+
+      # Ensure the amplitude is within the -1 to 1 range
+      [amplitude, -1.0].max
+      [amplitude, 1.0].min
     end
 
     def generate_sawtooth_wave(phase)
       # Sawtooth waveform generation logic
+      # Assuming phase is a value between 0 and 1 representing the current phase position
+
+      # Calculate the value of the sawtooth wave based on phase
+      amplitude = phase * 2.0 - 1.0
+
+      # Ensure the amplitude is within the -1 to 1 range
+      [amplitude, -1.0].max
+      [amplitude, 1.0].min
     end
 
     def generate_pulse_wave(phase)
       # Pulse waveform generation logic, considering pulse width
+      # Assuming phase is a value between 0 and 1 representing the current phase position
+      # Assuming pulse_width is a value between 0 and 1 representing the pulse width
+
+      pulse_width = (@pulse_low + @pulse_high * 256) / 65535.0
+
+      # Calculate the value of the pulse wave based on phase and pulse width
+      if phase < pulse_width
+        amplitude = 1.0
+      else
+        amplitude = -1.0
+      end
+
+      amplitude
     end
 
-    def generate_noise_wave(phase)
+    def generate_noise_wave(_phase)
       # Noise waveform generation logic
+      # In a noise waveform, the value is typically random at each time step
+
+      # You can use a pseudorandom number generator or a noise source
+      # to generate random values for the noise waveform
+      # Here, we'll use Ruby's built-in random number generator for simplicity
+
+      # Generate a random value between -1.0 and 1.0
+      amplitude = (rand * 2.0) - 1.0
+
+      amplitude
     end
 
     # Convert a frequency to a MIDI note number.
