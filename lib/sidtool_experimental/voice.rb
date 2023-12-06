@@ -2,7 +2,7 @@ module SidtoolExperimental
   class Voice
     attr_accessor :frequency_low, :frequency_high, :pulse_low, :pulse_high
     attr_accessor :control_register, :attack_decay, :sustain_release
-    attr_accessor :filter_cutoff, :filter_resonance  # New filter parameters
+    attr_accessor :filter_cutoff, :filter_resonance, :filter_enabled  # New filter parameters
     attr_reader :synths
 
     # Define arrays to store the conversion values for attack and decay/release
@@ -23,10 +23,11 @@ module SidtoolExperimental
       @attack_decay = @sustain_release = 0
       @filter_cutoff = 1024
       @filter_resonance = 8
+      @filter_enabled = false  # Added filter_enabled flag
       @previous_midi_note = nil
     end
 
-  def generate_waveform(phase)
+    def generate_waveform(phase)
       case control_register & 0x0F # Assuming control_register holds the waveform type
       when WAVEFORM_TRIANGLE
         generate_triangle_wave(phase)
@@ -41,7 +42,7 @@ module SidtoolExperimental
       end
     end
 
- def process_adsr(sample_rate)
+    def process_adsr(sample_rate)
       # Determine the current elapsed time in seconds since the note started
       elapsed_time = (STATE.current_frame - @start_frame) / sample_rate.to_f
 
@@ -121,7 +122,6 @@ module SidtoolExperimental
       end
     end
 
-
     def update_from_synth(synth_params)
       # Initialize a new Synth instance if @synth is nil
       @synth ||= Synth.new(STATE.current_frame)
@@ -131,6 +131,7 @@ module SidtoolExperimental
       self.pulse_low, self.pulse_high = split_pulse_width(synth_params[:pulse_width])
       @filter_cutoff = synth_params[:filter_cutoff]
       @filter_resonance = synth_params[:filter_resonance]
+      @filter_enabled = synth_params[:filter_enabled]  # Update filter_enabled flag
       @osc_sync = synth_params[:osc_sync]
       @ring_mod_effect = synth_params[:ring_mod_effect]
 
@@ -152,8 +153,8 @@ module SidtoolExperimental
       @sid6581.set_pulse_width_low(@voice_number, @synth.pulse_width & 0xFF)
       @sid6581.set_pulse_width_high(@voice_number, (@synth.pulse_width >> 8) & 0xFF)
 
-      # Update filter parameters with LFO modulation
-      modulate_filter_with_lfo
+      # Update filter parameters with LFO modulation if filter is enabled
+      modulate_filter_with_lfo if @filter_enabled
     end
 
     # Method to apply LFO modulation to voice parameters
@@ -178,7 +179,7 @@ module SidtoolExperimental
 
     private
 
-     def generate_triangle_wave(phase)
+    def generate_triangle_wave(phase)
       # Triangle waveform generation logic
       # Assuming phase is a value between 0 and 1 representing the current phase position
 
