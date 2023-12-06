@@ -198,22 +198,56 @@ module SidtoolExperimental
       end
     end
 
-    # Generate sound for each voice
-    def generate_sound
-      @voices.each do |voice|
-        voice.finish_frame  # Finish processing the current frame for each voice
-        # Additional sound generation logic can be added here
-      end
-    end
+def generate_sound
+  sample_rate = AUDIO_SAMPLE_RATE # Define or get the sample rate
+  @voices.each do |voice|
+    voice.finish_frame # Finish processing the current frame for each voice
+  end
+  process_audio(sample_rate) # Process and mix audio samples from all voices
+end
 
-    def process_audio(sample_rate)
-      @voices.each do |voice|
-        phase = calculate_phase(voice, sample_rate)
-        waveform_output = voice.generate_waveform(phase)
-        adsr_output = process_adsr(voice, sample_rate)
-        final_output = waveform_output * adsr_output
-        # Further processing like applying global filters can be done here
-      end
-    end
+   def process_audio(sample_rate)
+  mixed_output = []
+
+  # Process each voice and collect their output
+  @voices.each do |voice|
+    phase = calculate_phase(voice, sample_rate)
+    waveform_output = voice.generate_waveform(phase)
+    adsr_output = process_adsr(voice, sample_rate)
+    voice_output = waveform_output * adsr_output
+
+    # Collect voice output for mixing
+    mixed_output << voice_output
+  end
+
+  # Mix the outputs from all voices
+  final_output = mix_voices(mixed_output)
+
+  # Apply global filters and volume adjustment
+  processed_output = apply_global_effects(final_output)
+
+  # Return or store the processed audio output
+  return processed_output # or store it in an audio buffer
+end
+
+def mix_voices(voice_outputs)
+  # Implement the logic to mix voice outputs
+  # For example, calculate the average or sum of the outputs
+  voice_outputs.reduce(:+) # Simple sum of outputs
+end
+
+def apply_global_effects(audio_signal)
+  # Apply global filters and volume adjustments
+  filtered_signal = apply_global_filter(audio_signal)
+  volume_adjusted_signal = filtered_signal * @global_volume
+  volume_adjusted_signal
+end
+
+def apply_global_filter(audio_signal)
+  # Implement the logic for the global filter
+  # This is a placeholder for your filter logic
+  audio_signal # Return the signal as-is if no filter is applied
+end
+
   end
 end
