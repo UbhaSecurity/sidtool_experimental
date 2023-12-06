@@ -1,6 +1,7 @@
 module SidtoolExperimental
   class Sid6581
-  attr_accessor :state
+    attr_accessor :state
+
     # Define waveform constants for easy reference
     WAVEFORM_TRIANGLE = 0x01
     WAVEFORM_SAWTOOTH = 0x02
@@ -26,7 +27,7 @@ module SidtoolExperimental
     OSC3       = 0xD41B
     ENV3       = 0xD41C
 
-   def initialize(memory:)
+    def initialize(memory:)
       @memory = memory
       @voices = []
       @global_filter_cutoff = 0
