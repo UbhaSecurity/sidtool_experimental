@@ -33,6 +33,7 @@ module SidtoolExperimental
       @global_filter_cutoff = 0
       @global_filter_resonance = 0
       @global_volume = 0
+      @audio_buffer = []  # Initialize the audio buffer
     end
 
     # Method to create voices. Call this after state is set.
@@ -199,26 +200,22 @@ module SidtoolExperimental
     end
 
     def generate_sound
-      sample_rate = AUDIO_SAMPLE_RATE # Define or get the sample rate
+      sample_rate = AUDIO_SAMPLE_RATE
       @voices.each do |voice|
-        voice.finish_frame # Finish processing the current frame for each voice
+        voice.finish_frame
       end
-      process_audio(sample_rate) # Process and mix audio samples from all voices
+
+      # Add the mixed output of this frame to the audio buffer
+      process_audio(sample_rate).each do |sample|
+        @audio_buffer << sample
+      end
+
+      # Optionally, handle the buffer size to avoid excessive memory usage
+      if @audio_buffer.size > MAX_BUFFER_SIZE
+        output_sound  # Output the buffer to a file or audio device
+        @audio_buffer.clear  # Clear the buffer after outputting
+      end
     end
-
-    def process_audio(sample_rate)
-      mixed_output = []
-
-      # Process each voice and collect their output
-      @voices.each do |voice|
-        phase = calculate_phase(voice, sample_rate)
-        waveform_output = voice.generate_waveform(phase)
-        adsr_output = process_adsr(voice, sample_rate)
-        voice_output = waveform_output * adsr_output
-
-        # Collect voice output for mixing
-        mixed_output << voice_output
-      end
 
       # Mix the outputs from all voices
       final_output = mix_voices(mixed_output)
