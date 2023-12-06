@@ -130,25 +130,34 @@ module SidtoolExperimental
 
     private
 
-    # Handles the countdown and underflow of the timers
-    def update_timers
+   def update_timers
   @timers.each do |timer|
-    # Check if the timer is not nil before attempting to call methods on it
-    if timer
-      # Update logic for the timer
-      # For example:
-      # timer.update
-      # Add more logic as necessary for each timer
+    next unless timer_active?(timer)
 
-      # Example of calling timer_active? if it's a method defined for the timer
-      # This is just an example. Modify according to your actual method logic.
-      if timer_active?(timer)
-        # Logic for an active timer
-      end
+    # Decrement the timer counter if it's active
+    timer[:counter] -= 1
+
+    # Check for underflow
+    if timer[:counter] <= 0
+      handle_underflow(timer)
     end
   end
 end
 
-    # Additional methods and logic...
+def timer_active?(timer)
+  timer[:control] & TIMER_MODE_FLAG != 0
+end
+
+def handle_underflow(timer)
+  # Set underflow flag
+  timer[:underflow] = true
+
+  # Reload the timer if in continuous mode
+  timer[:counter] = timer[:initial_value] if timer_mode_continuous?(timer)
+
+  # Trigger an interrupt if enabled
+  @state.generate_interrupt(:timer) if interrupt_enabled?(timer)
+end
+
   end
 end
