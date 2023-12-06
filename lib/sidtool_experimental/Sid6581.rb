@@ -244,9 +244,33 @@ def apply_global_effects(audio_signal)
 end
 
 def apply_global_filter(audio_signal)
-  # Implement the logic for the global filter
-  # This is a placeholder for your filter logic
-  audio_signal # Return the signal as-is if no filter is applied
+  # Assuming @global_filter_cutoff is the cutoff frequency and it's already scaled appropriately
+  cutoff_frequency = @global_filter_cutoff
+  resonance = @global_filter_resonance
+
+  # Initialize filter state variables if they don't exist
+  @filter_state ||= { last_output: 0.0, last_input: 0.0 }
+
+  # Calculate filter coefficients
+  dt = 1.0 / AUDIO_SAMPLE_RATE
+  rc = 1.0 / (2 * Math::PI * cutoff_frequency)
+  alpha = dt / (rc + dt)
+
+  # Apply the filter to the audio signal
+  filtered_signal = audio_signal.map do |sample|
+    low_pass = @filter_state[:last_output] + alpha * (sample - @filter_state[:last_output])
+    band_pass = (sample - @filter_state[:last_input]) - low_pass
+    high_pass = sample - low_pass - resonance * band_pass
+
+    # Update filter state
+    @filter_state[:last_output] = low_pass
+    @filter_state[:last_input] = sample
+
+    # Depending on your requirement, return low_pass, band_pass or high_pass
+    low_pass # This line can be changed to select the filter type
+  end
+
+  filtered_signal
 end
 
   end
