@@ -64,31 +64,11 @@ module SidtoolExperimental
     SLIDE_DURATION_FRAMES = 20
     MAX_FREQUENCY = 20000
 
-# Converts internal parameters to a standardized format for Voice
-    def to_standard_format
-      {
-        frequency: scale_frequency(@frequency),
-        pulse_width: @pulse_width,  # Assuming pulse width does not need scaling
-        filter_cutoff: @filter_cutoff,
-        filter_resonance: @filter_resonance,
-        osc_sync: @osc_sync,
-        ring_mod_effect: @ring_mod_effect,
-        attack: @attack,
-        decay: @decay,
-        sustain: @sustain,
-        release: @release
-        # Add other parameters as needed
-      }
-    end
-
-
     # Initialize a new Synth instance.
-    #
    def initialize(start_frame, state)
       @start_frame = start_frame
       @state = state
       @controls = []
-      @state = state  # Assuming STATE is an instance of SidtoolExperimental::State
       @frequency = 0
       @pulse_width = 0
       @filter_cutoff = 1024
@@ -100,7 +80,7 @@ module SidtoolExperimental
       initialize_lfo
     end
 
- def initialize_defaults
+    def initialize_defaults
       @waveform = :triangle
       @pulse_width = 0
       @attack = 0
@@ -128,10 +108,26 @@ module SidtoolExperimental
         self.frequency = frequency + (modulated_value || 0)
         @controls << [@state.current_frame, frequency.round] if @state
       when :pulse_width
-  # Additional cases for different destinations...
-  end
-end
+      # Additional cases for different destinations...
+      end
+    end
 
+    # Converts internal parameters to a standardized format for Voice
+    def to_standard_format
+      {
+        frequency: scale_frequency(@frequency),
+        pulse_width: @pulse_width,  # Assuming pulse width does not need scaling
+        filter_cutoff: @filter_cutoff,
+        filter_resonance: @filter_resonance,
+        osc_sync: @osc_sync,
+        ring_mod_effect: @ring_mod_effect,
+        attack: @attack,
+        decay: @decay,
+        sustain: @sustain,
+        release: @release
+        # Add other parameters as needed
+      }
+    end
 
     # Convert SID frequency value to the nearest MIDI note.
     #
@@ -181,6 +177,7 @@ def frequency=(frequency)
     end
   end
   @frequency = frequency
+
     # Convert SID frequency value to the nearest MIDI note.
     #
     # @param frequency [Float] The frequency.
@@ -197,12 +194,11 @@ def frequency=(frequency)
         0  # You can choose a default value if needed
       end
     end
-end
+    end
 
     # Trigger the release of the synth, marking the beginning of the release phase.
     def release!
       return if released?
-
       @released_at = STATE.current_frame
       length_of_ads = (STATE.current_frame - @start_frame) / FRAMES_PER_SECOND
       @attack, @decay, @sustain_length = adjust_ads(length_of_ads)
@@ -253,14 +249,12 @@ end
 
     private
 
-def scale_frequency(frequency)
-  # Ensure frequency is within the range 0 to MAX_FREQUENCY
-  # If frequency is nil or negative, it defaults to 0.
-  # If frequency exceeds MAX_FREQUENCY, it is set to MAX_FREQUENCY.
-  [[frequency.to_i, MAX_FREQUENCY].min, 0].max
-end
-
-
+    def scale_frequency(frequency)
+      # Ensure frequency is within the range 0 to MAX_FREQUENCY
+      # If frequency is nil or negative, it defaults to 0.
+      # If frequency exceeds MAX_FREQUENCY, it is set to MAX_FREQUENCY.
+      [[frequency.to_i, MAX_FREQUENCY].min, 0].max
+    end
 
     # Detect if a slide is occurring between two frequencies.
     #
@@ -327,12 +321,10 @@ end
       [
         # Controller message for Modulation Wheel (CC 01).
         [0xB0, 0x01, calculate_modulation_value(@modulation)],
-
         # Controller message for Expression (CC 11).
         [0xB0, 0x0B, @expression]
       ]
     end
-
     # Convert pitch bend parameter to MIDI pitch bend messages.
     #
     # This method maps the SID's pitch-related parameters to MIDI's pitch bend.
@@ -343,7 +335,6 @@ end
         [0xE0, pitch_bend_value & 0x7F, (pitch_bend_value >> 7) & 0x7F]
       ]
     end
-
     # Calculate the modulation value for MIDI (Modulation Wheel).
     #
     # @param modulation [Integer] The modulation value from the SID.
@@ -363,7 +354,6 @@ end
       # Modify this mapping based on the desired pitch bend effect.
       8192 + (pitch_bend * 8192).to_i
     end
-
     # Convert ADSR (Attack, Decay, Sustain, Release) parameters to MIDI controller messages.
     #
     # This method simulates ADSR envelope control using MIDI controllers, as MIDI doesn't have direct ADSR control.
@@ -392,10 +382,9 @@ def handle_attack_decay_sustain_release
   midi_messages
 end
 
-# Helper method to scale a parameter value to the MIDI range (0-127)
-def scale_to_midi(value)
-  (value * 127).to_i.clamp(0, 127)
-end
+    # Helper method to scale a parameter value to the MIDI range (0-127)
+    def scale_to_midi(value)
+      (value * 127).to_i.clamp(0, 127)
+    end
   end
 end
-
