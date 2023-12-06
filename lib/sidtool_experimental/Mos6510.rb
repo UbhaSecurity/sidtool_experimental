@@ -352,13 +352,13 @@ end
 
 def handle_timer_interrupts
   @state.cia_timers.each do |timer|
-    if timer.underflow? && timer.interrupt_enabled?
+    # Check if timer is not nil before attempting to call methods on it
+    if timer && timer.underflow? && timer.interrupt_enabled?
       irq
       timer.clear_underflow # Reset underflow flag after handling interrupt
     end
   end
 end
-
 
     # ORA (OR with Accumulator)
     def ora(value)
