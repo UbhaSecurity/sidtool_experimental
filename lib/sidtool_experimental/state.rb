@@ -32,8 +32,11 @@ module SidtoolExperimental
     end
 
     def process_audio(sample_rate)
-      @sid6581.process_audio(sample_rate)
-      # Additional audio processing can be done here
+      audio_samples = @sid6581.process_audio(sample_rate)
+
+      # Additional audio processing can be done here if needed
+
+      return audio_samples
     end
 
     def handle_interrupts
