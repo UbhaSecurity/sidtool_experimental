@@ -13,9 +13,9 @@ module SidtoolExperimental
     #
     # @param sid6581 [Sid6581] Reference to the SID chip instance.
     # @param voice_number [Integer] The number of the voice on the SID chip.
-    def initialize(sid6581,C64Emulator, voice_number, state)
+    def initialize(sid6581,c64emulator, voice_number, state)
       @sid6581 = sid6581
-      @C64Emulator = C64Emulator
+      @C64Emulator = c64emulator
       @synth = Synth.new(0, state)  # Pass the state here
       @voice_number = voice_number
       @frequency_low = @frequency_high = 0
@@ -236,7 +236,7 @@ end
  # Implementation of calculate_phase
   def calculate_phase
     # Assuming you have access to the current frame and sample rate
-     current_time = @C64Emulator.current_frame.to_f / AUDIO_SAMPLE_RATE
+     current_time = @c64emulator.current_frame.to_f / AUDIO_SAMPLE_RATE
 
     # Calculate frequency in Hertz (cycles per second)
     frequency_hz = calculate_frequency_hz
