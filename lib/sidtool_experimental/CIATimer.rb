@@ -88,20 +88,6 @@ module SidtoolExperimental
       @timers[timer_number][:counter] = value
     end
 
-    def update_timers
-      @timers.each_with_index do |timer, index|
-        next if timer[:counter] == 0 # Skip if the timer has already expired
-
-        timer[:counter] -= 1 # Decrement the timer counter
-
-        if timer[:counter] == 0
-          handle_timer_expiration(index)
-          timer[:counter] = timer[:initial_value] if timer_mode_continuous?(index) # Reload counter for continuous mode
-          timer[:underflow] = true
-        end
-      end
-    end
-
     # TOD Clock Handling
     def set_time(hours, minutes, seconds, tenths)
       @tod_clock[:hours] = hours
@@ -139,6 +125,25 @@ module SidtoolExperimental
       when 1
         # Handle Timer 1 expiration event
         @state.handle_timer_1_expiration
+      end
+    end
+
+    private
+
+    # Handles the countdown and underflow of the timers
+    def update_timers
+      @timers.each do |timer|
+        # Decrement the timer counter if it's active
+        if timer_active?(timer)
+          timer[:counter] -= 1
+
+          # Check for underflow
+          if timer[:counter] <= 0
+            handle_underflow(timer)
+            # Reset or disable the timer based on its mode
+            reset_or_disable_timer(timer)
+          end
+        end
       end
     end
 
