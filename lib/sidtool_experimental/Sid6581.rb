@@ -49,11 +49,11 @@ module SidtoolExperimental
       @audio_buffer ||= []  # Initialize an empty array if it doesn't exist
     end
 
-def create_voices(state)
-  3.times do |voice_index|
-    @voices << Voice.new(self, voice_index, state)
-  end
-end
+   def create_voices
+      3.times do |voice_index|
+        @voices << Voice.new(self, voice_index, @state)
+      end
+    end
 
     # Apply LFO modulation to all voices
     def apply_lfo_to_voices
