@@ -13,9 +13,8 @@ module SidtoolExperimental
     #
     # @param sid6581 [Sid6581] Reference to the SID chip instance.
     # @param voice_number [Integer] The number of the voice on the SID chip.
-    def initialize(sid6581,c64emulator, voice_number, state)
+    def initialize(sid6581, voice_number, state)
       @sid6581 = sid6581
-      @C64Emulator = c64emulator
       @synth = Synth.new(0, state)  # Pass the state here
       @voice_number = voice_number
       @frequency_low = @frequency_high = 0
