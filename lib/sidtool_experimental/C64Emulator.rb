@@ -32,12 +32,14 @@ module SidtoolExperimental
       setup_sid_environment(sid_file)
     end
 
-  def run
-    until @state.emulation_finished
-      emulate_cycle
-      handle_frame_update if frame_completed?
+   def run
+      until @state.emulation_finished
+        emulate_cycle
+        handle_frame_update if frame_completed?
+        manage_audio_buffer # Manage the audio buffer after each frame
+      end
     end
-  end
+
 
     def stop
       @state.emulation_finished = true            # Flag to stop the emulation
@@ -77,6 +79,23 @@ module SidtoolExperimental
   def frame_completed?
     @cycle_count >= CYCLES_PER_FRAME
   end
+
+   # Method to check if a frame has completed
+    def frame_completed?
+      @cycle_count >= CYCLES_PER_FRAME
+    end
+
+    # Method to handle frame updates
+    def handle_frame_update
+      # Reset cycle count for the next frame
+      @cycle_count = 0
+
+      # Process SID sound generation for the frame
+      @sid6581.generate_sound
+
+      # Increment the frame count in the state
+      @state.increment_frame
+    end
 
     def handle_frame_update
       # Reset cycle count for the next frame
