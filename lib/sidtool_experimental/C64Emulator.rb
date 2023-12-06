@@ -52,14 +52,14 @@ module SidtoolExperimental
 
     private
 
- def emulate_cycle
-    @cpu.step
-    @state.update
-    @sid6581.generate_sound
-    @ciaTimerA.update
-    @ciaTimerB.update
-    @cycle_count += 1
-  end
+def run_cycle
+  @cpu.step
+  @state.update
+  @sid6581.generate_sound # Call the generate_sound method of Sid6581
+  @ciaTimerA.update
+  @ciaTimerB.update
+  @cycle_count += 1
+end
 
     def setup_sid_environment(sid_file)
       @cpu.pc = sid_file.init_address             # Set CPU program counter
