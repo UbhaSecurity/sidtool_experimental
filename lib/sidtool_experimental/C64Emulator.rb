@@ -3,13 +3,14 @@ module SidtoolExperimental
     attr_reader :memory, :cpu, :ciaTimerA, :ciaTimerB
     attr_accessor :sid6581, :state
 
-    def initialize(memory, sid6581)
-      @memory = memory
-      @cpu = Mos6510::Cpu.new(@memory, self)
-      @ciaTimerA = CIATimer.new(self)         # Initialize CIA Timer A
-      @ciaTimerB = CIATimer.new(self)         # Initialize CIA Timer B
-      @sid6581 = sid6581                      # SID chip instance
-    end
+  def initialize(memory, sid6581)
+    @memory = memory
+    @cpu = Mos6510::Cpu.new(@memory, self)
+    @ciaTimerA = CIATimer.new(self)
+    @ciaTimerB = CIATimer.new(self)
+    @sid6581 = sid6581
+    @state = State.new(@cpu, self, [@ciaTimerA, @ciaTimerB], @sid6581)
+  end
 
  def load_sid_file(file_path)
       sid_file = FileReader.read(file_path)
@@ -25,13 +26,12 @@ module SidtoolExperimental
       setup_sid_environment(sid_file)
     end
 
-    def run
-      @cpu.reset                                   # Reset CPU
-        until @state.emulation_finished
-        @cpu.step                                 # Execute CPU cycle
-        emulate_cycle                             # Execute additional emulation cycle
-      end
+  def run
+    until @state.emulation_finished
+      emulate_cycle
+      handle_frame_update if frame_completed?
     end
+  end
 
     def stop
       @state.emulation_finished = true            # Flag to stop the emulation
@@ -44,12 +44,13 @@ module SidtoolExperimental
 
     private
 
-    def emulate_cycle
-      @state.update                               # Update state
-      @sid6581.generate_sound                     # Generate SID sound
-      @ciaTimerA.update                           # Update CIA Timer A
-      @ciaTimerB.update                           # Update CIA Timer B
-    end
+ def emulate_cycle
+    @cpu.step
+    @state.update
+    @sid6581.generate_sound
+    @ciaTimerA.update
+    @ciaTimerB.update
+  end
 
     def setup_sid_environment(sid_file)
       @cpu.pc = sid_file.init_address             # Set CPU program counter
@@ -65,6 +66,15 @@ module SidtoolExperimental
 
       @cpu.load_program(program_data, start_address)
     end
+
+  def frame_completed?
+    # Logic to determine if a frame is completed based on CPU cycles or other criteria
+  end
+
+  def handle_frame_update
+    # Actions to perform at the end of each frame (e.g., updating the display)
+    @state.increment_frame
+  end
 
     def handle_extended_sid_file(sid_file)
       # Implement extended SID features based on the SID file's specifications
