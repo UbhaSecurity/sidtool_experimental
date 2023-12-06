@@ -181,9 +181,27 @@ module SidtoolExperimental
     end
 
 def finish_frame
-  output = generate_frame_output
-  puts "Generated output: #{output.inspect}"
-  @sid6581.audio_buffer << output
+  # Process this voice's contribution to the audio for this frame
+  # Add the output to the SID's audio buffer
+  # Note: This is just a placeholder, actual implementation will depend on SID's audio synthesis logic
+
+  # Check if @sid6581 is properly initialized and accessible
+  if @sid6581
+    # Invoke the generate_frame_output method
+    frame_output = @sid6581.generate_frame_output
+
+    # Check if frame_output is not nil or empty
+    if frame_output
+      # Append the output to the audio buffer
+      @sid6581.audio_buffer << frame_output
+    else
+      # Handle the case where generate_frame_output didn't return valid data
+      # You can log an error or take appropriate action here
+    end
+  else
+    # Handle the case where @sid6581 is not properly initialized
+    # You can raise an exception or log an error
+  end
 end
 
    def oscillator_bit_19_high?
