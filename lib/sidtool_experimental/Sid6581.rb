@@ -216,23 +216,28 @@ module SidtoolExperimental
       end
     end
 
-    def generate_sound
-      sample_rate = AUDIO_SAMPLE_RATE
-      @voices.each do |voice|
-        voice.finish_frame
-      end
+def generate_sound
+  sample_rate = AUDIO_SAMPLE_RATE
+  @voices.each do |voice|
+    voice.finish_frame
+  end
 
-      # Add the mixed output of this frame to the audio buffer
-      process_audio(sample_rate).each do |sample|
-        @audio_buffer << sample
-      end
+  # Add the mixed output of this frame to the audio buffer
+  process_audio(sample_rate).each do |sample|
+    @audio_buffer << sample
+  end
 
-      # Optionally, handle the buffer size to avoid excessive memory usage
-      if @audio_buffer.size > MAX_BUFFER_SIZE
-        output_sound  # Output the buffer to a file or audio device
-        @audio_buffer.clear  # Clear the buffer after outputting
-      end
-    end
+  # Optionally, handle the buffer size to avoid excessive memory usage
+  if @audio_buffer.size > MAX_BUFFER_SIZE
+    output_sound  # Output the buffer to a file or audio device
+    @audio_buffer.clear  # Clear the buffer after outputting
+  end
+
+  # Return or store the processed audio output
+  processed_output = process_audio(sample_rate)
+  processed_output # or store it in an audio buffer
+end
+
 
       # Mix the outputs from all voices
       final_output = mix_voices(mixed_output)
