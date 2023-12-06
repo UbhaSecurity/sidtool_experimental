@@ -369,6 +369,28 @@ def calculate_pulse_width
   pulse_width
 end
 
+ def generate_frame_output
+      # Initialize the output sample as 0.0
+      output_sample = 0.0
+
+      # Calculate the phase based on some parameters (e.g., frequency, waveform)
+      phase = calculate_phase
+
+      # Generate the waveform based on the current phase
+      waveform_sample = generate_waveform(phase)
+
+      # Apply ADSR envelope to the waveform sample
+      adsr_amplitude = process_adsr(sample_rate)
+
+      # Combine the waveform sample with the ADSR envelope
+      output_sample = waveform_sample * adsr_amplitude
+
+      # Optionally, apply any additional effects or filters here
+
+      # Return the final audio sample for this frame
+      output_sample
+    end
+
  def generate_noise_wave
     # Clock the LFSR when bit 19 of the oscillator goes high
     clock_lfsr if oscillator_bit_19_high?
