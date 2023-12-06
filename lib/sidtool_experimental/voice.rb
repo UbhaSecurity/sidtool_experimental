@@ -8,11 +8,11 @@ module SidtoolExperimental
     # Define arrays to store the conversion values for attack and decay/release
     ATTACK_VALUES = [0.002, 0.008, 0.016, 0.024, 0.038, 0.056, 0.068, 0.08, 0.1, 0.25, 0.5, 0.8, 1, 3, 5, 8]
     DECAY_RELEASE_VALUES = [0.006, 0.024, 0.048, 0.072, 0.114, 0.168, 0.204, 0.24, 0.3, 0.75, 1.5, 2.4, 3, 9, 15, 24]
-# Initialize a new Voice instance with a reference to the SID chip and its voice number.
-#
-# @param sid6581 [Sid6581] Reference to the SID chip instance.
-# @param voice_number [Integer] The number of the voice on the SID chip.
 
+    # Initialize a new Voice instance with a reference to the SID chip and its voice number.
+    #
+    # @param sid6581 [Sid6581] Reference to the SID chip instance.
+    # @param voice_number [Integer] The number of the voice on the SID chip.
     def initialize(sid6581, voice_number, state)
       @sid6581 = sid6581
       @synth = Synth.new(0, state)  # Pass the state here
@@ -91,6 +91,5 @@ module SidtoolExperimental
     def midi_to_frequency(midi_note)
       440.0 * 2 ** ((midi_note - 69) / 12.0)
     end
-
   end
 end
