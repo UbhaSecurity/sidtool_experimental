@@ -44,7 +44,6 @@ module SidtoolExperimental
       @state.emulation_finished = true            # Flag to stop the emulation
     end
 
-    private
 
 def run_cycle
   @cpu.step
@@ -54,6 +53,7 @@ def run_cycle
   @ciaTimerB.update
   @cycle_count += 1
 end
+
 
     def setup_sid_environment(sid_file)
       @cpu.pc = sid_file.init_address             # Set CPU program counter
