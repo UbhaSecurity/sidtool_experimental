@@ -32,13 +32,13 @@ module SidtoolExperimental
       setup_sid_environment(sid_file)
     end
 
-   def run
-      until @state.emulation_finished
-        emulate_cycle
-        handle_frame_update if frame_completed?
-        manage_audio_buffer # Manage the audio buffer after each frame
-      end
-    end
+def run
+  until @state.emulation_finished
+    run_cycle # Call run_cycle to execute a single cycle
+    handle_frame_update if frame_completed?
+    manage_audio_buffer # Manage the audio buffer after each frame
+  end
+end
 
     def stop
       @state.emulation_finished = true            # Flag to stop the emulation
@@ -54,6 +54,7 @@ def run_cycle
   @cycle_count += 1
 end
 
+private
 
     def setup_sid_environment(sid_file)
       @cpu.pc = sid_file.init_address             # Set CPU program counter
