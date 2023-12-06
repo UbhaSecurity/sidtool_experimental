@@ -1,23 +1,26 @@
 module SidtoolExperimental
   class C64Emulator
-     CPU_FREQUENCY = 1_000_000 # 1 MHz
-     AUDIO_SAMPLE_RATE = 44_100 # 44.1 kHz
-     CYCLES_PER_FRAME = CPU_FREQUENCY / AUDIO_SAMPLE_RATE
-     MAX_BUFFER_SIZE = 44100 * 10 # Example size, 10 seconds of audio at 44.1 kHz
+    CPU_FREQUENCY = 1_000_000 # 1 MHz
+    AUDIO_SAMPLE_RATE = 44_100 # 44.1 kHz
+    CYCLES_PER_FRAME = CPU_FREQUENCY / AUDIO_SAMPLE_RATE
+    MAX_BUFFER_SIZE = 44100 * 10 # Example size, 10 seconds of audio at 44.1 kHz
+
     attr_reader :memory, :cpu, :ciaTimerA, :ciaTimerB
     attr_accessor :sid6581, :state
     attr_accessor :current_frame
 
-  def initialize(memory, sid6581)
-    @memory = memory
-    @cpu = Mos6510::Cpu.new(@memory, self)
-    @ciaTimerA = CIATimer.new(self)
-    @ciaTimerB = CIATimer.new(self)
-    @sid6581 = sid6581
-    @state = State.new(@cpu, self, [@ciaTimerA, @ciaTimerB], @sid6581)
-    @cycle_count = 0
-    @audio_buffer = [] # Initialize the audio buffer to store sound samples
-  end
+    def initialize(memory)
+      @memory = memory
+      @cpu = Mos6510::Cpu.new(@memory, self)
+      @ciaTimerA = CIATimer.new(self)
+      @ciaTimerB = CIATimer.new(self)
+      @sid6581 = Sid6581.new(memory: @memory)
+      @state = State.new(@cpu, self, [@ciaTimerA, @ciaTimerB], @sid6581)
+      @sid6581.setup(@state) # Setup the SID6581 with state
+      @cycle_count = 0
+      @audio_buffer = [] # Initialize the audio buffer to store sound samples
+      @current_frame = 0
+    end
 
  def load_sid_file(file_path)
       sid_file = FileReader.read(file_path)
