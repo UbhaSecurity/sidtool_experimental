@@ -25,7 +25,7 @@ module SidtoolExperimental
       @filter_resonance = 8
       @filter_enabled = false  # Added filter_enabled flag
       @previous_midi_note = nil
-
+      @state = state
       # Initialize the LFSR state to a non-zero value
       @lfsr_state = 0b10101010101010101010101  # Replace with your initial value
     end
@@ -210,9 +210,8 @@ end
       bit_19 == 1
     end
 
- def generate_frame_output
-    # Calculate the current phase of the waveform
-    current_time = @c64emulator.current_frame.to_f / AUDIO_SAMPLE_RATE
+  def generate_frame_output
+    current_time = @state.current_frame.to_f / AUDIO_SAMPLE_RATE
     frequency = calculate_frequency # Implement this method based on Freq Lo/Hi registers
     phase = (current_time * frequency) % 1.0
 
