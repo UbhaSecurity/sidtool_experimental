@@ -246,14 +246,26 @@ module SidtoolExperimental
       amplitude
     end
 
-    # Convert a frequency to a MIDI note number.
-    def frequency_to_midi(frequency)
-      69 + (12 * Math.log2(frequency / 440.0)).round
-    end
+  def handle_midi_note_change(new_midi_note)
+    # You can add your custom logic here to respond to MIDI note changes.
+    # For example, you might update the voice's frequency or trigger other actions.
+    # In this example, we'll update the voice's frequency based on the new MIDI note.
+    
+    # Calculate the new frequency based on the new MIDI note
+    new_frequency = midi_to_frequency(new_midi_note)
 
-    # Convert a MIDI note number to a frequency.
-    def midi_to_frequency(midi_note)
-      440.0 * 2 ** ((midi_note - 69) / 12.0)
-    end
+    # Update the voice's frequency with the new value
+    self.frequency = new_frequency
+  end
+
+  # Convert a frequency to a MIDI note number.
+  def frequency_to_midi(frequency)
+    69 + (12 * Math.log2(frequency / 440.0)).round
+  end
+
+  # Convert a MIDI note number to a frequency.
+  def midi_to_frequency(midi_note)
+    440.0 * 2 ** ((midi_note - 69) / 12.0)
+  end
   end
 end
