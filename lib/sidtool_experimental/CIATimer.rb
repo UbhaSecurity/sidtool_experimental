@@ -11,10 +11,15 @@ module SidtoolExperimental
       @state = state
       @parallel_ports = Array.new(2) { {data: 0, direction: 0xFF} }
       @serial_shift_register = 0
-      @timers = [
-        {counter: 0, mode: CONTINUOUS_MODE, control: 0, initial_value: 0, underflow: false},
-        {counter: 0, mode: CONTINUOUS_MODE, control: 0, initial_value: 0, underflow: false}
-      ]
+    @timers = Array.new(2) do
+      {
+        counter: 0,
+        mode: CONTINUOUS_MODE,
+        control: 0,
+        initial_value: 0,
+        underflow: false
+      }
+    end
       @tod_clock = {hours: 0x12, minutes: 0, seconds: 0, tenths: 0, alarm_set: false, alarm_time: {}}
     end
     # Timer control methods
