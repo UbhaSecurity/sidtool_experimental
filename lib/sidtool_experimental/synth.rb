@@ -163,37 +163,32 @@ module SidtoolExperimental
       end * @lfo_depth
     end
 
-# Set the frequency and handle slides if detected.
-#
-# @param frequency [Float] The new frequency to set.
-def frequency=(frequency)
-  if @frequency
-    previous_midi = sid_frequency_to_actual_frequency(@frequency)  # Fix this line
-    current_midi = sid_frequency_to_actual_frequency(frequency)     # Fix this line
-    if slide_detected?(@frequency, frequency)
-      handle_slide(previous_midi, current_midi)
-    else
-      @controls << [STATE.current_frame, current_midi] if previous_midi != current_midi
+   # @param frequency [Float] The new frequency to set.
+    def frequency=(frequency)
+      if @frequency
+        previous_midi = sid_frequency_to_actual_frequency(@frequency)
+        current_midi = sid_frequency_to_actual_frequency(frequency)
+        if slide_detected?(@frequency, frequency)
+          handle_slide(previous_midi, current_midi)
+        else
+          @controls << [@state.current_frame, current_midi] if @state
+        end
+      end
+      @frequency = frequency
     end
-  end
-  @frequency = frequency
 
     # Convert SID frequency value to the nearest MIDI note.
     #
     # @param frequency [Float] The frequency.
     # @return [Integer] The nearest MIDI note number.
     def sid_frequency_to_nearest_midi(frequency)
-      # Calculate the MIDI note number based on the frequency
       if frequency > 0
         # Formula to calculate MIDI note number from frequency:
         midi_note = 69 + 12 * Math.log2(frequency / 440.0)
-        # Round to the nearest integer
         midi_note.round
       else
-        # Handle the case where frequency is zero or negative
         0  # You can choose a default value if needed
       end
-    end
     end
 
     # Trigger the release of the synth, marking the beginning of the release phase.
@@ -293,16 +288,12 @@ def frequency=(frequency)
       end
     end
 
-    # Convert SID frequency value to actual frequency in Hertz.
+     # Convert SID frequency value to actual frequency in Hertz.
     #
     # @param sid_frequency [Integer] The frequency value from the SID chip.
     # @return [Float] The actual frequency in Hertz.
     def sid_frequency_to_actual_frequency(sid_frequency)
-      # Convert the SID frequency to actual frequency using the SID chip's formula.
-      # The formula is: Fout = (Fn * Fclk / 16777216) Hz,
-      # where Fout is the output frequency, Fn is the 16-bit frequency value, and
-      # Fclk is the system clock frequency of the SID chip.
-      (sid_frequency * (CLOCK_FREQUENCY / 16777216)).round(2)
+      (sid_frequency * (CLOCK_FREQUENCY.to_f / 16777216)).round(2)
     end
 
     # Find the nearest MIDI tone for a given frequency.
