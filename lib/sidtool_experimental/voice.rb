@@ -232,20 +232,18 @@ end
       output_sample
     end
 
- # Implementation of calculate_phase
-  def calculate_phase
-    # Assuming you have access to the current frame and sample rate
-     current_time = @c64emulator.current_frame.to_f / AUDIO_SAMPLE_RATE
+# Implementation of calculate_phase
+def calculate_phase(current_frame, audio_sample_rate, frequency_hz)
+  # Calculate time in seconds using current_frame and audio_sample_rate
+  current_time = current_frame.to_f / audio_sample_rate.to_f
 
-    # Calculate frequency in Hertz (cycles per second)
-    frequency_hz = calculate_frequency_hz
+  # Calculate phase
+  # Phase is the fractional part of the time multiplied by frequency
+  phase = (current_time * frequency_hz) % 1.0
 
-    # Calculate phase
-    # Phase is the fractional part of the time multiplied by frequency
-    phase = (current_time * frequency_hz) % 1.0
+  phase
+end
 
-    phase
-  end
 
 def calculate_frequency_hz
   # Convert frequency_low and frequency_high to a 16-bit value
