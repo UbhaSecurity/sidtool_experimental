@@ -76,17 +76,30 @@ module SidtoolExperimental
     @cycle_count >= CYCLES_PER_FRAME
   end
 
- def handle_frame_update
-    # Reset cycle count for the next frame
-    @cycle_count = 0
+    def handle_frame_update
+      # Reset cycle count for the next frame
+      @cycle_count = 0
 
-    # Handle SID sound generation for the frame
-    # This might involve mixing the generated SID samples into an audio buffer
-    mix_audio_samples
+      # Process audio for the entire frame
+      frame_audio_output = @sid6581.process_audio(AUDIO_SAMPLE_RATE)
 
-    # Increment the frame count in the state
-    @state.increment_frame
-  end
+      # Add the frame's audio output to the emulator's audio buffer
+      @audio_buffer.concat(frame_audio_output)
+
+      # Manage buffer size (e.g., output to file or audio device when a threshold is reached)
+      manage_audio_buffer
+
+      # Increment the frame count in the state
+      @state.increment_frame
+    end
+
+    def manage_audio_buffer
+      if @audio_buffer.size > MAX_BUFFER_SIZE
+        # Output the buffer to a file or audio device
+        # Clear the buffer after outputting
+        # Example: output_audio_buffer_to_file
+      end
+    end
     
  def mix_audio_samples
     # Logic to mix SID audio samples into an audio buffer
