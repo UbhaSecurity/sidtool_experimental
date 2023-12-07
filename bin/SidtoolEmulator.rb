@@ -38,25 +38,28 @@ module SidtoolExperimental
       run_emulation
     end
 
-   ef run(frames = 15_000, show_usage = false)
-  options = parse_command_line_arguments
-  if options[:file]
-    puts "Loading and running SID file: #{options[:file]}"
-    load_and_run_sid_file(options[:file], frames)
-  else
-    if show_usage
-      puts "Usage: #{$0} [options]"
-    else
-      puts "Please specify a SID file to load and run using the -f or --file option."
+    def run(frames = 15_000, show_usage = false)
+      options = parse_command_line_arguments
+      if options[:file]
+        if show_usage
+          puts "Usage: #{$0} [options]"
+        else
+          puts "Loading and running SID file: #{options[:file]}"
+          load_and_run_sid_file(options[:file], frames)
+        end
+      else
+        if show_usage
+          puts "Usage: #{$0} [options]"
+        else
+          puts "Please specify a SID file to load and run using the -f or --file option."
+        end
+        exit 1  # Exit with an error code
+      end
     end
-    exit 1  # Exit with an error code
-  end
-end
-
 
     private
 
- def parse_command_line_arguments
+    def parse_command_line_arguments
       options = {}
       OptionParser.new do |opts|
         opts.banner = "Usage: #{$0} [options]"
@@ -120,7 +123,7 @@ end
       setup_sid_environment(sid_file)
     end
 
- def run_emulation(frames)
+    def run_emulation(frames)
       frame_counter = 0
       puts frame_counter
       until @emulation_finished || frame_counter >= frames
@@ -181,6 +184,7 @@ end
       # Implement logic for extended SID file features
     end
   end
+end
 
 # Usage Example with optional frames argument (default: 15,000 frames)
 emulator = SidtoolExperimental::SidtoolEmulator.new
@@ -191,4 +195,3 @@ if ARGV.include?("-u") || ARGV.include?("--usage")
 else
   emulator.run(15000) # Specify the number of frames here if different from the default
 end
-Now, you can use the -u or --usage option to prin
