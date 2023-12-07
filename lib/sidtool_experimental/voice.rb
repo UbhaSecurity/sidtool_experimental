@@ -159,6 +159,8 @@ module SidtoolExperimental
 
     # Method to apply LFO modulation to voice parameters
     def modulate_with_lfo
+# Debug output
+  puts "Debug: waveform=#{waveform.inspect}, @current_synth=#{@current_synth.inspect}"
       @synth.apply_lfo if @synth
       update_synth_properties
     end
