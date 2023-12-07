@@ -14,6 +14,7 @@ module SidtoolExperimental
     # Initialize a new Synth instance.
     def initialize(start_frame)
       @start_frame = start_frame
+      @@current_frame = 0  # Initialize @current_frame here
       @controls = []
       @frequency = 0
       @pulse_width = 0
@@ -52,7 +53,7 @@ module SidtoolExperimental
       case @lfo_destination
       when :pitch
         self.frequency = frequency + (modulated_value || 0)
-        @controls << [current_frame, frequency.round]
+        @controls << [@current_frame, frequency.round]
       when :pulse_width
       # Additional cases for different destinations...
       end
@@ -115,7 +116,7 @@ module SidtoolExperimental
         if slide_detected?(@frequency, frequency)
           handle_slide(previous_midi, current_midi)
         else
-          @controls << [current_frame, current_midi]
+          @controls << [@current_frame, current_midi]
         end
       end
       @frequency = frequency
@@ -138,8 +139,8 @@ module SidtoolExperimental
     # Trigger the release of the synth, marking the beginning of the release phase.
     def release!
       return if released?
-      @released_at = current_frame
-      length_of_ads = (current_frame - @start_frame) / FRAMES_PER_SECOND
+      @released_at = @current_frame
+      length_of_ads = (@current_frame - @start_frame) / FRAMES_PER_SECOND
       @attack, @decay, @sustain_length = adjust_ads(length_of_ads)
     end
 
@@ -153,7 +154,7 @@ module SidtoolExperimental
     # Stop the synth and calculate the release time if it hasn't been released yet.
     def stop!
       if released?
-        @release = [@release, (current_frame - @released_at) / FRAMES_PER_SECOND].min
+        @release = [@release, (@current_frame - @released_at) / FRAMES_PER_SECOND].min
       else
         @release = 0
         release!
@@ -214,7 +215,7 @@ module SidtoolExperimental
       midi_step = (end_midi - start_midi) / SLIDE_DURATION_FRAMES.to_f
       (1..SLIDE_DURATION_FRAMES).each do |frame_offset|
         interpolated_midi = start_midi + (midi_step * frame_offset)
-        @controls << [current_frame + frame_offset, interpolated_midi.round]
+        @controls << [@current_frame + frame_offset, interpolated_midi.round]
       end
     end
 
