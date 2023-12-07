@@ -37,16 +37,15 @@ module SidtoolExperimental
       run_emulation
     end
 
-    def run
+    def run(frames = 15_000)
       options = parse_command_line_arguments
       if options[:file]
-        load_and_run_sid_file(options[:file])
+        puts "Loading and running SID file: #{options[:file]}"
+        load_and_run_sid_file(options[:file], frames)
       else
         puts "Please specify a SID file to load and run using the -f or --file option."
       end
     end
-
-puts "Should not happend"
 
     private
 
@@ -110,10 +109,11 @@ puts "Should not happend"
       setup_sid_environment(sid_file)
     end
 
-    def run_emulation
-       puts "Start emulation"
-      until @emulation_finished
+ def run_emulation(frames)
+      frame_counter = 0
+      until @emulation_finished || frame_counter >= frames
         run_cycle
+        frame_counter += 1
       end
     end
 
