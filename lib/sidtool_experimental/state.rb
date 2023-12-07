@@ -34,8 +34,6 @@ module SidtoolExperimental
     def process_audio(sample_rate)
       audio_samples = @sid6581.process_audio(sample_rate)
 
-      # Additional audio processing can be done here if needed
-
       return audio_samples
     end
 
@@ -85,9 +83,13 @@ module SidtoolExperimental
     def handle_timer_events
     end
 
-    def update_sid
+  def update_sid
+    if @sid6581.nil?
+      raise "SID6581 instance is nil!"
+    else
       @sid6581.update_sid_state
     end
+  end
 
     def increment_frame
       @current_frame += 1
