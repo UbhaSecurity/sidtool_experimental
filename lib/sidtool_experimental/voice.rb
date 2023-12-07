@@ -453,10 +453,16 @@ end
     self.frequency = new_frequency
   end
 
-  # Convert a frequency to a MIDI note number.
-  def frequency_to_midi(frequency)
-    69 + (12 * Math.log2(frequency / 440.0)).round
+def frequency_to_midi(frequency)
+  if frequency <= 0.0
+    # Handle the case where frequency is zero or negative (you can return a default value or raise an exception)
+    # Example: return a default MIDI note number
+    return DEFAULT_MIDI_NOTE
+  else
+    return 69 + (12 * Math.log2(frequency / 440.0)).round
   end
+end
+
 
   # Convert a MIDI note number to a frequency.
   def midi_to_frequency(midi_note)
