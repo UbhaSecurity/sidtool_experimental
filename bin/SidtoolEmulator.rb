@@ -171,6 +171,6 @@ module SidtoolExperimental
   end
 end
 
-# Usage Example
+# Usage Example with optional frames argument (default: 15,000 frames)
 emulator = SidtoolExperimental::SidtoolEmulator.new
-emulator.run
+emulator.run(15000) # Specify the number of frames here if different from the default
