@@ -16,19 +16,19 @@ module SidtoolExperimental
     CPU_FREQUENCY = 1_000_000 # 1 MHz
     AUDIO_SAMPLE_RATE = 44_100 # 44.1 kHz
     CYCLES_PER_FRAME = CPU_FREQUENCY / AUDIO_SAMPLE_RATE
-    MAX_BUFFER_SIZE = 44100 * 10 # 10 seconds of audio at 44.1 kHz
+    MAX_BUFFER_SIZE = 44100 * 10 # Example size, 10 seconds of audio at 44.1 kHz
+
+    attr_accessor :memory, :cpu, :cia_timer_a, :cia_timer_b, :sid6581, :cycle_count, :audio_buffer, :current_frame
 
     def initialize
       @memory = Memory.new
-      @cpu = Mos6510::Cpu.new(@memory)
-      @cia_timer_a = CIATimer.new(@cpu)
-      @cia_timer_b = CIATimer.new(@cpu)
+      @cia_timer_a = CIATimer.new(self)
+      @cia_timer_b = CIATimer.new(self)
+      @cpu = Mos6510.new(@memory, self)
       @sid6581 = Sid6581.new(memory: @memory)
-
       @cycle_count = 0
-      @current_frame = 0
       @audio_buffer = []
-      @emulation_finished = false
+      @current_frame = 0
     end
 
     def load_and_run_sid_file(file_path)
@@ -37,6 +37,39 @@ module SidtoolExperimental
     end
 
     private
+
+def update_timers
+  # Update both CIA timers
+  @cia_timer_a.update
+  @cia_timer_b.update
+end
+
+def handle_interrupts
+  # Check for IRQ and NMI interrupts
+  if @cpu.irq_pending? && !@interrupt_flag
+    handle_irq
+  end
+  handle_nmi if @cpu.nmi_pending?
+end
+
+def update_sid
+  # Update the SID chip's state
+  @sid6581.update_sid_state
+end
+
+def handle_irq
+  # Logic to handle IRQ interrupts
+  @cpu.save_state
+  @cpu.jump_to_address(@irq_vector)
+  @cpu.restore_state
+end
+
+def handle_nmi
+  # Logic to handle NMI interrupts
+  @cpu.save_state
+  @cpu.jump_to_address(@nmi_vector)
+  @cpu.restore_state
+end
 
     def load_sid_file(file_path)
       sid_file = FileReader.read(file_path)
@@ -54,16 +87,20 @@ module SidtoolExperimental
 
     def run_cycle
       @cpu.step
-      update_state
-      @sid6581.generate_sound
+      # Update SID state and process audio
+      @sid6581.update_sid_state
       @cia_timer_a.update
       @cia_timer_b.update
-      handle_frame_update
+      @current_frame += 1
+      handle_frame_update if frame_completed?
     end
 
-    def update_state
-      # Add logic for interrupts, timers, SID updates, etc.
-    end
+def update_state
+  update_timers
+  handle_interrupts
+  update_sid
+end
+
 
     def handle_frame_update
       if frame_completed?
