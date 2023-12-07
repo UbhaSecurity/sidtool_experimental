@@ -126,10 +126,10 @@ module SidtoolExperimental
       case timer_index
       when 0
         # Handle Timer 0 expiration event
-        @state.handle_timer_0_expiration
+        @emulator.handle_timer_0_expiration
       when 1
         # Handle Timer 1 expiration event
-        @state.handle_timer_1_expiration
+        @emulator.handle_timer_1_expiration
       end
     end
 
@@ -161,7 +161,7 @@ def handle_underflow(timer)
   timer[:counter] = timer[:initial_value] if timer_mode_continuous?(timer)
 
   # Trigger an interrupt if enabled
-  @state.generate_interrupt(:timer) if interrupt_enabled?(timer)
+  @emulator.generate_interrupt(:timer) if interrupt_enabled?(timer)
 end
 
   end
