@@ -47,7 +47,7 @@ end
 
 def create_voices
   3.times do |voice_index|
-    @voices << Voice.new(self, voice_index, @current_frame)  # Using @current_frame
+    @voices << Voice.new(self, voice_index)  # Only two arguments
   end
 end
     # Apply LFO modulation to all voices
