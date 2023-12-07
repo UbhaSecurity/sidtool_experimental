@@ -14,20 +14,21 @@ module SidtoolExperimental
     #
     # @param sid6581 [Sid6581] Reference to the SID chip instance.
     # @param voice_number [Integer] The number of the voice on the SID chip.
-    def initialize(sid6581, voice_number)
-      @sid6581 = sid6581
-      @synth = Synth.new(0)
-      @current_synth = Synth.new(start_frame)
-      waveform = :triangle  # Or any other default value
-      @voice_number = voice_number
-      @frequency_low = @frequency_high = 0
-      @pulse_low = @pulse_high = 0
-      @control_register = 0
-      @attack_decay = @sustain_release = 0
-      @filter_cutoff = 1024
-      @filter_resonance = 8
-      @filter_enabled = false  # Added filter_enabled flag
-      @previous_midi_note = nil
+def initialize(sid6581, voice_number)
+  @sid6581 = sid6581
+  @synth = Synth.new(0)
+  @current_synth = Synth.new(@synth.start_frame)  # Use @synth's start_frame
+  @synth.waveform = :triangle  # Set the waveform attribute of @synth
+  @voice_number = voice_number
+  @frequency_low = @frequency_high = 0
+  @pulse_low = @pulse_high = 0
+  @control_register = 0
+  @attack_decay = @sustain_release = 0
+  @filter_cutoff = 1024
+  @filter_resonance = 8
+  @filter_enabled = false  # Added filter_enabled flag
+  @previous_midi_note = nil
+  # Initialize the LFSR state t
       # Initialize the LFSR state to a non-zero value
       @lfsr_state = 0b10101010101010101010101  # Replace with your initial value
     end
