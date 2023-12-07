@@ -6,8 +6,8 @@ module SidtoolExperimental
     INTERRUPT_ENABLE_FLAG = 0b00000001
     TIMER_MODE_FLAG = 0b00000010
 
-    # Initializer
-    def initialize
+  def initialize(emulator)  # Accept emulator as an argument
+    @emulator = emulator
 
       @parallel_ports = Array.new(2) { {data: 0, direction: 0xFF} }
       @serial_shift_register = 0
