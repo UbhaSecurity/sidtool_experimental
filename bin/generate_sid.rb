@@ -5,9 +5,9 @@ data_offset = 118  # Size of the header for version 1
 load_address = 0  # Default value for load address
 init_address = 0  # Default value for init address
 play_address = 0  # Default value for play address
-songs = 1
+songs = 4          # Increase the number of songs to 4
 start_song = 1
-speed = 0  # Default speed setting
+speed = 0          # Default speed setting
 
 # Author, title, and released fields (32 bytes each)
 author = "Your Name".ljust(32, "\x00")
@@ -18,18 +18,20 @@ released = "2023-12-31".ljust(32, "\x00")
 header_data = [
   header, version, data_offset, load_address, init_address, play_address, songs, start_song, speed,
   author, title, released
-].pack("a4 S S S S S S S S a32 a32 a32")
+].pack("a4 S S S S S S S a32 a32 a32")
 
 # Define SID voice and register settings
 voice1 = "\x00\x00\x0f\x09\x00\x07\x00\x00"
 voice2 = "\x00\x00\x0f\x07\x00\x07\x00\x00"
 voice3 = "\x00\x00\x0f\x05\x00\x07\x00\x00"
+bass_track = "\x00\x00\x0f\x04\x00\x07\x00\x00"  # New bass track
 
-# Define a simple song structure with 5 patterns
+# Define a simple song structure with 6 patterns for each voice
 song_data = [
-  [0, 1, 2, 3, 4],   # Pattern order for voice 1
-  [0, 1, 2, 3, 4],   # Pattern order for voice 2
-  [0, 1, 2, 3, 4],   # Pattern order for voice 3
+  [0, 1, 2, 3, 4, 5],   # Pattern order for voice 1
+  [0, 1, 2, 3, 4, 5],   # Pattern order for voice 2
+  [0, 1, 2, 3, 4, 5],   # Pattern order for voice 3
+  [0, 1, 2, 3, 4, 5],   # Pattern order for bass track
 ]
 
 # Define note and effect data for each pattern
@@ -58,77 +60,224 @@ patterns << [
     [69, 0x40, 0x0F],
     [67, 0x40, 0x0F],
   ],
+  # Bass Track
+  [
+    [24, 0x40, 0x0F],  # Adjust the notes and settings for your bass track
+    [26, 0x40, 0x0F],
+    [28, 0x40, 0x0F],
+    [29, 0x40, 0x0F],
+  ],
 ]
 
-# Define arpeggio data (e.g., ascending C major chord)
-arpeggio = [0, 4, 7]
-
-# Define slide data (e.g., slide up and down)
-slide_up = [0x0A, 0x08, 0x06, 0x04]
-slide_down = [0x05, 0x07, 0x09, 0x0B]
-
-# Define portamento effect (e.g., slide between notes)
-portamento = [0x00, 0x01, 0x02, 0x03]
-
-# Define volume control (e.g., decrease and increase volume)
-volume_down = [0x0F, 0x0D, 0x0B, 0x09, 0x07, 0x05, 0x03, 0x01]
-volume_up = [0x01, 0x03, 0x05, 0x07, 0x09, 0x0B, 0x0D, 0x0F]
-
-# Define vibrato effect (e.g., pitch modulation)
-vibrato = [0x00, 0x01, 0x02, 0x03]
-
-# Convert notes to frequencies (you may need to adjust these frequencies)
-freq_table = [
-  4186, 3951, 3729, 3520, 3322, 3136, 2960, 2794, 2637, 2489, 2349, 2217
+# Pattern 1 - Melody 2
+patterns << [
+  # Voice 1
+  [
+    [64, 0x40, 0x0F],  # Note: 64, Attack: 64, Release: 15
+    [66, 0x40, 0x0F],
+    [68, 0x40, 0x0F],
+    [69, 0x40, 0x0F],
+  ],
+  # Voice 2 (Bass Track)
+  [
+    [36, 0x40, 0x0F],
+    [38, 0x40, 0x0F],
+    [40, 0x40, 0x0F],
+    [41, 0x40, 0x0F],
+  ],
+  # Voice 3
+  [
+    [76, 0x40, 0x0F],
+    [74, 0x40, 0x0F],
+    [72, 0x40, 0x0F],
+    [71, 0x40, 0x0F],
+  ],
+  # Bass Track
+  [
+    [24, 0x40, 0x0F],  # Adjust the notes and settings for your bass track
+    [26, 0x40, 0x0F],
+    [28, 0x40, 0x0F],
+    [29, 0x40, 0x0F],
+  ],
 ]
 
-# Define the SID data
+# Pattern 2 - Melody 3
+patterns << [
+  # Voice 1
+  [
+    [72, 0x40, 0x0F],  # Note: 72, Attack: 64, Release: 15
+    [71, 0x40, 0x0F],
+    [69, 0x40, 0x0F],
+    [67, 0x40, 0x0F],
+  ],
+  # Voice 2 (Bass Track)
+  [
+    [36, 0x40, 0x0F],
+    [38, 0x40, 0x0F],
+    [40, 0x40, 0x0F],
+    [41, 0x40, 0x0F],
+  ],
+  # Voice 3
+  [
+    [60, 0x40, 0x0F],
+    [62, 0x40, 0x0F],
+    [64, 0x40, 0x0F],
+    [65, 0x40, 0x0F],
+  ],
+  # Bass Track
+  [
+    [24, 0x40, 0x0F],  # Adjust the notes and settings for your bass track
+    [26, 0x40, 0x0F],
+    [28, 0x40, 0x0F],
+    [29, 0x40, 0x0F],
+  ],
+]
+
+# Pattern 3 - Additional Bass Pattern
+patterns << [
+  # Voice 1
+  [
+    [55, 0x40, 0x0F],  # Note: 55, Attack: 64, Release: 15
+    [57, 0x40, 0x0F],
+    [59, 0x40, 0x0F],
+    [60, 0x40, 0x0F],
+  ],
+  # Voice 2 (Bass Track)
+  [
+    [33, 0x40, 0x0F],
+    [35, 0x40, 0x0F],
+    [36, 0x40, 0x0F],
+    [38, 0x40, 0x0F],
+  ],
+  # Voice 3
+  [
+    [67, 0x40, 0x0F],
+    [69, 0x40, 0x0F],
+    [71, 0x40, 0x0F],
+    [72, 0x40, 0x0F],
+  ],
+  # Bass Track
+  [
+    [24, 0x40, 0x0F],  # Adjust the notes and settings for your bass track
+    [26, 0x40, 0x0F],
+    [28, 0x40, 0x0F],
+    [29, 0x40, 0x0F],
+  ],
+]
+
+# Pattern 4 - Repeating Bass Pattern
+patterns << [
+  # Voice 1
+  [
+    [60, 0x40, 0x0F],  # Note: 60, Attack: 64, Release: 15
+    [62, 0x40, 0x0F],
+    [64, 0x40, 0x0F],
+    [65, 0x40, 0x0F],
+  ],
+  # Voice 2 (Bass Track)
+  [
+    [36, 0x40, 0x0F],
+    [38, 0x40, 0x0F],
+    [40, 0x40, 0x0F],
+    [41, 0x40, 0x0F],
+  ],
+  # Voice 3
+  [
+    [72, 0x40, 0x0F],
+    [71, 0x40, 0x0F],
+    [69, 0x40, 0x0F],
+    [67, 0x40, 0x0F],
+  ],
+  # Bass Track
+  [
+    [24, 0x40, 0x0F],  # Adjust the notes and settings for your bass track
+    [26, 0x40, 0x0F],
+    [28, 0x40, 0x0F],
+    [29, 0x40, 0x0F],
+  ],
+]
+
+# Pattern 5 - Ending Melody
+patterns << [
+  # Voice 1
+  [
+    [67, 0x40, 0x0F],  # Note: 67, Attack: 64, Release: 15
+    [69, 0x40, 0x0F],
+    [71, 0x40, 0x0F],
+    [72, 0x40, 0x0F],
+  ],
+  # Voice 2 (Bass Track)
+  [
+    [33, 0x40, 0x0F],
+    [35, 0x40, 0x0F],
+    [36, 0x40, 0x0F],
+    [38, 0x40, 0x0F],
+  ],
+  # Voice 3
+  [
+    [60, 0x40, 0x0F],
+    [62, 0x40, 0x0F],
+    [64, 0x40, 0x0F],
+    [65, 0x40, 0x0F],
+  ],
+  # Bass Track
+  [
+    [24, 0x40, 0x0F],  # Adjust the notes and settings for your bass track
+    [26, 0x40, 0x0F],
+    [28, 0x40, 0x0F],
+    [29, 0x40, 0x0F],
+  ],
+]
+
+# Generate pattern data
 data = []
 
-# Generate the SID data for each pattern
-patterns.each_with_index do |pattern, pattern_index|
+patterns.each do |pattern|
   pattern.each_with_index do |voice_data, voice_index|
-    voice_data.each_with_index do |(note, attack, release), note_index|
-      freq = freq_table[note % 12]
-      note_data = [freq & 0xFF, (freq >> 8) & 0xFF, attack, release]
+    pattern_index = patterns.index(pattern)
+    
+    voice_data.each_with_index do |note_data, note_index|
+      # Apply pattern data
+      data << note_data[0]
+      data << note_data[1]
 
-      # Apply arpeggios, slides, portamento, volume control, vibrato
+      # Apply arpeggio to voice 1 (melody)
       if voice_index == 0
-        # Apply arpeggio to voice 1
-        arpeggio_value = arpeggio[note_index % arpeggio.length]
-        note_data[1] |= (arpeggio_value & 0x0F) << 4
-      elsif voice_index == 1
-        # Apply slide up and down to bass track (voice 2)
-        slide_value = pattern_index.even? ? slide_up[note_index % slide_up.length] : slide_down[note_index % slide_down.length]
-        note_data[2] |= slide_value
-      elsif voice_index == 2
-        # Apply portamento effect to voice 3
-        portamento_value = portamento[note_index % portamento.length]
-        note_data[1] |= portamento_value
+        arpeggio_values = [0, 1, 2]  # Adjust arpeggio values as needed
+        arpeggio_index = note_index % arpeggio_values.length
+        arpeggio_value = arpeggio_values[arpeggio_index]
+        data << arpeggio_value
       end
 
-      # Apply volume control (alternate volume up and down) to all voices
-      volume_value = pattern_index.even? ? volume_down[note_index % volume_down.length] : volume_up[note_index % volume_up.length]
-      note_data[2] |= (volume_value & 0x0F) << 4
+      # Apply slide and portamento to voice 2 (bass track)
+      if voice_index == 1
+        slide_value = 0x0F  # Adjust slide value as needed
+        data << slide_value
+        portamento_value = 0x00  # Adjust portamento value as needed
+        data << portamento_value
+      end
 
-      # Apply vibrato effect to all voices
-      vibrato_value = vibrato[note_index % vibrato.length]
-      note_data[2] |= vibrato_value
+      # Apply volume control to voice 3
+      if voice_index == 2
+        # Apply volume control here if needed
+        volume_value = 0x0F  # Adjust volume value as needed
+        data << volume_value
+      end
 
-      data << note_data
+      # Apply effects or additional settings
+      if voice_index == 3
+        # Apply volume control to bass track (voice 4)
+        volume_value = pattern_index.even? ? 0x0F : 0x07  # Adjust volume values as needed
+        data << volume_value
+      end
     end
   end
 end
 
-# Write the SID file
-File.open("output.sid", "wb") do |file|
-  # Write header data
-  file.write(header_data)
+# Combine header, voice settings, and data
+sid_data = header_data + voice1 + voice2 + voice3 + bass_track + song_data.flatten.pack("C*") + data.pack("C*")
 
-  # Write note and effect data
-  data.each do |note_data|
-    file.write(note_data.pack("C*"))
-  end
-end
+# Write the SID data to a file
+File.open("output.sid", "wb") { |file| file.write(sid_data) }
 
 puts "SID file 'output.sid' generated successfully!"
