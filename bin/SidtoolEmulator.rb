@@ -111,6 +111,7 @@ puts "Should not happend"
     end
 
     def run_emulation
+       puts "Start emulation"
       until @emulation_finished
         run_cycle
       end
