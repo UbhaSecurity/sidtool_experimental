@@ -61,7 +61,43 @@ module SidtoolExperimental
       handle_frame_update if frame_completed?
     end
 
+    def self.run
+      options = parse_arguments
+
+      if ARGV.empty?
+        puts "Error: Please provide the path to the input SID file."
+        exit(1)
+      end
+
+      input_file = ARGV[0]
+
+      unless File.exist?(input_file)
+        puts "Error: The specified SID file does not exist: #{input_file}"
+        exit(1)
+      end
+
+      emulator = SidtoolExperimental::SidtoolEmulator.new
+      emulator.load_and_run_sid_file(input_file)
+    end
+
     private
+
+    def self.parse_arguments
+      options = {}
+
+      OptionParser.new do |opts|
+        opts.banner = "Usage: ruby your_program.rb [options] input_file.sid"
+
+        # You can add options and their descriptions here if needed
+
+        opts.on("-h", "--help", "Display this help message") do
+          puts opts
+          exit
+        end
+      end.parse!
+
+      options
+    end
 
     def setup_sid_environment(sid_file)
       @cpu.pc = sid_file.init_address
