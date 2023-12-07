@@ -116,7 +116,6 @@ module SidtoolExperimental
 
         instr[:operation].call
       end
-        @state.update
         handle_timer_interrupts
       end
 
