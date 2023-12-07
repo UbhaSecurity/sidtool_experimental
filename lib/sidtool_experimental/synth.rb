@@ -3,6 +3,7 @@ module SidtoolExperimental
     attr_reader :start_frame, :controls
     attr_accessor :waveform, :frequency, :pulse_width, :filter_cutoff, :filter_resonance
     attr_accessor :attack, :decay, :sustain, :release, :osc_sync, :ring_mod_effect
+    attr_accessor :current_frame  # Add this line to define the current_frame attribute
 
     # Constants for slide detection and handling
     SLIDE_THRESHOLD = 60
@@ -14,7 +15,7 @@ module SidtoolExperimental
     # Initialize a new Synth instance.
     def initialize(start_frame)
       @start_frame = start_frame
-      @@current_frame = 0  # Initialize @current_frame here
+      @current_frame = 0  # Initialize current_frame here
       @controls = []
       @frequency = 0
       @pulse_width = 0
