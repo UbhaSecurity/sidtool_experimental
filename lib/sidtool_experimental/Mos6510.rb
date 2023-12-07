@@ -116,7 +116,7 @@ module SidtoolExperimental
 
         instr[:operation].call
       end
-        @emulator.update
+        @emulator.update_state
         handle_timer_interrupts
       end
 
