@@ -163,18 +163,19 @@ module SidtoolExperimental
       update_synth_properties
     end
 
- def update_synth_properties
-      midi_note = frequency_to_midi(calculate_frequency_hz)
-      if midi_note != @previous_midi_note
-        handle_midi_note_change(midi_note)
-        @previous_midi_note = midi_note
-      end
+def update_synth_properties
+  midi_note = frequency_to_midi(calculate_frequency_hz)
+  if midi_note != @previous_midi_note
+    handle_midi_note_change(midi_note)
+    @previous_midi_note = midi_note
+  end
 
-      @current_synth.waveform = waveform
-      @current_synth.attack = attack
-      @current_synth.decay = decay
-      @current_synth.release = release
-    end
+  self.frequency_low, self.frequency_high = split_frequency(calculate_frequency_hz) # Update frequency_low and frequency_high
+  @current_synth.waveform = waveform
+  @current_synth.attack = attack
+  @current_synth.decay = decay
+  @current_synth.release = release
+end
 
 def finish_frame
   # Process this voice's contribution to the audio for this frame
