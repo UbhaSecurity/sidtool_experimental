@@ -31,18 +31,18 @@ module SidtoolExperimental
     OSC3       = 0xD41B
     ENV3       = 0xD41C
 
-    def initialize(memory:, state:)
-      @memory = memory
-      @state = state
-      @voices = []
-      @global_filter_cutoff = 0
-      @global_filter_resonance = 0
-      @global_volume = 0
-      @audio_buffer = []
-      @filter_state = { last_output: 0.0, last_input: 0.0 }
+def initialize(memory:, state:)
+  @memory = memory
+  @state = state
+  @voices = []
+  @global_filter_cutoff = 0
+  @global_filter_resonance = 0
+  @global_volume = 0
+  @audio_buffer = []
+  @filter_state = { last_output: 0.0, last_input: 0.0 }
 
-      create_voices
-    end
+  create_voices
+end
 
   # Define the audio_buffer method
     def audio_buffer
