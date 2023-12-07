@@ -17,7 +17,8 @@ module SidtoolExperimental
     def initialize(sid6581, voice_number)
       @sid6581 = sid6581
       @synth = Synth.new(0)
-      @current_synth = Synth.new(0) # Initialize @current_synth here  
+      @current_synth = Synth.new(start_frame)
+      waveform = :triangle  # Or any other default value
       @voice_number = voice_number
       @frequency_low = @frequency_high = 0
       @pulse_low = @pulse_high = 0
