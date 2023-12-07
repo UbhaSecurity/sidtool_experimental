@@ -9,6 +9,7 @@ module SidtoolExperimental
     ATTACK_VALUES = [0.002, 0.008, 0.016, 0.024, 0.038, 0.056, 0.068, 0.08, 0.1, 0.25, 0.5, 0.8, 1, 3, 5, 8]
     DECAY_RELEASE_VALUES = [0.006, 0.024, 0.048, 0.072, 0.114, 0.168, 0.204, 0.24, 0.3, 0.75, 1.5, 2.4, 3, 9, 15, 24]
    LFSR_STATE_BITS = 23
+ DEFAULT_MIDI_NOTE = 60 
     # Initialize a new Voice instance with a reference to the SID chip and its voice number.
     #
     # @param sid6581 [Sid6581] Reference to the SID chip instance.
@@ -454,14 +455,13 @@ end
   end
 
 def frequency_to_midi(frequency)
-  if frequency <= 0.0
-    # Handle the case where frequency is zero or negative (you can return a default value or raise an exception)
-    # Example: return a default MIDI note number
-    return DEFAULT_MIDI_NOTE
-  else
-    return 69 + (12 * Math.log2(frequency / 440.0)).round
-  end
-end
+      if frequency <= 0.0
+        # Handle the case where frequency is zero or negative
+        return DEFAULT_MIDI_NOTE
+      else
+        return 69 + (12 * Math.log2(frequency / 440.0)).round
+      end
+    end
 
 
   # Convert a MIDI note number to a frequency.
