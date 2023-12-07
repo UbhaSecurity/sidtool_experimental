@@ -16,7 +16,8 @@ module SidtoolExperimental
     # @param voice_number [Integer] The number of the voice on the SID chip.
     def initialize(sid6581, voice_number)
       @sid6581 = sid6581
-      @synth = Synth.new(0)  
+      @synth = Synth.new(0)
+      @current_synth = Synth.new(0) # Initialize @current_synth here  
       @voice_number = voice_number
       @frequency_low = @frequency_high = 0
       @pulse_low = @pulse_high = 0
