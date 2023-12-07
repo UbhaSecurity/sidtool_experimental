@@ -22,98 +22,66 @@ module SidtoolExperimental
 
     def initialize
       @memory = Memory.new
+      @cpu = Mos6510.new(@memory, self)
       @cia_timer_a = CIATimer.new(self)
       @cia_timer_b = CIATimer.new(self)
-      @cpu = Mos6510.new(@memory, self)
       @sid6581 = Sid6581.new(memory: @memory)
       @cycle_count = 0
       @audio_buffer = []
       @current_frame = 0
     end
 
-    def load_and_run_sid_file(file_path)
-      load_sid_file(file_path)
-      run_emulation
-    end
-
-    private
-
-def update_timers
-  # Update both CIA timers
-  @cia_timer_a.update
-  @cia_timer_b.update
-end
-
-def handle_interrupts
-  # Check for IRQ and NMI interrupts
-  if @cpu.irq_pending? && !@interrupt_flag
-    handle_irq
-  end
-  handle_nmi if @cpu.nmi_pending?
-end
-
-def update_sid
-  # Update the SID chip's state
-  @sid6581.update_sid_state
-end
-
-def handle_irq
-  # Logic to handle IRQ interrupts
-  @cpu.save_state
-  @cpu.jump_to_address(@irq_vector)
-  @cpu.restore_state
-end
-
-def handle_nmi
-  # Logic to handle NMI interrupts
-  @cpu.save_state
-  @cpu.jump_to_address(@nmi_vector)
-  @cpu.restore_state
-end
-
     def load_sid_file(file_path)
       sid_file = FileReader.read(file_path)
+
       raise 'Memory not initialized' unless @memory.is_a?(Memory)
       raise 'Invalid start address' unless @memory.valid_address?(sid_file.load_address)
+
       @cpu.load_program(sid_file.data, sid_file.load_address)
       setup_sid_environment(sid_file)
     end
 
-    def run_emulation
-      until @emulation_finished
+    def run
+      until emulation_finished?
         run_cycle
       end
     end
 
+    def stop
+      @emulation_finished = true
+    end
+
     def run_cycle
       @cpu.step
-      # Update SID state and process audio
       @sid6581.update_sid_state
       @cia_timer_a.update
       @cia_timer_b.update
+      process_audio
       @current_frame += 1
       handle_frame_update if frame_completed?
     end
 
-def update_state
-  update_timers
-  handle_interrupts
-  update_sid
-end
+    private
 
-
-    def handle_frame_update
-      if frame_completed?
-        @cycle_count = 0
-        frame_audio_output = @sid6581.process_audio(AUDIO_SAMPLE_RATE)
-        @audio_buffer.concat(frame_audio_output)
-        manage_audio_buffer
-        @current_frame += 1
-      end
+    def setup_sid_environment(sid_file)
+      @cpu.pc = sid_file.init_address
+      handle_extended_sid_file(sid_file) if sid_file.version >= 2
     end
 
     def frame_completed?
       @cycle_count >= CYCLES_PER_FRAME
+    end
+
+    def handle_frame_update
+      @cycle_count = 0
+      process_audio
+      manage_audio_buffer
+      increment_frame
+    end
+
+    def process_audio
+      frame_audio_output = @sid6581.process_audio(AUDIO_SAMPLE_RATE)
+      @audio_buffer.concat(frame_audio_output)
     end
 
     def manage_audio_buffer
@@ -129,17 +97,18 @@ end
       File.open(filename, "wb") { |file| WavFile.write(file, format, [data_chunk]) }
     end
 
-    def setup_sid_environment(sid_file)
-      @cpu.pc = sid_file.init_address
-      handle_extended_sid_file(sid_file) if sid_file.version >= 2
+    def increment_frame
+      @current_frame += 1
     end
 
     def handle_extended_sid_file(sid_file)
-      # Implement logic for extended SID file features
+      # Handle additional features for extended SID files
     end
+
+    def emulation_finished?
+      @emulation_finished
+    end
+
+    # Other methods as needed...
   end
 end
-
-# Usage Example
-emulator = SidtoolExperimental::SidtoolEmulator.new
-emulator.load_and_run_sid_file('path_to_sid_file.sid')
