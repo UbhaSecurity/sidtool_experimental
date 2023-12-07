@@ -116,6 +116,7 @@ module SidtoolExperimental
 
         instr[:operation].call
       end
+        @emulator.update
         handle_timer_interrupts
       end
 
@@ -348,7 +349,7 @@ end
   end
 
 def handle_timer_interrupts
-  @state.cia_timers.each do |timer|
+  @emulator.cia_timers.each do |timer|
     # Check if timer is not nil before attempting to call methods on it
     if timer && timer.underflow? && timer.interrupt_enabled?
       irq
