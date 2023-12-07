@@ -17,6 +17,7 @@ module SidtoolExperimental
     AUDIO_SAMPLE_RATE = 44_100 # 44.1 kHz
     CYCLES_PER_FRAME = CPU_FREQUENCY / AUDIO_SAMPLE_RATE
     MAX_BUFFER_SIZE = 44100 * 10 # Example size, 10 seconds of audio at 44.1 kHz
+    FRAMES_PER_SECOND = 50.0
 
     attr_accessor :memory, :cpu, :cia_timer_a, :cia_timer_b, :sid6581, :cycle_count, :audio_buffer, :current_frame
 
