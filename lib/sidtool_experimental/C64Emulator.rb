@@ -8,15 +8,19 @@ module SidtoolExperimental
  attr_accessor :memory, :cpu, :ciaTimerA, :ciaTimerB, :sid6581, :state, :current_frame
 
 def initialize(memory)
-      @memory = memory
-      @cpu = Mos6510::Cpu.new(@memory, self)
-      @ciaTimerA = CIATimer.new(self)
-      @ciaTimerB = CIATimer.new(self)
-      
- temp_sid6581 = Sid6581.new(memory: @memory, state: nil)
-  @state = State.new(@cpu, self, [@ciaTimerA, @ciaTimerB], temp_sid6581)
-  temp_sid6581.state = @state
-  @sid6581 = temp_sid6581
+  @memory = memory
+  @cpu = Mos6510::Cpu.new(@memory, self)
+  @ciaTimerA = CIATimer.new(self)
+  @ciaTimerB = CIATimer.new(self)
+  
+  # Initialize Sid6581
+  @sid6581 = Sid6581.new(memory: @memory, state: nil)
+
+  # Create the State instance
+  @state = State.new(@cpu, self, [@ciaTimerA, @ciaTimerB], @sid6581)
+
+  # Update the state in Sid6581
+  @sid6581.state = @state
 
       @cycle_count = 0
       @audio_buffer = [] # Initialize the audio buffer to store sound samples
