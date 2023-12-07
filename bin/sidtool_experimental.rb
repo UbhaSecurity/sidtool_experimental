@@ -41,14 +41,10 @@ module SidtoolExperimental
     end
 
     begin
-      @memory = Memory.new
-      @sid6581 = Sid6581.new(memory: @memory, state: {})
-      @c64_emulator = C64Emulator.new(@memory, @sid6581)
+@memory = Memory.new
+@state = State.new(@c64_emulator.cpu, @c64_emulator, [@c64_emulator.ciaTimerA, @c64_emulator.ciaTimerB], @sid6581)
 
-      @state = State.new(@c64_emulator.cpu, @c64_emulator, [@c64_emulator.ciaTimerA, @c64_emulator.ciaTimerB], @sid6581)
-      @c64_emulator.state = @state
-      @sid6581.state = @state
-      @sid6581.create_voices
+@sid6581 = Sid6581.new(memory: @memory, state: @state)
 
       puts "C64Emulator instance created."
 
