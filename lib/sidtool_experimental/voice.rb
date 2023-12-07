@@ -462,6 +462,7 @@ def handle_midi_note_change(new_midi_note)
   self.frequency_high = new_frequency_high
 end
 
+
 def frequency_to_midi(frequency)
       if frequency <= 0.0
         # Handle the case where frequency is zero or negative
