@@ -41,15 +41,20 @@ module SidtoolExperimental
     end
 
     begin
-@memory = Memory.new
-@c64_emulator = C64Emulator.new(@memory)
-@c64_emulator.ciaTimerA = CIATimer.new(@c64_emulator)
-@c64_emulator.ciaTimerB = CIATimer.new(@c64_emulator)
-temp_sid6581 = Sid6581.new(memory: @memory, state: nil)
-@state = State.new(@c64_emulator.cpu, @c64_emulator, [@c64_emulator.ciaTimerA, @c64_emulator.ciaTimerB], temp_sid6581)
-temp_sid6581.state = @state
-@c64_emulator.state = @state
-@sid6581 = temp_sid6581
+  @memory = Memory.new
+  @c64_emulator = C64Emulator.new(@memory)
+  @c64_emulator.ciaTimerA = CIATimer.new(@c64_emulator)
+  @c64_emulator.ciaTimerB = CIATimer.new(@c64_emulator)
+  @sid6581 = Sid6581.new(memory: @memory, state: nil) # Temporarily with nil state
+
+  # Now that all dependencies are initialized, create the State instance
+  @state = State.new(@c64_emulator.cpu, @c64_emulator, [@c64_emulator.ciaTimerA, @c64_emulator.ciaTimerB], @sid6581)
+
+  # Update the state in Sid6581
+  @sid6581.state = @state
+
+  # Set the state for the C64Emulator
+  @c64_emulator.state = @state
 
 
 
