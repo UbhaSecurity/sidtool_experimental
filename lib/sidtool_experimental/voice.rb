@@ -170,7 +170,9 @@ def update_synth_properties
     @previous_midi_note = midi_note
   end
 
-  self.frequency_low, self.frequency_high = split_frequency(calculate_frequency_hz) # Update frequency_low and frequency_high
+  self.frequency_low = new_frequency_low
+  self.frequency_high = new_frequency_high
+
   @current_synth.waveform = waveform
   @current_synth.attack = attack
   @current_synth.decay = decay
