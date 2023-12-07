@@ -175,6 +175,12 @@ end
       end
     end
 
+def update_sid_state
+  apply_lfo_to_voices
+  update_registers
+  generate_sound
+end
+
     private
 
     # Update all registers based on current voice state
