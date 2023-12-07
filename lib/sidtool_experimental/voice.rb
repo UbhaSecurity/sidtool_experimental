@@ -239,7 +239,7 @@ end
       phase
     end
 
-def calculate_frequency_hz(new_frequency_low, new_frequency_high)
+def calculate_frequency_hz
   # Convert frequency_low and frequency_high to a 16-bit value
   frequency_value = (@frequency_high << 8) | @frequency_low
 
