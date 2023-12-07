@@ -15,10 +15,16 @@ title = "Your SID Tune Title".ljust(32, "\x00")
 released = "2023-12-31".ljust(32, "\x00")
 
 # Convert header fields to binary format
-header_data = [
-  header, version, data_offset, load_address, init_address, play_address, songs, start_song, speed,
-  author, title, released
-].pack("a4 S S S S S S S a32 a32 a32")
+header_data = []
+header_data << header
+header_data << [version, data_offset, load_address, init_address, play_address, songs, start_song, speed]
+header_data.flatten!
+header_data << author
+header_data << title
+header_data << released
+
+# Convert header_data to binary
+header_data = header_data.pack("a4 S S S S S S S a32 a32 a32")
 
 # Define SID voice and register settings
 voice1 = "\x00\x00\x0f\x09\x00\x07\x00\x00"
