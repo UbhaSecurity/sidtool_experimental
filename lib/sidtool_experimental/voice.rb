@@ -13,9 +13,9 @@ module SidtoolExperimental
     #
     # @param sid6581 [Sid6581] Reference to the SID chip instance.
     # @param voice_number [Integer] The number of the voice on the SID chip.
-    def initialize(sid6581, voice_number, state)
+    def initialize(sid6581, voice_number)
       @sid6581 = sid6581
-      @synth = Synth.new(0, state)  # Pass the state here
+      @synth = Synth.new(0)  
       @voice_number = voice_number
       @frequency_low = @frequency_high = 0
       @pulse_low = @pulse_high = 0
@@ -25,7 +25,6 @@ module SidtoolExperimental
       @filter_resonance = 8
       @filter_enabled = false  # Added filter_enabled flag
       @previous_midi_note = nil
-      @state = state
       # Initialize the LFSR state to a non-zero value
       @lfsr_state = 0b10101010101010101010101  # Replace with your initial value
     end
@@ -47,7 +46,7 @@ module SidtoolExperimental
 
     def process_adsr(sample_rate)
       # Determine the current elapsed time in seconds since the note started
-      elapsed_time = (STATE.current_frame - @start_frame) / sample_rate.to_f
+      elapsed_time = (current_frame - @start_frame) / sample_rate.to_f
 
       case current_adsr_stage(elapsed_time)
       when :attack
@@ -240,7 +239,6 @@ def calculate_phase(current_frame, audio_sample_rate, frequency_hz)
   phase
 end
 
-
 def calculate_frequency_hz
   # Convert frequency_low and frequency_high to a 16-bit value
   frequency_value = (@frequency_high << 8) | @frequency_low
@@ -422,8 +420,6 @@ def calculate_pulse_width
   pulse_width
 end
 
-
-
  def generate_noise_wave(phase)
       # Clock the LFSR when bit 19 of the oscillator goes high
       clock_lfsr if oscillator_bit_19_high?
@@ -448,7 +444,6 @@ end
 
       normalized_output
     end
-
 
   def handle_midi_note_change(new_midi_note)
     # You can add your custom logic here to respond to MIDI note changes.
