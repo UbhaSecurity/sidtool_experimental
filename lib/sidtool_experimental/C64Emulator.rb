@@ -5,9 +5,7 @@ module SidtoolExperimental
     CYCLES_PER_FRAME = CPU_FREQUENCY / AUDIO_SAMPLE_RATE
     MAX_BUFFER_SIZE = 44100 * 10 # Example size, 10 seconds of audio at 44.1 kHz
 
-    attr_reader :memory, :cpu, :ciaTimerA, :ciaTimerB
-    attr_accessor :sid6581, :state
-    attr_accessor :current_frame
+ attr_accessor :memory, :cpu, :ciaTimerA, :ciaTimerB, :sid6581, :state, :current_frame
 
 def initialize(memory)
       @memory = memory
