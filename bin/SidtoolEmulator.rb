@@ -38,25 +38,37 @@ module SidtoolExperimental
       run_emulation
     end
 
-    def run(frames = 15_000)
+    def run(frames = 15_000, show_usage = false)
       options = parse_command_line_arguments
       if options[:file]
-        puts "Loading and running SID file: #{options[:file]}"
-        load_and_run_sid_file(options[:file], frames)
+        if show_usage
+          puts "Usage: #{$0} [options]"
+        else
+          puts "Loading and running SID file: #{options[:file]}"
+          load_and_run_sid_file(options[:file], frames)
+        end
       else
-        puts "Please specify a SID file to load and run using the -f or --file option."
+        if show_usage
+          puts "Usage: #{$0} [options]"
+        else
+          puts "Please specify a SID file to load and run using the -f or --file option."
+        end
       end
     end
 
     private
 
-    def parse_command_line_arguments
+     def parse_command_line_arguments
       options = {}
       OptionParser.new do |opts|
         opts.banner = "Usage: #{$0} [options]"
 
         opts.on("-f", "--file FILE", "Path to the SID file") do |file|
           options[:file] = file
+        end
+
+        opts.on("-u", "--usage", "Show usage information") do
+          options[:usage] = true
         end
 
         opts.on_tail("-h", "--help", "Show this message") do
@@ -67,7 +79,6 @@ module SidtoolExperimental
 
       options
     end
-
     def update_timers
       # Update both CIA timers
       @cia_timer_a.update
@@ -175,5 +186,11 @@ end
 
 # Usage Example with optional frames argument (default: 15,000 frames)
 emulator = SidtoolExperimental::SidtoolEmulator.new
-emulator.run(15000) # Specify the number of frames here if different from the default
 
+# Display usage information from the command-line
+if ARGV.include?("-u") || ARGV.include?("--usage")
+  emulator.run(0, true)
+else
+  emulator.run(15000) # Specify the number of frames here if different from the default
+end
+Now, you can use the -u or --usage option to prin
