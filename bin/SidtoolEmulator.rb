@@ -58,6 +58,11 @@ end
   end
 end
 
+    def update_state
+      update_timers
+      handle_interrupts
+      update_sid
+    end
 
     private
 
@@ -143,11 +148,7 @@ end
       handle_frame_update if frame_completed?
     end
 
-    def update_state
-      update_timers
-      handle_interrupts
-      update_sid
-    end
+
 
     def handle_frame_update
       if frame_completed?
