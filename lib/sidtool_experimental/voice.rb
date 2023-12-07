@@ -162,7 +162,7 @@ module SidtoolExperimental
     # Method to apply LFO modulation to voice parameters
     def modulate_with_lfo
       @synth.apply_lfo if @synth
-      @sid6581.update_registers
+      update_synth_properties
     end
 
     # Update properties of the current synthesizer.
