@@ -36,7 +36,34 @@ module SidtoolExperimental
       run_emulation
     end
 
+    def run
+      options = parse_command_line_arguments
+      if options[:file]
+        load_and_run_sid_file(options[:file])
+      else
+        puts "Please specify a SID file to load and run using the -f or --file option."
+      end
+    end
+
     private
+
+    def parse_command_line_arguments
+      options = {}
+      OptionParser.new do |opts|
+        opts.banner = "Usage: #{$0} [options]"
+
+        opts.on("-f", "--file FILE", "Path to the SID file") do |file|
+          options[:file] = file
+        end
+
+        opts.on_tail("-h", "--help", "Show this message") do
+          puts opts
+          exit
+        end
+      end.parse!
+
+      options
+    end
 
     def update_timers
       # Update both CIA timers
@@ -79,13 +106,13 @@ module SidtoolExperimental
       setup_sid_environment(sid_file)
     end
 
-   def run_emulation
+    def run_emulation
       until @emulation_finished
         run_cycle
       end
     end
 
-  def run_cycle
+    def run_cycle
       puts "Running CPU cycle"
       @cpu.step
       # Update SID state and process audio
@@ -100,7 +127,7 @@ module SidtoolExperimental
       update_sid
     end
 
-   def handle_frame_update
+    def handle_frame_update
       if frame_completed?
         puts "Handling frame update"
         @cycle_count = 0
@@ -141,5 +168,4 @@ end
 
 # Usage Example
 emulator = SidtoolExperimental::SidtoolEmulator.new
-emulator.load_and_run_sid_file('path_to_sid_file.sid')
-
+emulator.run
