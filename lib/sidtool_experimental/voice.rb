@@ -239,15 +239,15 @@ end
       phase
     end
 
- def calculate_frequency_hz
-      # Convert frequency_low and frequency_high to a 16-bit value
-      frequency_value = (@frequency_high << 8) | @frequency_low
+def calculate_frequency_hz
+  # Convert frequency_low and frequency_high to a 16-bit value
+  frequency_value = (@frequency_high << 8) | @frequency_low
 
-      # Calculate frequency in Hertz using the formula
-      frequency_hz = frequency_value * 0.0596
+  # Calculate frequency in Hertz using the formula
+  frequency_hz = frequency_value * 0.0596
 
-      frequency_hz
-    end
+  frequency_hz
+end
 
     private
 
@@ -445,9 +445,9 @@ end
       normalized_output
     end
 
-def handle_midi_note_change(new_midi_note)
-  # Calculate the new frequency in Hertz based on the new MIDI note
-  new_frequency_hz = calculate_frequency_hz(new_midi_note)
+def handle_midi_note_change
+  # Calculate the new frequency in Hertz based on your custom logic
+  new_frequency_hz = calculate_frequency_hz
 
   # Your custom logic here
   # For example, you can print the new frequency:
