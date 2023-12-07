@@ -445,17 +445,22 @@ end
       normalized_output
     end
 
-  def handle_midi_note_change(new_midi_note)
-    # You can add your custom logic here to respond to MIDI note changes.
-    # For example, you might update the voice's frequency or trigger other actions.
-    # In this example, we'll update the voice's frequency based on the new MIDI note.
-    
-    # Calculate the new frequency based on the new MIDI note
-    new_frequency = midi_to_frequency(new_midi_note)
-
-    # Update the voice's frequency with the new value
-    self.frequency = new_frequency
-  end
+def handle_midi_note_change(new_midi_note)
+  # You can add your custom logic here to respond to MIDI note changes.
+  # For example, you might update the voice's frequency or trigger other actions.
+  # In this example, we'll update the voice's frequency based on the new MIDI note.
+  
+  # Calculate the new frequency based on the new MIDI note
+  new_frequency = midi_to_frequency(new_midi_note)
+  
+  # Split the new frequency into low and high parts
+  new_frequency_low = (new_frequency * 65536).to_i & 0xFFFF
+  new_frequency_high = ((new_frequency * 65536).to_i >> 16) & 0xFF
+  
+  # Update the voice's frequency_low and frequency_high with the new values
+  self.frequency_low = new_frequency_low
+  self.frequency_high = new_frequency_high
+end
 
 def frequency_to_midi(frequency)
       if frequency <= 0.0
