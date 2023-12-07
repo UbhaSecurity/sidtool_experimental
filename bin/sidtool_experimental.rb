@@ -43,19 +43,18 @@ module SidtoolExperimental
     begin
 @memory = Memory.new
 
-# First, initialize the C64Emulator instance
+# Initialize the C64Emulator instance
 @c64_emulator = C64Emulator.new(@memory)
 
-# Now that @c64_emulator is initialized, create the State instance
-@state = State.new(@c64_emulator.cpu, @c64_emulator, [@c64_emulator.ciaTimerA, @c64_emulator.ciaTimerB])
+# Create the Sid6581 instance
+@sid6581 = Sid6581.new(memory: @memory)
 
-# After @state is initialized, create the Sid6581 instance
-@sid6581 = Sid6581.new(memory: @memory, state: @state)
+# Now create the State instance with all required arguments
+@state = State.new(@c64_emulator.cpu, @c64_emulator, [@c64_emulator.ciaTimerA, @c64_emulator.ciaTimerB], @sid6581)
 
-# Set the state for both @c64_emulator and @sid6581
+# Assign the state to the necessary components
 @c64_emulator.state = @state
 @sid6581.state = @state
-@sid6581.create_voices
 
       puts "C64Emulator instance created."
 
