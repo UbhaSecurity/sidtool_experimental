@@ -161,14 +161,18 @@ def initialize(sid6581, voice_number)
       modulate_filter_with_lfo if @filter_enabled
     end
 
-    # Method to apply LFO modulation to voice parameters
-    def modulate_with_lfo
-# Add debugging statements to check variable values
-puts "Debug: waveform=#{waveform.inspect}" if defined?(waveform)
-puts "Debug: @current_synth=#{@current_synth.inspect}" if defined?(@current_synth)
-      @synth.apply_lfo if @synth
-      update_synth_properties
-    end
+def modulate_with_lfo
+  # Add debugging statements to check variable values
+  puts "Debug: waveform=#{@waveform.inspect}" if defined?(@waveform)
+  puts "Debug: @current_synth=#{@current_synth.inspect}" if defined?(@current_synth)
+
+  # Set the waveform attribute of @current_synth if @waveform is defined
+  @current_synth.waveform = @waveform if defined?(@waveform)
+
+  # Continue with the rest of the method...
+  @synth.apply_lfo if @synth
+  update_synth_properties
+end
 
 def update_synth_properties
   midi_note = frequency_to_midi(calculate_frequency_hz)
