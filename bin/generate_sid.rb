@@ -18,8 +18,8 @@ page_length = 0  # Default page length for relocation
 reserved = 0  # Reserved field
 
 # Author, title, and released fields (32 bytes each)
-author = "Ulf Bertilsson".ljust(32, "\x00")
-title = "Generated".ljust(32, "\x00")
+author = "Your Name".ljust(32, "\x00")
+title = "Your SID Tune Title".ljust(32, "\x00")
 released = "2023-12-31".ljust(32, "\x00")
 
 # Convert header fields to binary format
