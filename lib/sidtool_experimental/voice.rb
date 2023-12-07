@@ -19,6 +19,7 @@ def initialize(sid6581, voice_number)
   @synth = Synth.new(0)
   @current_synth = Synth.new(@synth.start_frame)  # Use @synth's start_frame
   @synth.waveform = :triangle  # Set the waveform attribute of @synth
+  @waveform = :triangle  # Initialize @waveform as an instance variable
   @voice_number = voice_number
   @frequency_low = @frequency_high = 0
   @pulse_low = @pulse_high = 0
