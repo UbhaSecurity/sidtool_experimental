@@ -8,7 +8,7 @@ module SidtoolExperimental
       @emulator = emulator
       @memory = Memory.new
       @cia_timers = cia_timers || []
-      @sid6581 = Sid6581.new(memory: @memory, state: @state)
+      @sid6581 = sid6581
       @emulation_finished = false
       @interrupt_flag = false
       @current_frame = 0
