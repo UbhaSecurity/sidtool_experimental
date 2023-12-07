@@ -13,15 +13,10 @@ def initialize(memory)
       @ciaTimerA = CIATimer.new(self)
       @ciaTimerB = CIATimer.new(self)
       
-      # Initialize Sid6581 with a temporary state if needed
-      temp_sid6581 = Sid6581.new(memory: @memory, state: nil)
-
-      # Now create the State instance
-      @state = State.new(@cpu, self, [@ciaTimerA, @ciaTimerB], temp_sid6581)
-
-      # Update the state in Sid6581 and C64Emulator instances
-      temp_sid6581.state = @state
-      @sid6581 = temp_sid6581
+ temp_sid6581 = Sid6581.new(memory: @memory, state: nil)
+  @state = State.new(@cpu, self, [@ciaTimerA, @ciaTimerB], temp_sid6581)
+  temp_sid6581.state = @state
+  @sid6581 = temp_sid6581
 
       @cycle_count = 0
       @audio_buffer = [] # Initialize the audio buffer to store sound samples
