@@ -29,10 +29,11 @@ module SidtoolExperimental
       @cycle_count = 0
       @audio_buffer = []
       @current_frame = 0
-      puts "Init"
+      puts "Init Sidtool Emulator ready"
     end
 
     def load_and_run_sid_file(file_path)
+      puts "load and run"
       load_sid_file(file_path)
       run_emulation
     end
@@ -111,6 +112,7 @@ module SidtoolExperimental
 
  def run_emulation(frames)
       frame_counter = 0
+      puts frame_counter
       until @emulation_finished || frame_counter >= frames
         run_cycle
         frame_counter += 1
@@ -174,3 +176,4 @@ end
 # Usage Example with optional frames argument (default: 15,000 frames)
 emulator = SidtoolExperimental::SidtoolEmulator.new
 emulator.run(15000) # Specify the number of frames here if different from the default
+
