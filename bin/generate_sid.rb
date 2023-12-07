@@ -28,6 +28,7 @@ header_data = [
   author, title, released
 ].pack("a4 S S S S S S S S S S S S C C S A32 A32 A32")
 
+
 # Define SID voice and register settings
 voice1 = "\x00\x00\x0f\x09\x00\x07\x00\x00"
 voice2 = "\x00\x00\x0f\x07\x00\x07\x00\x00"
