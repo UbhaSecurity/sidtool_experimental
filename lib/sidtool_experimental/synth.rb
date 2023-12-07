@@ -8,6 +8,7 @@ module SidtoolExperimental
     SLIDE_THRESHOLD = 60
     SLIDE_DURATION_FRAMES = 20
     MAX_FREQUENCY = 20000
+    FRAMES_PER_SECOND = 50.0
 
     # Initialize a new Synth instance.
     def initialize(start_frame)
