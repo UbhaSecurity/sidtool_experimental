@@ -4,8 +4,6 @@ module SidtoolExperimental
   attr_accessor :audio_buffer
     AUDIO_SAMPLE_RATE = 44100 
     MAX_BUFFER_SIZE = 8192  # Adjust the value as needed
-    attr_accessor :state
-
     # Define waveform constants for easy reference
     WAVEFORM_TRIANGLE = 0x01
     WAVEFORM_SAWTOOTH = 0x02
@@ -31,16 +29,14 @@ module SidtoolExperimental
     OSC3       = 0xD41B
     ENV3       = 0xD41C
 
-def initialize(memory:, state:)
+def initialize(memory:)
   @memory = memory
-  @state = state
   @voices = []
   @global_filter_cutoff = 0
   @global_filter_resonance = 0
   @global_volume = 0
   @audio_buffer = []
   @filter_state = { last_output: 0.0, last_input: 0.0 }
-
   create_voices
 end
 
@@ -51,7 +47,7 @@ end
 
    def create_voices
       3.times do |voice_index|
-        @voices << Voice.new(self, voice_index, @state)
+        @voices << Voice.new(self, voice_index)
       end
     end
 
@@ -262,9 +258,6 @@ end
       end
     end
 
-
-
-
     def mix_voices(voice_outputs)
       # Implement the logic to mix voice outputs
       # For example, calculate the average or sum of the outputs
@@ -274,7 +267,6 @@ end
     def output_sound(filename = "output.wav")
       format = WavFile::Format.new(:mono, :pcm_16, AUDIO_SAMPLE_RATE, @audio_buffer.size)
       data_chunk = WavFile::DataChunk.new(@audio_buffer.pack('s*')) # 's*' for 16-bit signed PCM data
-
       File.open(filename, "wb") do |file|
         WavFile.write(file, format, [data_chunk])
       end
@@ -291,31 +283,25 @@ end
   # Assuming @global_filter_cutoff is the cutoff frequency and it's already scaled appropriately
   cutoff_frequency = @global_filter_cutoff
   resonance = @global_filter_resonance
-
   # Initialize filter state variables if they don't exist
   @filter_state ||= { last_output: 0.0, last_input: 0.0 }
-
   # Calculate filter coefficients
   dt = 1.0 / AUDIO_SAMPLE_RATE
   rc = 1.0 / (2 * Math::PI * cutoff_frequency)
   alpha = dt / (rc + dt)
-
   # Apply the filter to the audio signal
   filtered_signal = audio_signal.map do |sample|
     unless sample.nil?
       low_pass = @filter_state[:last_output] + alpha * (sample - @filter_state[:last_output])
       band_pass = (sample - @filter_state[:last_input]) - low_pass
       high_pass = sample - low_pass - resonance * band_pass
-
       # Update filter state
       @filter_state[:last_output] = low_pass
       @filter_state[:last_input] = sample
-
       # Depending on your requirement, return low_pass, band_pass, or high_pass
       low_pass # This line can be changed to select the filter type
     end
   end
-
   filtered_signal.compact  # Remove any nil values from the filtered signal
 end
 
