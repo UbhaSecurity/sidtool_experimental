@@ -7,8 +7,8 @@ module SidtoolExperimental
     TIMER_MODE_FLAG = 0b00000010
 
     # Initializer
-    def initialize(state)
-      @state = state
+    def initialize
+
       @parallel_ports = Array.new(2) { {data: 0, direction: 0xFF} }
       @serial_shift_register = 0
     @timers = Array.new(2) do
