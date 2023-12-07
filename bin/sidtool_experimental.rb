@@ -44,8 +44,13 @@ module SidtoolExperimental
   @memory = Memory.new
   @c64_emulator = C64Emulator.new(@memory)
 cia_timers = [CIATimer.new(@c64_emulator), CIATimer.new(@c64_emulator)]
-@c64_emulator.ciaTimerA = cia_timers
-@c64_emulator.ciaTimerB = cia_timers
+# Create individual CIATimer instances
+cia_timer_a = CIATimer.new(@c64_emulator)
+cia_timer_b = CIATimer.new(@c64_emulator)
+
+# Assign the instances to the respective properties of the C64Emulator object
+@c64_emulator.ciaTimerA = cia_timer_a
+@c64_emulator.ciaTimerB = cia_timer_b
 
   @sid6581 = Sid6581.new(memory: @memory, state: nil) # Temporarily with nil state
 
