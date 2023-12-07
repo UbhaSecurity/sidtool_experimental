@@ -29,6 +29,7 @@ module SidtoolExperimental
       @cycle_count = 0
       @audio_buffer = []
       @current_frame = 0
+      puts "Init"
     end
 
     def load_and_run_sid_file(file_path)
@@ -44,6 +45,8 @@ module SidtoolExperimental
         puts "Please specify a SID file to load and run using the -f or --file option."
       end
     end
+
+puts "Should not happend"
 
     private
 
@@ -99,6 +102,7 @@ module SidtoolExperimental
     end
 
     def load_sid_file(file_path)
+      puts "load"
       sid_file = FileReader.read(file_path)
       raise 'Memory not initialized' unless @memory.is_a?(Memory)
       raise 'Invalid start address' unless @memory.valid_address?(sid_file.load_address)
