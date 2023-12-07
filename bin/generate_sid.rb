@@ -23,10 +23,15 @@ title = "Your SID Tune Title".ljust(32, "\x00")
 released = "2023-12-31".ljust(32, "\x00")
 
 header_data = [
-  header, version, data_offset, load_address, init_address, play_address, songs, start_song, speed,
-  flags, clock, sid_model, start_page, page_length, reserved,
-  author, title, released
-].pack("a4 S S S S S S S S S S S S C C S A32 A32 A32")
+  header,
+  [version].pack("S"),
+  [data_offset, load_address, init_address, play_address, songs, start_song, speed].pack("S*"),
+  [flags, clock, sid_model, start_page, page_length, reserved].pack("C*"),
+  author,
+  title,
+  released
+].join
+
 
 
 # Define SID voice and register settings
