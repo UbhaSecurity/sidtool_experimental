@@ -171,6 +171,43 @@ end
       end
     end
 
+# Update a SID register with the provided value
+    def update_sid_register(address, value)
+      case address
+      when *FREQ_LO
+        voice_index = FREQ_LO.index(address)
+        @voices[voice_index].frequency_low = value
+      when *FREQ_HI
+        voice_index = FREQ_HI.index(address)
+        @voices[voice_index].frequency_high = value
+      when *PW_LO
+        voice_index = PW_LO.index(address)
+        @voices[voice_index].pulse_low = value
+      when *PW_HI
+        voice_index = PW_HI.index(address)
+        @voices[voice_index].pulse_high = value
+      when *CR
+        voice_index = CR.index(address)
+        @voices[voice_index].control_register = value
+      when *AD
+        voice_index = AD.index(address)
+        @voices[voice_index].attack_decay = value
+      when *SR
+        voice_index = SR.index(address)
+        @voices[voice_index].sustain_release = value
+      when FC_LO
+        @global_filter_cutoff = (@global_filter_cutoff & 0xFF00) | (value & 0x00FF)
+      when FC_HI
+        @global_filter_cutoff = (@global_filter_cutoff & 0x00FF) | ((value & 0x00FF) << 8)
+      when RES_FILT
+        @global_filter_resonance = value
+      when MODE_VOL
+        @global_volume = value
+      else
+        raise "Unsupported SID register address for write: #{address}"
+      end
+    end
+
 def update_sid_state
   apply_lfo_to_voices
   update_registers
