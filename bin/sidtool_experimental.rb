@@ -43,7 +43,7 @@ module SidtoolExperimental
     begin
 # Initialize Memory and Sid6581 instances
 @memory = Memory.new
-@sid6581 = Sid6581.new(memory: @memory)
+@sid6581 = Sid6581.new(memory: @memory, state: @state)
 
 # First, initialize the C64Emulator instance
 @c64_emulator = C64Emulator.new(@memory, @sid6581)
