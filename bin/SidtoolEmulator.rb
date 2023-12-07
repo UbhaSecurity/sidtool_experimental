@@ -38,7 +38,7 @@ module SidtoolExperimental
       run_emulation
     end
 
-    def run(frames = 15_000, show_usage = false)
+   def run(frames = 15_000, show_usage = false)
       options = parse_command_line_arguments
       if options[:file]
         if show_usage
@@ -58,7 +58,7 @@ module SidtoolExperimental
 
     private
 
-     def parse_command_line_arguments
+ def parse_command_line_arguments
       options = {}
       OptionParser.new do |opts|
         opts.banner = "Usage: #{$0} [options]"
@@ -79,6 +79,7 @@ module SidtoolExperimental
 
       options
     end
+
     def update_timers
       # Update both CIA timers
       @cia_timer_a.update
