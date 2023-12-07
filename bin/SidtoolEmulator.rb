@@ -39,22 +39,25 @@ module SidtoolExperimental
     end
 
    def run(frames = 15_000, show_usage = false)
-      options = parse_command_line_arguments
-      if options[:file]
-        if show_usage
-          puts "Usage: #{$0} [options]"
-        else
-          puts "Loading and running SID file: #{options[:file]}"
-          load_and_run_sid_file(options[:file], frames)
-        end
-      else
-        if show_usage
-          puts "Usage: #{$0} [options]"
-        else
-          puts "Please specify a SID file to load and run using the -f or --file option."
-        end
-      end
+  options = parse_command_line_arguments
+  if options[:file]
+    if show_usage
+      puts "Usage: #{$0} [options]"
+      exit
+    else
+      puts "Loading and running SID file: #{options[:file]}"
+      load_and_run_sid_file(options[:file], frames)
     end
+  else
+    if show_usage
+      puts "Usage: #{$0} [options]"
+      exit
+    else
+      puts "Please specify a SID file to load and run using the -f or --file option."
+    end
+  end
+end
+
 
     private
 
