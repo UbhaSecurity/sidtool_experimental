@@ -24,7 +24,7 @@ module SidtoolExperimental
       @memory = Memory.new
       @cia_timer_a = CIATimer.new(self)
       @cia_timer_b = CIATimer.new(self)
-      @cpu = Mos6510.new(@memory, self)
+      @cpu = Mos6510::Cpu.new(@memory, self) # Create an instance of Mos6510::Cpu
       @sid6581 = Sid6581.new(memory: @memory)
       @cycle_count = 0
       @audio_buffer = []
@@ -79,18 +79,17 @@ module SidtoolExperimental
       setup_sid_environment(sid_file)
     end
 
-    def run_emulation
+   def run_emulation
       until @emulation_finished
         run_cycle
       end
     end
 
-    def run_cycle
+  def run_cycle
+      puts "Running CPU cycle"
       @cpu.step
       # Update SID state and process audio
-      @sid6581.update_sid_state
-      @cia_timer_a.update
-      @cia_timer_b.update
+      update_state
       @current_frame += 1
       handle_frame_update if frame_completed?
     end
@@ -101,8 +100,9 @@ module SidtoolExperimental
       update_sid
     end
 
-    def handle_frame_update
+   def handle_frame_update
       if frame_completed?
+        puts "Handling frame update"
         @cycle_count = 0
         frame_audio_output = @sid6581.process_audio(AUDIO_SAMPLE_RATE)
         @audio_buffer.concat(frame_audio_output)
@@ -142,3 +142,4 @@ end
 # Usage Example
 emulator = SidtoolExperimental::SidtoolEmulator.new
 emulator.load_and_run_sid_file('path_to_sid_file.sid')
+
