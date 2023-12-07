@@ -43,8 +43,10 @@ module SidtoolExperimental
     begin
   @memory = Memory.new
   @c64_emulator = C64Emulator.new(@memory)
-  @c64_emulator.ciaTimerA = CIATimer.new(@c64_emulator)
-  @c64_emulator.ciaTimerB = CIATimer.new(@c64_emulator)
+cia_timers = [CIATimer.new(@c64_emulator), CIATimer.new(@c64_emulator)]
+@c64_emulator.ciaTimerA = cia_timers
+@c64_emulator.ciaTimerB = cia_timers
+
   @sid6581 = Sid6581.new(memory: @memory, state: nil) # Temporarily with nil state
 
   # Now that all dependencies are initialized, create the State instance
