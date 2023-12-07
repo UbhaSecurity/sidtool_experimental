@@ -32,11 +32,12 @@ module SidtoolExperimental
       puts "Init Sidtool Emulator ready"
     end
 
-    def load_and_run_sid_file(file_path)
-      puts "load and run"
-      load_sid_file(file_path)
-      run_emulation
-    end
+def load_and_run_sid_file(file_path, frames = 15_000)
+  puts "load and run"
+  load_sid_file(file_path)
+  run_emulation(frames) # Pass the 'frames' argument here
+end
+
 
   def run(frames = 15_000, show_usage = false)
   options = parse_command_line_arguments
