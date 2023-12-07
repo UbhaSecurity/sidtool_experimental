@@ -26,7 +26,7 @@ header_data = [
   header, version, data_offset, load_address, init_address, play_address, songs, start_song, speed,
   flags, clock, sid_model, start_page, page_length, reserved,
   author, title, released
-].pack("A4 S S S S S S S S S S S S A32 A32 A32")
+].pack("a4 S S S S S S S S S S S S C C S A32 A32 A32")
 
 # Define SID voice and register settings
 voice1 = "\x00\x00\x0f\x09\x00\x07\x00\x00"
