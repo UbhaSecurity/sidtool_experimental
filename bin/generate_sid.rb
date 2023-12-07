@@ -70,6 +70,7 @@ patterns << [
 ]
 
 # Continue defining more patterns and melodies as needed...
+# (Add more patterns and melodies using the same structure)
 
 # Write the SID file
 File.open("output.sid", "wb") do |file|
