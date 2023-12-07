@@ -8,6 +8,7 @@ play_address = 0  # Default value for play address
 songs = 4
 start_song = 1
 speed = 0  # Default speed setting
+
 # Author, title, and released fields (32 bytes each)
 author = "Your Name".ljust(32, "\x00")
 title = "Your SID Tune Title".ljust(32, "\x00")
