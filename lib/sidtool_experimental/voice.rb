@@ -170,8 +170,8 @@ def update_synth_properties
     @previous_midi_note = midi_note
   end
 
-  self.frequency_low = new_frequency_low
-  self.frequency_high = new_frequency_high
+self.frequency_low = @frequency_low
+self.frequency_high = @frequency_high
 
   @current_synth.waveform = waveform
   @current_synth.attack = attack
@@ -239,7 +239,7 @@ end
       phase
     end
 
-def calculate_frequency_hz
+def calculate_frequency_hz(new_frequency_low, new_frequency_high)
   # Convert frequency_low and frequency_high to a 16-bit value
   frequency_value = (@frequency_high << 8) | @frequency_low
 
@@ -445,9 +445,9 @@ end
       normalized_output
     end
 
-def handle_midi_note_change
-  # Calculate the new frequency in Hertz based on your custom logic
-  new_frequency_hz = calculate_frequency_hz
+def handle_midi_note_change(new_midi_note)
+  # Calculate the new frequency in Hertz based on the new MIDI note
+  new_frequency_hz = midi_to_frequency(new_midi_note)
 
   # Your custom logic here
   # For example, you can print the new frequency:
