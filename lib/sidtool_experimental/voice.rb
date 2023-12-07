@@ -29,7 +29,7 @@ module SidtoolExperimental
       @lfsr_state = 0b10101010101010101010101  # Replace with your initial value
     end
 
-    def generate_waveform(phase)
+ def generate_waveform(phase)
       case control_register & 0x0F # Assuming control_register holds the waveform type
       when WAVEFORM_TRIANGLE
         generate_triangle_wave(phase)
@@ -145,15 +145,12 @@ module SidtoolExperimental
       @synth.apply_lfo
     end
 
-    # Apply LFO modulation to voice parameters and filter parameters
-    def apply_lfo_modulation
+  def apply_lfo_modulation
       @synth.apply_lfo  # Apply LFO modulation to synth parameters
 
       # Update SID chip registers with modulated values
-      @sid6581.set_frequency_low(@voice_number, @synth.frequency & 0xFF)
-      @sid6581.set_frequency_high(@voice_number, (@synth.frequency >> 8) & 0xFF)
-      @sid6581.set_pulse_width_low(@voice_number, @synth.pulse_width & 0xFF)
-      @sid6581.set_pulse_width_high(@voice_number, (@synth.pulse_width >> 8) & 0xFF)
+      @sid6581.set_frequency_low(@voice_number, (calculate_frequency_hz & 0xFF)) # Updated this line
+      @sid6581.set_frequency_high(@voice_number, ((calculate_frequency_hz >> 8) & 0xFF)) # Updated this line
 
       # Update filter parameters with LFO modulation if filter is enabled
       modulate_filter_with_lfo if @filter_enabled
@@ -165,9 +162,8 @@ module SidtoolExperimental
       update_synth_properties
     end
 
-    # Update properties of the current synthesizer.
-    def update_synth_properties
-      midi_note = frequency_to_midi(frequency)
+ def update_synth_properties
+      midi_note = frequency_to_midi(calculate_frequency_hz)
       if midi_note != @previous_midi_note
         handle_midi_note_change(midi_note)
         @previous_midi_note = midi_note
@@ -209,10 +205,11 @@ end
       bit_19 == 1
     end
 
-  def generate_frame_output
-    current_time = @state.current_frame.to_f / AUDIO_SAMPLE_RATE
-    frequency = calculate_frequency # Implement this method based on Freq Lo/Hi registers
-    phase = (current_time * frequency) % 1.0
+ def generate_frame_output
+      current_time = @state.current_frame.to_f / AUDIO_SAMPLE_RATE
+      frequency_hz = calculate_frequency_hz # Updated this line
+      phase = (current_time * frequency_hz) % 1.0
+
 
     # Generate the waveform sample based on the current phase
     waveform_sample = generate_waveform(phase) # Implement waveform generation (e.g., triangle, sawtooth, pulse, noise)
@@ -227,27 +224,26 @@ end
     final_sample
   end
 
-# Implementation of calculate_phase
-def calculate_phase(current_frame, audio_sample_rate, frequency_hz)
-  # Calculate time in seconds using current_frame and audio_sample_rate
-  current_time = current_frame.to_f / audio_sample_rate.to_f
+  def calculate_phase(current_frame, audio_sample_rate)
+      # Calculate time in seconds using current_frame and audio_sample_rate
+      current_time = current_frame.to_f / audio_sample_rate.to_f
 
-  # Calculate phase
-  # Phase is the fractional part of the time multiplied by frequency
-  phase = (current_time * frequency_hz) % 1.0
+      # Calculate phase
+      # Phase is the fractional part of the time multiplied by frequency
+      phase = (current_time * calculate_frequency_hz) % 1.0 # Updated this line
 
-  phase
-end
+      phase
+    end
 
-def calculate_frequency_hz
-  # Convert frequency_low and frequency_high to a 16-bit value
-  frequency_value = (@frequency_high << 8) | @frequency_low
+ def calculate_frequency_hz
+      # Convert frequency_low and frequency_high to a 16-bit value
+      frequency_value = (@frequency_high << 8) | @frequency_low
 
-  # Calculate frequency in Hertz using the formula
-  frequency_hz = frequency_value * 0.0596
+      # Calculate frequency in Hertz using the formula
+      frequency_hz = frequency_value * 0.0596
 
-  frequency_hz
-end
+      frequency_hz
+    end
 
     private
 
