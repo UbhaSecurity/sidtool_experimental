@@ -181,7 +181,6 @@ end
       # Implement logic for extended SID file features
     end
   end
-end
 
 # Usage Example with optional frames argument (default: 15,000 frames)
 emulator = SidtoolExperimental::SidtoolEmulator.new
