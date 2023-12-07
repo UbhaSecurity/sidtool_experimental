@@ -14,15 +14,16 @@ module SidtoolExperimental
       @cpu = Mos6510::Cpu.new(@memory, self)
       @ciaTimerA = CIATimer.new(self)
       @ciaTimerB = CIATimer.new(self)
-      @sid6581 = Sid6581.new(memory: @memory)
-      @state = State.new(@cpu, self, [@ciaTimerA, @ciaTimerB], @sid6581)
-      @sid6581.setup(@state) # Setup the SID6581 with state
+      # Create State instance before initializing Sid6581
+      @state = State.new(@cpu, self, [@ciaTimerA, @ciaTimerB])
+      # Pass the state instance to Sid6581
+      @sid6581 = Sid6581.new(memory: @memory, state: @state)
       @cycle_count = 0
       @audio_buffer = [] # Initialize the audio buffer to store sound samples
       @current_frame = 0
     end
 
- def load_sid_file(file_path)
+    def load_sid_file(file_path)
       sid_file = FileReader.read(file_path)
       
       # Ensure that the memory and the SID file's load address are valid
