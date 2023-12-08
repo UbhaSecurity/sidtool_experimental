@@ -1,5 +1,3 @@
-# Updated script to generate a valid PSID version 2 file with melodies and patterns
-
 # Define PSID file header for version 2
 PSID_HEADER_V2 = [
   'P', 'S', 'I', 'D',   # File ID: "PSID"
@@ -103,8 +101,8 @@ patterns.each do |pattern|
 end
 
 # Update the PSID file data length field
-psid_data[6] = psid_data.length & 0xFF
-psid_data[7] = (psid_data.length >> 8) & 0xFF
+psid_data[6] = (psid_data.length >> 8) & 0xFF
+psid_data[7] = psid_data.length & 0xFF
 
 # Write the PSID data to a file
 File.open('output.sid', 'wb') do |file|
