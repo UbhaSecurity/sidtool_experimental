@@ -68,24 +68,31 @@ def convert_melody_to_sid_data(melody, pattern_length = 16)
     end
   end
 
-  return sid_data.pack('C*')
+  return sid_data
 end
 
 # Function to create a SID file
-def create_sid_file(melody, filename, pattern_length = 16)
-# Construct the SID file header
-data_size = melody.size * 7
-header = "#{MAGIC_NUMBER.ljust(4)}#{VERSION.chr}"
-header += [data_size].pack('V')
-header += "\x00" * 20  # Padding
-
-  # Convert the melody to SID data
+def create_sid_file(melody, filename, pattern_length = 16, play_address = 0x1000)
+  # Construct the SID data without header
   sid_data = convert_melody_to_sid_data(melody, pattern_length)
+
+  # Construct the SID file header
+  data_size = sid_data.size
+  header = "#{MAGIC_NUMBER.ljust(4)}#{VERSION.chr}"
+  header += [data_size + 2].pack('V')  # Data size including play addresses
+  header += [play_address].pack('v')   # Play address (word, little-endian)
+  header += [play_address].pack('v')   # Init address (word, little-endian)
+  header += "\x00" * 16  # Padding
+
+  # Calculate and set the header checksum
+  header_checksum = 0
+  header.each_byte { |byte| header_checksum = (header_checksum + byte) & 0xFF }
+  header[16] = (header_checksum ^ 0xFF).chr
 
   # Write the header and SID data to the output file in binary mode
   File.open(filename, 'wb') do |file|  # Use 'wb' for binary mode
     file.write(header)
-    file.write(sid_data)
+    file.write(sid_data.pack('C*'))
   end
 
   puts "SID file '#{filename}' created successfully."
@@ -145,5 +152,6 @@ melody_data = [
   { frequency: 440, waveform: 0, attack_rate: 15, decay_rate: 10, sustain_level: 5, release_rate: 10 }, # A
   { frequency: 392, waveform: 0, attack_rate: 15, decay_rate: 10, sustain_level: 5, release_rate: 10 }, # G
 ]
+
 # Output SID file with enhanced features
-create_sid_file(melody_data, "enhanced_melody.sid", 16)  # Pattern length set to 16
+create_sid_file(melody_data, "enhanced_melody.sid", 16, 0x1000)  # Pattern length set to 16, play address set to 0x1000
