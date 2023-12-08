@@ -71,8 +71,8 @@ def convert_melody_to_sid_data(melody, pattern_length = 16)
   return sid_data.pack('C*')
 end
 
-# Function to create a SID file with enhanced features
-def create_sid_file(melody, filename, pattern_length = 16)
+# Function to create a SID file
+def create_sid_file(melody, filename)
   # Construct the SID file header
   data_size = melody.size * 7
   header = "#{MAGIC_NUMBER.ljust(4)}#{VERSION.chr}"
@@ -80,10 +80,10 @@ def create_sid_file(melody, filename, pattern_length = 16)
   header += "\x00" * 20  # Padding
 
   # Convert the melody to SID data
-  sid_data = convert_melody_to_sid_data(melody, pattern_length)
+  sid_data = convert_melody_to_sid_data(melody)
 
-  # Write the header and SID data to the output file
-  File.open(filename, 'wb') do |file|
+  # Write the header and SID data to the output file in binary mode
+  File.open(filename, 'wb') do |file|  # Use 'wb' for binary mode
     file.write(header)
     file.write(sid_data)
   end
