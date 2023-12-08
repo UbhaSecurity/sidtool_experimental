@@ -72,16 +72,19 @@ def convert_melody_to_sid_data(melody, pattern_length = 16)
 end
 
 # Function to create a SID file
-def create_sid_file(melody, filename, pattern_length = 16, play_address = 0)
-  # Construct the SID file header
+def create_sid_file(melody, filename, play_address = 0x1000)
+  # Calculate data size and padding size based on the length of the melody
   data_size = melody.size * 7
+  padding_size = 0x7C - (data_size + 2) % 0x7C
+
+  # Construct the SID file header
   header = "#{MAGIC_NUMBER.ljust(4)}#{VERSION.to_s.rjust(4, '0')}"
-  header += [data_size + 2].pack('v')  # Data size (plus 2 for play address)
-  header += [play_address].pack('v')  # Play address (default is 0)
-  header += "\x00" * 16  # Padding
+  header += [data_size + 2].pack('V')  # Data size (plus 2 for play address)
+  header += [play_address].pack('v')  # Play address
+  header += "\x00" * padding_size  # Padding
 
   # Convert the melody to SID data
-  sid_data = convert_melody_to_sid_data(melody, pattern_length)
+  sid_data = convert_melody_to_sid_data(melody)
 
   # Write the header and SID data to the output file in binary mode
   File.open(filename, 'wb') do |file|  # Use 'wb' for binary mode
@@ -148,4 +151,5 @@ melody_data = [
 ]
 
 # Output SID file with enhanced features
-create_sid_file(melody_data, "enhanced_melody.sid", 16, 0x1000)  # Pattern length set to 16, play address set to 0x1000
+create_sid_file(melody_data, "enhanced_melody.sid", 0x1000)  # Play address set to 0x1000
+
