@@ -78,6 +78,7 @@ def create_sid_file(melody, filename, pattern_length = 16, play_address = 0x1000
 
   # Construct the SID file header
   data_size = sid_data.size
+  # Construct the SID file header
   header = "#{MAGIC_NUMBER.ljust(4)}#{VERSION.chr}"
   header += [data_size + 2].pack('V')  # Data size including play addresses
   header += [play_address].pack('v')   # Play address (word, little-endian)
