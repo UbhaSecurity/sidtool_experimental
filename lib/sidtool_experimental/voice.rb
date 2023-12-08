@@ -177,19 +177,22 @@ def calculate_attack_amplitude(elapsed_time)
 end
 
 def update_synth_properties
+  # Calculate the MIDI note from the current frequency
   midi_note = frequency_to_midi(calculate_frequency_hz)
+
+  # Handle MIDI note change if necessary
   if midi_note != @previous_midi_note
     handle_midi_note_change(midi_note)
     @previous_midi_note = midi_note
   end
 
-self.frequency_low = @frequency_low
-self.frequency_high = @frequency_high
-
-  @current_synth.waveform = waveform
-  @current_synth.attack = attack
-  @current_synth.decay = decay
-  @current_synth.release = release
+  # Ensure @current_synth is initialized before updating its properties
+  if @current_synth
+    @current_synth.waveform = @waveform if @waveform
+    @current_synth.attack = @attack if @attack
+    @current_synth.decay = @decay if @decay
+    @current_synth.release = @release if @release
+  end
 end
 
 def finish_frame
