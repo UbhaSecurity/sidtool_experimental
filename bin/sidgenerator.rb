@@ -91,6 +91,7 @@ def create_sid_file(melody, filename, pattern_length = 16)
   puts "SID file '#{filename}' created successfully."
 end
 
+
 # Example melody data with enhanced features
 melody_data = [
   # Verse 1
