@@ -72,7 +72,7 @@ def convert_melody_to_sid_data(melody, pattern_length = 16)
 end
 
 # Function to create a SID file
-def create_sid_file(melody, filename)
+def create_sid_file(melody, filename, pattern_length = 16)
   # Construct the SID file header
   data_size = melody.size * 7
   header = "#{MAGIC_NUMBER.ljust(4)}#{VERSION.chr}"
@@ -80,7 +80,7 @@ def create_sid_file(melody, filename)
   header += "\x00" * 20  # Padding
 
   # Convert the melody to SID data
-  sid_data = convert_melody_to_sid_data(melody)
+  sid_data = convert_melody_to_sid_data(melody, pattern_length)
 
   # Write the header and SID data to the output file in binary mode
   File.open(filename, 'wb') do |file|  # Use 'wb' for binary mode
@@ -145,6 +145,5 @@ melody_data = [
   { frequency: 440, waveform: 0, attack_rate: 15, decay_rate: 10, sustain_level: 5, release_rate: 10 }, # A
   { frequency: 392, waveform: 0, attack_rate: 15, decay_rate: 10, sustain_level: 5, release_rate: 10 }, # G
 ]
-
 # Output SID file with enhanced features
-create_sid_file(melody_data, "enhanced_melody.sid", pattern_length = 16)
+create_sid_file(melody_data, "enhanced_melody.sid", 16)  # Pattern length set to 16
