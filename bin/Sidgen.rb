@@ -74,11 +74,12 @@ end
 # Function to create a SID file
 def create_sid_file(melody, filename, pattern_length = 16, play_address = 0)
   # Construct the SID file header
-  data_size = melody.size * 7
-  header = "#{MAGIC_NUMBER.ljust(4)}#{VERSION.to_s.rjust(4, '0')}"
-  header += [data_size].pack('V')
-  header += [play_address].pack('V')  # Play address (default is 0)
-  header += "\x00" * 16  # Padding
+data_size = melody.size * 7
+header = "#{MAGIC_NUMBER.ljust(4)}#{VERSION.to_s.rjust(4, '0')}"
+header += [data_size + 2].pack('v')  # Data size (plus 2 for play address)
+header += [play_address].pack('v')  # Play address (default is 0)
+header += "\x00" * 16  # Padding
+
 
   # Convert the melody to SID data
   sid_data = convert_melody_to_sid_data(melody, pattern_length)
