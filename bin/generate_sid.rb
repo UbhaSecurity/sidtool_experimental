@@ -1,65 +1,3 @@
-# Define the SID header v1 for PSID file
-header = "PSID"
-version = 1
-data_offset = 118  # Size of the header for version 1
-load_address = 0x1000  # Default load address (adjust as needed)
-init_address = 0x1000  # Default init address (adjust as needed)
-play_address = 0x1003  # Default play address (adjust as needed)
-songs = 1
-start_song = 1
-speed = 0  # Default speed setting
-
-# Author, title, and released fields (32 bytes each)
-author = "Your Name".ljust(32, "\x00")
-title = "Your SID Tune Title".ljust(32, "\x00")
-released = "2023-12-31".ljust(32, "\x00")
-
-# Convert header fields to binary format
-header_data = [
-  header, version, data_offset, load_address, init_address, play_address, songs, start_song, speed,
-  author, title, released
-].pack("a4 S S S S S S S S a32 a32 a32")
-
-# Define SID voice and register settings
-voice1 = "\x00\x00\x0f\x09\x00\x07\x00\x00"
-voice2 = "\x00\x00\x0f\x07\x00\x07\x00\x00"
-voice3 = "\x00\x00\x0f\x05\x00\x07\x00\x00"
-
-# Define a simple song structure with 5 patterns
-song_data = [
-  [0, 1, 2, 3, 4],   # Pattern order for voice 1
-  [0, 1, 2, 3, 4],   # Pattern order for voice 2
-  [0, 1, 2, 3, 4],   # Pattern order for voice 3
-]
-
-# Define note and effect data for each pattern
-patterns = []
-
-# Pattern 0 - Melody 1 (Main Track)
-patterns << [
-  # Voice 1
-  [
-    [60, 0x40, 0x0F],  # Note: 60, Attack: 64, Release: 15
-    [62, 0x40, 0x0F],
-    [64, 0x40, 0x0F],
-    [65, 0x40, 0x0F],
-  ],
-  # Voice 2 (Bass Track)
-  [
-    [36, 0x40, 0x0F],
-    [38, 0x40, 0x0F],
-    [40, 0x40, 0x0F],
-    [41, 0x40, 0x0F],
-  ],
-  # Voice 3
-  [
-    [72, 0x40, 0x0F],
-    [71, 0x40, 0x0F],
-    [69, 0x40, 0x0F],
-    [67, 0x40, 0x0F],
-  ],
-]
-
 # Define arpeggio data (e.g., ascending C major chord)
 arpeggio = [0, 4, 7]
 
@@ -88,7 +26,12 @@ freq_table = [
   65,   62,   58,   55,   52,   49,   46,   44,   41,   39,   37,   35,
 ]
 
-# Convert pattern data to binary format
+# Define your melodies and patterns here
+melody1 = [[60, 62, 64, 65], [67, 69, 71, 72], [74, 76, 77, 79]]
+melody2 = [[72, 71, 69, 67], [65, 64, 62, 60], [59, 57, 56, 54]]
+patterns = [melody1, melody2]
+
+# Generate the SID pattern data (using all three voices)
 patterns_data = []
 
 patterns.each do |pattern|
@@ -97,19 +40,21 @@ patterns.each do |pattern|
   pattern.each_with_index do |voice_data, voice_idx|
     voice_pattern = []
 
-    voice_data.each do |note, attack, release|
+    voice_data.each do |note|
       # Convert note value to frequency (adjust as needed)
       frequency = freq_table[note]
 
       # Build the SID voice data
       sid_data = [
         [0x00, (frequency & 0xFF), ((frequency >> 8) & 0xFF)],
-        [attack, release, 0x00],
+        arpeggio,
+        slide_up,
+        slide_down,
+        portamento,
+        volume_down,
+        volume_up,
+        vibrato,
       ].flatten
-
-      # Add arpeggio, slide, portamento, volume, and vibrato effects
-      effects = arpeggio + slide_up + slide_down + portamento + volume_down + volume_up + vibrato
-      sid_data += effects
 
       voice_pattern << sid_data
     end
@@ -120,21 +65,41 @@ patterns.each do |pattern|
   patterns_data << pattern_data
 end
 
-# Generate the SID pattern data (add more patterns as needed)
-pattern_data = patterns_data[0]
+# Generate the SID pattern data (using all three voices)
+pattern_data = patterns_data[0]  # Use the first pattern
 
 # Convert pattern data to binary format
-pattern_data_binary = pattern_data.map do |voice_pattern|
-  voice_pattern.map do |sid_data|
+pattern_data_binary = pattern_data.transpose.map do |voice_data|
+  voice_data.map do |sid_data|
     sid_data.pack("C*")
   end.join
 end.join
 
-# Generate the complete PSID file data
-psid_data = header_data + pattern_data_binary
+# Create a SID file header (adjust as needed)
+sid_header = [
+  0x50, 0x53, 0x49, 0x44, # Magic ID "PSID"
+  0x02, 0x00,             # Version (PSID v2)
+  0x7E, 0x00,             # Data offset
+  0x00, 0x08,             # Load address ($0800)
+  0x00, 0x08,             # Init address ($0800)
+  0x00, 0x00,             # Play address (not used)
+  0x00, 0x00,             # Songs (not used)
+  0x00, 0x00,             # Start song (not used)
+  0x00, 0x00,             # Speed (not used)
+  0x00, 0x00,             # Title (not used)
+  0x00, 0x00,             # Author (not used)
+  0x00, 0x00,             # Copyright (not used)
+  0x00, 0x00,             # Flags (not used)
+  0x00, 0x00,             # Start page (not used)
+  0x00, 0x00,             # Page length (not used)
+].pack("C*")
 
-# Write the PSID data to an output file
-output_file = "output.sid"
-File.binwrite(output_file, psid_data)
+# Combine the header and pattern data to create the complete SID file
+sid_file_data = sid_header + pattern_data_binary
 
-puts "PSID file '#{output_file}' generated successfully!"
+# Write the SID file data to a .sid file
+File.open('output.sid', 'wb') do |file|
+  file.write(sid_file_data)
+end
+
+puts "SID file 'output.sid' generated successfully!"
