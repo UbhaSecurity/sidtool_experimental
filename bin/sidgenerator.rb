@@ -16,13 +16,13 @@ def convert_melody_to_sid_data(melody)
     
     # Create SID data for the note
     sid_note_data = [
-      (frequency & 0xFF).to_i,  # Frequency (low byte)
-      ((frequency >> 8) & 0xFF).to_i,  # Frequency (high byte)
-      waveform.to_i,            # Waveform
-      attack_rate.to_i,         # Attack rate
-      decay_rate.to_i,          # Decay rate
-      sustain_level.to_i,       # Sustain level
-      release_rate.to_i         # Release rate
+      (frequency & 0xFF),            # Frequency (low byte)
+      ((frequency >> 8) & 0xFF),     # Frequency (high byte)
+      waveform,                      # Waveform
+      attack_rate,                   # Attack rate
+      decay_rate,                    # Decay rate
+      sustain_level,                 # Sustain level
+      release_rate                   # Release rate
     ]
 
     sid_data.concat(sid_note_data)
@@ -97,6 +97,3 @@ melody_data = [
 
 # Output SID file
 create_sid_file(melody_data, "itsy_bitsy_spider.sid")
-
-# Output SID file
-create_sid_file(melody_data, "output.sid")
