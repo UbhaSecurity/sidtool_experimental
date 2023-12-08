@@ -169,7 +169,7 @@ def calculate_attack_amplitude(elapsed_time)
   puts "Debug: @current_synth=#{@current_synth.inspect}" if defined?(@current_synth)
 
   # Set the waveform attribute of @current_synth if @waveform is defined
-  @current_synth.waveform = @waveform if defined?(@waveform)
+@current_synth.waveform = @waveform if @waveform
 
   # Continue with the rest of the method...
   @synth.apply_lfo if @synth
