@@ -3,12 +3,16 @@ MAGIC_NUMBER = "PSID"
 VERSION = 2
 
 # Function to convert a melody to SID data with envelope support, arpeggios, multiple voices, and song structure
-def convert_melody_to_sid_data(melody)
+def convert_melody_to_sid_data(melody, pattern_length = 16)
   sid_data = []
   previous_note = nil
   voice = 0
+  pattern_index = 0
+  pattern_repeat = 0
 
-  melody.each do |note|
+  while pattern_repeat < 2  # Repeat the pattern twice (for demonstration)
+    note = melody[pattern_index % melody.size]
+
     frequency = note[:frequency]
     waveform = note[:waveform]
     attack_rate = note[:attack_rate]
@@ -38,7 +42,7 @@ def convert_melody_to_sid_data(melody)
     sid_data.concat(sid_note_data)
 
     # Arpeggio effect (arpeggios every 3 notes)
-    if voice == 1 && melody.index(note) % 3 == 0
+    if voice == 1 && pattern_index % 3 == 0
       arpeggio_note_data = [
         (frequency * 2 & 0xFF),      # Frequency (low byte)
         ((frequency * 2 >> 8) & 0xFF)
@@ -54,13 +58,21 @@ def convert_melody_to_sid_data(melody)
 
     # Update previous_note
     previous_note = note
+
+    # Move to the next pattern index
+    pattern_index += 1
+
+    # Check for pattern repetition
+    if pattern_index % pattern_length == 0
+      pattern_repeat += 1
+    end
   end
 
   return sid_data.pack('C*')
 end
 
 # Function to create a SID file with enhanced features
-def create_sid_file(melody, filename)
+def create_sid_file(melody, filename, pattern_length = 16)
   # Construct the SID file header
   data_size = melody.size * 7
   header = "#{MAGIC_NUMBER.ljust(4)}#{VERSION.chr}"
@@ -68,7 +80,7 @@ def create_sid_file(melody, filename)
   header += "\x00" * 20  # Padding
 
   # Convert the melody to SID data
-  sid_data = convert_melody_to_sid_data(melody)
+  sid_data = convert_melody_to_sid_data(melody, pattern_length)
 
   # Write the header and SID data to the output file
   File.open(filename, 'wb') do |file|
@@ -118,4 +130,4 @@ melody_data = [
 ]
 
 # Output SID file with enhanced features
-create_sid_file(melody_data, "enhanced_melody.sid")
+create_sid_file(melody_data, "enhanced_melody.sid", pattern_length = 16)
