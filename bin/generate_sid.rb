@@ -84,26 +84,22 @@ patterns.each do |pattern|
 
       # Build the SID voice data
       sid_data = [
-        [0x00, (frequency & 0xFF), ((frequency >> 8) & 0xFF)],
-        [attack, release, 0x00],
-      ].flatten
+        0x00, (frequency & 0xFF), ((frequency >> 8) & 0xFF),
+        attack, release, 0x00,
+      ]
 
       # Add arpeggio, slide, portamento, volume, and vibrato effects
       effects = arpeggio + slide_up + slide_down + portamento + volume_down + volume_up + vibrato
-      sid_data += effects
+      sid_data.concat(effects)
 
-      voice_pattern << sid_data
+      voice_pattern.concat(sid_data)
     end
 
-    pattern_data << voice_pattern
+    pattern_data.concat(voice_pattern)
   end
 
   # Add the voice pattern data to the PSID data
-  pattern_data.each do |voice_pattern|
-    voice_pattern.each do |sid_data|
-      psid_data.concat(sid_data)
-    end
-  end
+  psid_data.concat(pattern_data)
 end
 
 # Update the PSID file data length field
