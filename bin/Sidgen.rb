@@ -69,8 +69,9 @@ def convert_melody_to_sid_data(melody, pattern_length = 16)
 
   return sid_data
 end
+
 # Function to create a SID file
-def create_sid_file(melody, filename, play_address = 0x1000, sid_version = 2)  # Add sid_version parameter with a default value of 2
+def create_sid_file(melody, filename, play_address = 0x1000, sid_version = 2)
   # Calculate data size and padding size based on the length of the melody
   data_size = melody.size * 7
   padding_size = 0x7C - (data_size + 4) % 0x7C  # Include 4 bytes for the version field
@@ -81,10 +82,16 @@ def create_sid_file(melody, filename, play_address = 0x1000, sid_version = 2)  #
     melody = melody[0, (0x7C - 4) / 7]
   end
 
-  # Construct the SID file header
-  header = "#{MAGIC_NUMBER.ljust(4)}#{[sid_version].pack('V')}"  # Version field is now 4 bytes
+  # Construct the SID file header with the extra '00' in front of the version
+  header = "#{MAGIC_NUMBER.ljust(4)}#{"%04X" % sid_version}"  # Version field is now 4 bytes
+
+  # Calculate the version field's checksum (sum of the ASCII values)
+  version_checksum = 0
+  header.each_byte { |byte| version_checksum += byte }
+
   header += [data_size + 4].pack('V')  # Data size (plus 4 for play address and version)
   header += [play_address].pack('V')  # Play address (4 bytes)
+  header += [version_checksum].pack('V')  # Version field checksum (4 bytes)
   header += "\x00" * padding_size  # Padding with zero bytes
 
   # Convert the melody to SID data
@@ -98,7 +105,6 @@ def create_sid_file(melody, filename, play_address = 0x1000, sid_version = 2)  #
 
   puts "SID file '#{filename}' created successfully."
 end
-
 # Example melody data with enhanced features
 melody_data = [
   # Verse 1
