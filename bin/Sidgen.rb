@@ -71,19 +71,13 @@ def convert_melody_to_sid_data(melody, pattern_length = 16)
 end
 
 # Function to create a SID file
-def create_sid_file(melody, filename, play_address = 0x1000, sid_version = 2)
+def create_sid_file(melody, filename, play_address = 0x1000)
   # Calculate data size and padding size based on the length of the melody
   data_size = melody.size * 7
   padding_size = 0x7C - (data_size + 4) % 0x7C  # Include 4 bytes for the version field
 
-  # Truncate melody data if it's too long to fit within the padding
-  if melody.size > (0x7C - 4) / 7
-    puts "Warning: Melody data is too long and will be truncated to fit within the padding."
-    melody = melody[0, (0x7C - 4) / 7]
-  end
-
-  # Construct the SID file header with the extra '00' in front of the version
-  header = "#{MAGIC_NUMBER.ljust(4)}#{"%04X" % sid_version}"  # Version field is now 4 bytes
+  # Construct the SID file header with "50534944000200"
+  header = "#{MAGIC_NUMBER.ljust(4)}#{VERSION.to_s(16).rjust(4, '0')}"  # Version field is now 4 bytes
 
   # Calculate the version field's checksum (sum of the ASCII values)
   version_checksum = 0
