@@ -1,6 +1,5 @@
-# Constants for SID header
 MAGIC_NUMBER = "PSID"
-VERSION = 2
+VERSION = 0x0002  # Hexadecimal representation of version 0002
 
 # Function to convert a melody to SID data with envelope support, arpeggios, multiple voices, and song structure
 def convert_melody_to_sid_data(melody, pattern_length = 16)
@@ -71,15 +70,21 @@ def convert_melody_to_sid_data(melody, pattern_length = 16)
   return sid_data
 end
 # Function to create a SID file
-def create_sid_file(melody, filename, play_address = 0x1000)
+def create_sid_file(melody, filename, play_address = 0x1000, sid_version = 2)  # Add sid_version parameter with a default value of 2
   # Calculate data size and padding size based on the length of the melody
   data_size = melody.size * 7
-  padding_size = 0x7C - (data_size + 2) % 0x7C
+  padding_size = 0x7C - (data_size + 4) % 0x7C  # Include 4 bytes for the version field
+
+  # Truncate melody data if it's too long to fit within the padding
+  if melody.size > (0x7C - 4) / 7
+    puts "Warning: Melody data is too long and will be truncated to fit within the padding."
+    melody = melody[0, (0x7C - 4) / 7]
+  end
 
   # Construct the SID file header
-  header = "#{MAGIC_NUMBER.ljust(4)}#{[VERSION].pack('v')}"  # Version field is now 2 bytes
-  header += [data_size + 2].pack('V')  # Data size (plus 2 for play address)
-  header += [play_address].pack('v')  # Play address
+  header = "#{MAGIC_NUMBER.ljust(4)}#{[sid_version].pack('V')}"  # Version field is now 4 bytes
+  header += [data_size + 4].pack('V')  # Data size (plus 4 for play address and version)
+  header += [play_address].pack('V')  # Play address (4 bytes)
   header += "\x00" * padding_size  # Padding with zero bytes
 
   # Convert the melody to SID data
