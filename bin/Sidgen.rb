@@ -6,6 +6,7 @@ PADDING_SIZE_BASE = 0x7C
 VOICE_CHANGE_POINT = 2
 STACCATO_DELAY = 0x00
 VOICE_2_SET = 0x0D
+HEADER_SIZE_V2 = 0x007C  # Fixed size of the header for version 2
 
 # Function to calculate SID note data
 def sid_note_data(note)
@@ -53,22 +54,31 @@ def convert_melody_to_sid_data(melody, pattern_length = DEFAULT_PATTERN_LENGTH)
   sid_data
 end
 
-def create_sid_header(data_size, play_address)
-  # Correct the version field to be a 2-byte hexadecimal
-  version_hex = [VERSION].pack('n')  # 'n' is for 16-bit unsigned in network (big-endian) byte order
+# Function to create a SID file header
+def create_sid_header(melody_length, play_address)
+  data_offset = [HEADER_SIZE_V2].pack('n')  # 'n' for 16-bit unsigned big-endian
+  load_address = [0].pack('v')              # Assuming load address is in C64 data
+  init_address = [play_address].pack('v')   # Assuming init address is play_address
+  play_address = [0].pack('v')              # Assuming interrupt handler is used
 
-  header = "#{MAGIC_NUMBER}#{version_hex}"
-  version_checksum = header.each_byte.sum
-  padding_size = PADDING_SIZE_BASE - ((header.size + data_size) % PADDING_SIZE_BASE)
+  songs = [1].pack('v')                     # Number of songs
+  start_song = [1].pack('v')                # Default start song
+  speed = [0].pack('N')                     # Speed, 32-bit big-endian
 
-  header + [data_size + 4].pack('V') + [play_address].pack('v') + [version_checksum].pack('v') + "\x00" * padding_size
+  title = "Converted Melody".ljust(32, "\x00")  # Example title
+  author = "Composer".ljust(32, "\x00")         # Example author
+  released = "2023".ljust(32, "\x00")           # Example release year
+
+  # Concatenating all parts of the header
+  header = "#{MAGIC_NUMBER}#{[VERSION].pack('n')}#{data_offset}#{load_address}#{init_address}#{play_address}#{songs}#{start_song}#{speed}#{title}#{author}#{released}"
+
+  header
 end
 
 # Function to create a SID file
 def create_sid_file(melody, filename, play_address = DEFAULT_PLAY_ADDRESS)
   sid_data = convert_melody_to_sid_data(melody)
-  data_size = sid_data.size
-  header = create_sid_header(data_size, play_address)
+  header = create_sid_header(sid_data.size, play_address)
 
   File.open(filename, 'wb') do |file|
     file.write(header)
@@ -77,12 +87,6 @@ def create_sid_file(melody, filename, play_address = DEFAULT_PLAY_ADDRESS)
 
   puts "SID file '#{filename}' created successfully."
 end
-
-# Example melody data (unchanged)
-melody_data = [
-  # ... melody data here ...
-]
-
 
 # Example melody data with enhanced features
 melody_data = [
