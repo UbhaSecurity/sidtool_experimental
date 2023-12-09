@@ -1,15 +1,15 @@
-# Frequency mapping for notes (simplified)
+# Made-up frequency values for notes, representing possible SID register values
 NOTE_FREQUENCIES = {
-  'C' => 261.63, 'D' => 293.66, 'E' => 329.63, 
-  'F' => 349.23, 'G' => 392.00, 'A' => 440.00, ' ' => 0  # Space represents a rest
+  'C' => 1000, 'D' => 1050, 'E' => 1100, 
+  'F' => 1150, 'G' => 1200, 'A' => 1250, ' ' => 0  # Space represents a rest
 }
 
 # Function to calculate SID note data for multiple voices
 def sid_note_data(note_frequencies, waveform, attack_rate, decay_rate, sustain_level, release_rate)
   note_frequencies.map do |frequency|
     [
-      (frequency & 0xFF),
-      ((frequency >> 8) & 0xFF),
+      (frequency & 0xFF),          # Low byte
+      ((frequency >> 8) & 0xFF),   # High byte
       waveform,
       attack_rate,
       decay_rate,
