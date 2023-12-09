@@ -77,7 +77,7 @@ def create_sid_file(melody, filename, play_address = 0x1000)
   data_size = melody.size * 7
 
   # Construct the SID file header with "505349440002"
-  header = "#{MAGIC_NUMBER.ljust(4)}#{[VERSION].pack('v')}"  # Version field is now 2 bytes
+  header = "#{MAGIC_NUMBER.ljust(4)}#{VERSION.to_s(16).rjust(4, '0')}"  # Version field is now 2 bytes
 
   # Calculate the version field's checksum (sum of the ASCII values)
   version_checksum = 0
