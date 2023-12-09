@@ -1,15 +1,15 @@
-# Made-up frequency values for notes, representing possible SID register values
+# Approximate SID frequency values for notes
 NOTE_FREQUENCIES = {
-  'C' => 1000, 'D' => 1050, 'E' => 1100, 
-  'F' => 1150, 'G' => 1200, 'A' => 1250, ' ' => 0  # Space represents a rest
+  'C' => 2000, 'D' => 2200, 'E' => 2400, 
+  'F' => 2600, 'G' => 2800, 'A' => 3000, ' ' => 0  # Space for rest
 }
 
 # Function to calculate SID note data for multiple voices
 def sid_note_data(note_frequencies, waveform, attack_rate, decay_rate, sustain_level, release_rate)
   note_frequencies.map do |frequency|
     [
-      (frequency & 0xFF),          # Low byte
-      ((frequency >> 8) & 0xFF),   # High byte
+      (frequency & 0xFF),
+      ((frequency >> 8) & 0xFF),
       waveform,
       attack_rate,
       decay_rate,
@@ -23,12 +23,10 @@ end
 def convert_melody_to_sid_data(melody)
   sid_data = []
   melody.each_slice(3) do |notes|
-    # Pad the notes array to ensure it has 3 elements
     notes = notes.fill(' ', notes.length...3)
-
     frequencies = notes.map { |note| NOTE_FREQUENCIES[note] }
-    waveform = 0  # Simplified waveform for all voices
-    attack_rate, decay_rate, sustain_level, release_rate = [15, 10, 5, 10]  # Simplified ADSR
+    waveform = 0x11  # Pulse waveform with gate bit set
+    attack_rate, decay_rate, sustain_level, release_rate = [15, 0, 15, 0]  # Example ADSR
 
     sid_data.concat(sid_note_data(frequencies, waveform, attack_rate, decay_rate, sustain_level, release_rate))
   end
