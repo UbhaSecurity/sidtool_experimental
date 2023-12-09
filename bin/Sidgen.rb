@@ -70,7 +70,6 @@ def convert_melody_to_sid_data(melody, pattern_length = 16)
 
   return sid_data
 end
-
 # Function to create a SID file
 def create_sid_file(melody, filename, play_address = 0x1000)
   # Calculate data size and padding size based on the length of the melody
