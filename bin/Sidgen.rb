@@ -74,18 +74,18 @@ end
 def create_sid_file(melody, filename, play_address = 0x1000)
   # Calculate data size and padding size based on the length of the melody
   data_size = melody.size * 7
-  padding_size = 0x7C - (data_size + 4) % 0x7C  # Include 4 bytes for the version field
+  padding_size = 0x7C - ((header.size + data_size) % 0x7C)
 
-  # Construct the SID file header with "50534944000200"
-  header = "#{MAGIC_NUMBER.ljust(4)}#{VERSION.to_s(16).rjust(4, '0')}"  # Version field is now 4 bytes
+  # Construct the SID file header with "505349440002"
+  header = "#{MAGIC_NUMBER.ljust(4)}#{VERSION.to_s(16).rjust(4, '0')}"  # Version field is now 2 bytes
 
   # Calculate the version field's checksum (sum of the ASCII values)
   version_checksum = 0
   header.each_byte { |byte| version_checksum += byte }
 
   header += [data_size + 4].pack('V')  # Data size (plus 4 for play address and version)
-  header += [play_address].pack('V')  # Play address (4 bytes)
-  header += [version_checksum].pack('V')  # Version field checksum (4 bytes)
+  header += [play_address].pack('v')  # Play address (2 bytes)
+  header += [version_checksum].pack('v')  # Version field checksum (2 bytes)
   header += "\x00" * padding_size  # Padding with zero bytes
 
   # Convert the melody to SID data
