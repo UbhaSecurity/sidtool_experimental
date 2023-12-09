@@ -81,7 +81,7 @@ def create_sid_file(melody, filename, play_address = 0x1000)
   header = "#{MAGIC_NUMBER.ljust(4)}#{[VERSION].pack('v')}"  # Version field is now 2 bytes
   header += [data_size + 2].pack('V')  # Data size (plus 2 for play address)
   header += [play_address].pack('v')  # Play address
-  header += "\x00" * padding_size  # Padding
+  header += "\x00" * padding_size  # Padding with zero bytes
 
   # Convert the melody to SID data
   sid_data = convert_melody_to_sid_data(melody)
