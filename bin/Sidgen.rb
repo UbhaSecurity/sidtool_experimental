@@ -53,9 +53,11 @@ def convert_melody_to_sid_data(melody, pattern_length = DEFAULT_PATTERN_LENGTH)
   sid_data
 end
 
-# Function to create a SID file header
 def create_sid_header(data_size, play_address)
-  header = "#{MAGIC_NUMBER}#{VERSION.to_s(16).rjust(4, '0')}"
+  # Correct the version field to be a 2-byte hexadecimal
+  version_hex = [VERSION].pack('n')  # 'n' is for 16-bit unsigned in network (big-endian) byte order
+
+  header = "#{MAGIC_NUMBER}#{version_hex}"
   version_checksum = header.each_byte.sum
   padding_size = PADDING_SIZE_BASE - ((header.size + data_size) % PADDING_SIZE_BASE)
 
